@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+  <title>魔方小勇士：3D 奇幻大冒险</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    /* 3D 舞台与渲染引擎 */
+    .scene-viewport {
+      perspective: 850px;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    .cube-world {
+      width: 0;
+      height: 0;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.08s ease-out;
+    }
+    .pivot-group, .cubie-layer {
+      position: absolute;
+      transform-style: preserve-3d;
+      left: 0;
+      top: 0;
+    }
+    .cubie {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      margin-left: -29px;
+      margin-top: -29px;
+      transform-style: preserve-3d;
+      background: #0f172a;
+      border-radius: 8px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+      transition: none;
+    }
+    .face {
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      box-sizing: border-box;
+      padding: 4px;
+      background: #0f172a;
+      border-radius: 8px;
+      backface-visibility: hidden;
+    }
+    .sticker {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.45), inset 0 -3px 4px rgba(0,0,0,0.3);
+      transition: opacity 0.2s, filter 0.2s;
+    }
+    /* 3D 面物理朝向校准 (Y轴朝下) */
+    .face-u { transform: rotateX(90deg) translateZ(29px); }
+    .face-d { transform: rotateX(-90deg) translateZ(29px); }
+    .face-f { transform: translateZ(29px); }
+    .face-b { transform: rotateY(180deg) translateZ(29px); }
+    .face-l { transform: rotateY(-90deg) translateZ(29px); }
+    .face-r { transform: rotateY(90deg) translateZ(29px); }
+
+    /* 贴纸糖果高亮配色 */
+    .sticker-u { background: #facc15; } /* 金黄顶面 */
+    .sticker-d { background: #ffffff; } /* 纯白底面 */
+    .sticker-f { background: #ef4444; } /* 鲜红前面 */
+    .sticker-b { background: #f97316; } /* 活力橙后面 */
+    .sticker-l { background: #3b82f6; } /* 天空蓝左面 */
+    .sticker-r { background: #10b981; } /* 翡翠绿右面 */
+    .sticker-none { background: #1e293b; box-shadow: none; opacity: 0.06; }
+
+    /* 儿童卡片呼吸动效与弹跳 */
+    @keyframes bounce-subtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .animate-float {
+      animation: bounce-subtle 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-btn {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    .guide-pulse {
+      animation: pulse-btn 1.4s infinite ease-in-out;
+      border-color: #f59e0b !important;
+    }
+
+    /* 滚动条美化 */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased p-2 sm:p-4 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
+  
+  <!-- 全屏礼花庆祝 Canvas (通关时爆发) -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
+
+  <div class="max-w-5xl mx-auto w-full space-y-3">
+    
+    <!-- 顶部导航与小勇士成就栏 -->
+    <header class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-3 sm:p-4 shadow-lg backdrop-blur-md flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-2xl shadow-md animate-float">
+          🦁
+        </div>
+        <div>
+          <h1 class="text-base sm:text-xl font-black tracking-wide text-amber-400 flex items-center gap-2">
+            <span>魔方小勇士：3D 奇幻大冒险</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40">儿童趣味版</span>
+          </h1>
+          <p class="text-xs text-slate-400 font-medium">
+            告别枯燥字母 • 乘电梯 • 捉迷藏 • 变小金鱼
+          </p>
+        </div>
+      </div>
+
+      <!-- 快捷工具与星星奖励 -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold text-xs sm:text-sm">
+          <span>⭐</span>
+          <span id="total-stars-count">0</span>
+          <span class="text-xs text-amber-500/80">/ 15 星</span>
+        </div>
+        
+        <button id="btn-sound-toggle" class="p-2 rounded-2xl bg-slate-700 hover:bg-slate-600 text-sm transition" title="开关音效">
+          🔊
+        </button>
+
+        <button id="btn-open-tools" class="px-3 py-1.5 rounded-2xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs font-bold transition flex items-center gap-1">
+          🪄 魔法玩具箱
+        </button>
+
+        <button id="btn-open-color-input" class="px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-md active:scale-95">
+          🎨 实物魔方求助
+        </button>
+      </div>
+    </header>
+
+    <!-- 关卡地图导航胶囊 (5大冒险岛 + 定制实物带练) -->
+    <nav class="bg-slate-800/80 border border-slate-700/70 rounded-3xl p-2 shadow-sm flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
+      <button id="tab-custom-solve" class="level-tab-btn hidden min-w-[130px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md" data-level="custom">
+        <span>🎯</span>
+        <span>手里的魔方定制带练</span>
+        <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-black/20 text-slate-950 font-mono">实物</span>
+      </button>
+      <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md" data-level="1">
+        <span>🌼</span>
+        <span>1. 小黄花农场</span>
+        <span class="level-star-badge text-[10px]">⭐⭐⭐</span>
+      </button>
+      <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60" data-level="2">
+        <span>🛗</span>
+        <span>2. 神奇电梯楼</span>
+        <span class="level-star-badge text-[10px]"></span>
+      </button>
+      <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60" data-level="3">
+        <span>🐿️</span>
+        <span>3. 森林捉迷藏</span>
+        <span class="level-star-badge text-[10px]"></span>
+      </button>
+      <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60" data-level="4">
+        <span>🐟</span>
+        <span>4. 金鱼跃龙门</span>
+        <span class="level-star-badge text-[10px]"></span>
+      </button>
+      <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60" data-level="5">
+        <span>🦉</span>
+        <span>5. 猫头鹰守卫</span>
+        <span class="level-star-badge text-[10px]"></span>
+      </button>
+    </nav>
+
+    <!-- 主交互舞台区：左侧 3D 萌化魔方，右侧趣味剧情与大按键操作盘 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
+      
+      <!-- 左侧：3D 魔方视口 (占 7 列) -->
+      <div class="lg:col-span-7 bg-slate-800/90 border border-slate-700/80 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden min-h-[390px] sm:min-h-[440px] shadow-md">
+        
+        <!-- 顶部快捷辅助按钮 -->
+        <div class="w-full flex items-center justify-between z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-3 py-1 rounded-xl bg-slate-900/80 border border-slate-700 text-slate-300 flex items-center gap-1.5">
+              <span>🎯 目标：</span>
+              <strong id="stage-task-text" class="text-amber-400">把花瓣送回土壤</strong>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button id="btn-cam-reset" class="px-2.5 py-1 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
+              🔄 视角回正
+            </button>
+            <button id="btn-zoom-in" class="w-7 h-7 flex items-center justify-center rounded-xl bg-slate-700 hover:bg-slate-600 text-sm font-bold">+</button>
+            <button id="btn-zoom-out" class="w-7 h-7 flex items-center justify-center rounded-xl bg-slate-700 hover:bg-slate-600 text-sm font-bold">-</button>
+          </div>
+        </div>
+
+        <!-- 3D 魔方世界 -->
+        <div id="scene-viewport" class="scene-viewport w-full flex-1 flex items-center justify-center cursor-grab active:cursor-grabbing my-2">
+          <div id="cube-world" class="cube-world" style="transform: rotateX(-24deg) rotateY(-34deg) scale3d(1, 1, 1);">
+            <div id="pivot" class="pivot-group"></div>
+            <div id="cube" class="cubie-layer"></div>
+          </div>
+        </div>
+
+        <!-- 角色剧情对话气泡 (皮皮狐导师指导语) -->
+        <div class="w-full z-10 bg-slate-900/90 border border-amber-500/40 rounded-2xl p-3 flex items-start gap-2.5 shadow-lg">
+          <div class="text-2xl animate-float flex-shrink-0">🦊</div>
+          <div class="flex-1 space-y-0.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-400">皮皮狐导师：</span>
+              <span id="step-hint-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono">第 1/4 步</span>
+            </div>
+            <p id="dialog-bubble-text" class="text-xs text-slate-200 leading-relaxed font-medium">
+              哈喽小勇士！白色花瓣已经在顶层啦，先转动顶层找找好朋友吧！
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 右侧：关卡交互与大按键操作盘 (占 5 列) -->
+      <div class="lg:col-span-5 flex flex-col gap-3">
+        
+        <!-- 闯关面板 -->
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-4 shadow-md flex-1 flex flex-col justify-between space-y-3">
+          
+          <!-- 关卡模式切换与重置 -->
+          <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+            <div class="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-2xl text-xs font-bold">
+              <button id="mode-btn-story" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm transition">
+                📖 听故事演示
+              </button>
+              <button id="mode-btn-play" class="px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition">
+                🎮 小勇士挑战
+              </button>
+            </div>
+
+            <button id="btn-restart-level" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
+              🔄 重新摆局
+            </button>
+          </div>
+
+          <!-- 关卡故事儿歌口诀 -->
+          <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-amber-400">
+              <span>🎶 动作魔法儿歌：</span>
+            </div>
+            <div id="level-rhyme-text" class="font-bold text-slate-100 text-xs tracking-wide">
+              转转顶层对颜色，前门翻滚进土壤！
+            </div>
+          </div>
+
+          <!-- 核心拟人化动作大按键区 (彻底消除抽象字母代号) -->
+          <div class="space-y-2 flex-1 flex flex-col justify-center">
+            <span class="text-xs font-bold text-slate-400">✨ 点击魔法动作盘（跟着发光的按键点）：</span>
+            
+            <div id="action-buttons-grid" class="grid grid-cols-2 gap-2.5">
+              <!-- 由 JS 根据当前关卡动态填充大号图标按钮 -->
+            </div>
+          </div>
+
+          <!-- 关卡动作节拍进度点 -->
+          <div class="pt-2 border-t border-slate-700/80 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-medium">通关进度：</span>
+              <div id="action-dots-bar" class="flex items-center gap-1.5">
+                <!-- 节拍圆点 -->
+              </div>
+            </div>
+
+            <button id="btn-auto-step" class="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-1">
+              <span>▶ 走一步</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 底部：魔法玩具箱弹窗 (模态框) -->
+    <div id="modal-magic-tools" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-40 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 max-w-lg w-full space-y-4 shadow-2xl relative">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🪄</span>
+            <h3 class="font-black text-lg text-amber-400">魔法玩具箱与测速仪</h3>
+          </div>
+          <button id="btn-close-tools" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold">✕</button>
+        </div>
+
+        <!-- 玩具 1: 6次神迹探索 -->
+        <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-sm text-slate-200">🪞 6次魔法镜 (连续做6次自动复原)</span>
+            <button id="btn-magic-six" class="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-slate-950 font-black text-xs transition">
+              施展 6 次魔法！
+            </button>
+          </div>
+          <p class="text-xs text-slate-400">
+            带女儿见证奇迹：连续做 6 次“电梯接人”，魔方会像施了魔法一样自动全复原！
+          </p>
+        </div>
+
+        <!-- 玩具 2: 儿童拍击计时器 -->
+        <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2 text-center">
+          <div class="text-xs font-bold text-slate-400">⏱️ 儿童拍击大计时器</div>
+          <div id="timer-display" class="font-mono text-3xl font-black text-amber-400 tracking-wider">00.00 秒</div>
+          <button id="btn-timer-trigger" class="w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg active:scale-95 transition">
+        <!-- 玩具 3: 自由打乱与一键复原 -->
+        <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-between">
+          <div>
+            <div class="font-bold text-sm text-slate-200">🎲 随心打乱 / 瞬时复原</div>
+            <div class="text-xs text-slate-400">用来做手速练习前的任意打乱</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-sandbox-scramble" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition">🎲 随机打乱</button>
+            <button id="btn-sandbox-solve" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition">✨ 瞬间复原</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 实物魔方涂色录入大弹窗 -->
+    <div id="modal-color-input" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div class="bg-slate-900 border border-slate-700 rounded-3xl p-4 sm:p-5 max-w-2xl w-full space-y-3.5 shadow-2xl relative my-auto">
+        
+        <!-- 弹窗头部 -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🎨</span>
+            <div>
+              <h3 class="font-black text-sm sm:text-base text-emerald-400">实物魔方填色录入与智能体检</h3>
+              <p class="text-[11px] text-slate-400 font-medium">手拿魔方：<strong>黄色中心朝上，红色中心正对你</strong>。按顺序点出颜色！</p>
+            </div>
+          </div>
+          <button id="btn-close-color-modal" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold flex items-center justify-center">✕</button>
+        </div>
+
+        <!-- 实物进度极速对齐模板 (根据魔方规则一键填好大半) -->
+        <div class="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/80 space-y-1.5 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between text-xs gap-1">
+            <span class="text-amber-400 font-bold flex items-center gap-1.5">
+              <span>⚡ 常见阶段一键套用（秒省 80% 逐格点涂）：</span>
+            </span>
+            <span class="text-[11px] text-slate-400">选择最接近手里的状态 ➔ 只需微调剩余色块</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs font-bold">
+            <button id="btn-preset-cross" class="py-1.5 px-2 rounded-xl bg-slate-700/70 hover:bg-slate-600 text-slate-200 border border-slate-600/70 transition flex items-center justify-center gap-1 hover:border-amber-400/50 active:scale-95">
+              <span>🌼 底十字已好</span>
+            </button>
+            <button id="btn-preset-layer1" class="py-1.5 px-2 rounded-xl bg-slate-700/70 hover:bg-slate-600 text-sky-300 border border-slate-600/70 transition flex items-center justify-center gap-1 hover:border-sky-400/50 active:scale-95">
+              <span>🏢 第一层已好</span>
+            </button>
+            <button id="btn-preset-f2l" class="py-1.5 px-2 rounded-xl bg-slate-700/70 hover:bg-slate-600 text-emerald-300 border border-slate-600/70 transition flex items-center justify-center gap-1 hover:border-emerald-400/50 active:scale-95">
+              <span>🌲 前两层已好</span>
+            </button>
+            <button id="btn-preset-fish" class="py-1.5 px-2 rounded-xl bg-slate-700/70 hover:bg-slate-600 text-amber-300 border border-slate-600/70 transition flex items-center justify-center gap-1 hover:border-amber-400/50 active:scale-95">
+              <span>🐟 顶面小鱼形态</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2D 十字展开图涂色区 (4列网格) -->
+        <div class="flex flex-col items-center justify-center py-1">
+          <div class="inline-grid grid-cols-4 gap-2 sm:gap-3 text-center text-[10px] font-bold select-none">
+            
+            <!-- Row 1: 空白, U (顶黄), 空白, 空白 -->
+            <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
+            <div class="flex flex-col items-center">
+              <span class="text-amber-400 text-xs mb-1 font-black">顶面 (U 黄)</span>
+              <div id="face-grid-u" class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner"></div>
+            </div>
+            <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
+            <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
+
+            <!-- Row 2: L (左蓝), F (前红), R (右绿), B (后橙) -->
+            <div class="flex flex-col items-center">
+              <span class="text-blue-400 text-xs mb-1 font-black">左面 (L 蓝)</span>
+              <div id="face-grid-l" class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner"></div>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-rose-400 text-xs mb-1 font-black">前面 (F 红)</span>
+              <div id="face-grid-f" class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner"></div>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-emerald-400 text-xs mb-1 font-black">右面 (R 绿)</span>
+              <div id="face-grid-r" class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner"></div>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-orange-400 text-xs mb-1 font-black">后面 (B 橙)</span>
+              <div id="face-grid-b" class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner"></div>
+            </div>
+
+            <!-- Row 3: 空白, D (底白), 空白, 空白 -->
+            <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
+            <div class="flex flex-col items-center">
+              <span class="text-slate-200 text-xs mb-1 font-black">底面 (D 白)</span>
+              <div id="face-grid-d" class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner"></div>
+            </div>
+            <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
+            <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
+
+          </div>
+        </div>
+
+        <!-- 选色控制台与快捷拾色器 -->
+        <div class="bg-slate-800/90 p-3 rounded-2xl border border-slate-700/80 space-y-2 shadow-lg">
+          <div class="flex flex-wrap items-center justify-between gap-1 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-300 font-bold">🎯 操作目标：</span>
+              <span id="selected-tile-badge" class="px-2.5 py-1 rounded-xl bg-amber-400/20 text-amber-300 font-bold border border-amber-400/40 text-xs">
+                👉 点选上方任意色块
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-400">💡 提示：点击色块可<strong>直接循环换色</strong>，同块边缘同步发光</span>
+          </div>
+
+          <!-- 6色快速直选大按钮 -->
+          <div class="grid grid-cols-6 gap-1.5 sm:gap-2 text-center text-xs font-bold">
+            <button class="palette-btn p-2 rounded-xl border-2 border-amber-400 bg-yellow-400 text-slate-950 flex flex-col items-center shadow-md active:scale-95 transition hover:brightness-105" data-color="Y">
+              <span class="text-sm">🟡</span>
+              <span class="font-black text-xs">黄色</span>
+              <span id="count-Y" class="text-[10px] font-mono opacity-80">9/9</span>
+            </button>
+            <button class="palette-btn p-2 rounded-xl border-2 border-transparent bg-white text-slate-950 flex flex-col items-center shadow-md active:scale-95 transition hover:brightness-105" data-color="W">
+              <span class="text-sm">⚪</span>
+              <span class="font-black text-xs">白色</span>
+              <span id="count-W" class="text-[10px] font-mono opacity-80">9/9</span>
+            </button>
+            <button class="palette-btn p-2 rounded-xl border-2 border-transparent bg-red-500 text-white flex flex-col items-center shadow-md active:scale-95 transition hover:brightness-105" data-color="R">
+              <span class="text-sm">🔴</span>
+              <span class="font-black text-xs">红色</span>
+              <span id="count-R" class="text-[10px] font-mono opacity-80">9/9</span>
+            </button>
+            <button class="palette-btn p-2 rounded-xl border-2 border-transparent bg-orange-500 text-white flex flex-col items-center shadow-md active:scale-95 transition hover:brightness-105" data-color="O">
+              <span class="text-sm">🟠</span>
+              <span class="font-black text-xs">橙色</span>
+              <span id="count-O" class="text-[10px] font-mono opacity-80">9/9</span>
+            </button>
+            <button class="palette-btn p-2 rounded-xl border-2 border-transparent bg-blue-500 text-white flex flex-col items-center shadow-md active:scale-95 transition hover:brightness-105" data-color="B">
+              <span class="text-sm">🔵</span>
+              <span class="font-black text-xs">蓝色</span>
+              <span id="count-B" class="text-[10px] font-mono opacity-80">9/9</span>
+            </button>
+            <button class="palette-btn p-2 rounded-xl border-2 border-transparent bg-emerald-500 text-white flex flex-col items-center shadow-md active:scale-95 transition hover:brightness-105" data-color="G">
+              <span class="text-sm">🟢</span>
+              <span class="font-black text-xs">绿色</span>
+              <span id="count-G" class="text-[10px] font-mono opacity-80">9/9</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 弹窗底部操作按钮 -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800">
+          <div class="flex items-center gap-1.5">
+            <button id="btn-color-reset-solved" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+              🔄 填满已复原
+            </button>
+            <button id="btn-color-clear" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 text-xs font-bold transition">
+              🗑️ 全清空重新涂
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btn-auto-complete" class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 active:scale-95">
+              <span>✨ 物理规则智能补全</span>
+            </button>
+            <button id="btn-run-diagnostic" class="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg active:scale-95 transition flex items-center gap-1.5">
+              <span>🔍 智能体检并生成带练</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 智能体检报告大弹窗 -->
+    <div id="modal-diagnostic-report" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+      <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 max-w-md w-full space-y-4 shadow-2xl relative animate-float">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-3xl">🩺</span>
+            <div>
+              <h3 class="font-black text-base text-amber-400">皮皮狐的魔方体检报告</h3>
+              <p class="text-[11px] text-slate-400">已成功识别并诊断手里的真实魔方状态</p>
+            </div>
+          </div>
+          <button id="btn-close-diagnostic" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold">✕</button>
+        </div>
+
+        <!-- 5 个关卡状态清单 -->
+        <div id="diagnostic-checklist" class="space-y-2 text-xs">
+          <!-- JS 动态填充清单 -->
+        </div>
+
+        <!-- 当前核心诊断总结卡片 -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
+          <div class="font-bold text-amber-400">🎯 突破卡点行动指南：</div>
+          <p id="diagnostic-summary-text" class="text-slate-200 leading-relaxed font-medium">
+            正在分析中...
+          </p>
+        </div>
+
+        <button id="btn-start-custom-guidance" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-black text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2">
+          <span>🚀 开启 3D 定制带练（照着魔方一步步转）</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 通关结算大弹窗 -->
+    <div id="modal-level-complete" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-amber-500/60 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl relative animate-float">
+        <div class="text-5xl">🏆</div>
+        <div class="space-y-1">
+          <h2 class="text-xl font-black text-amber-400">太棒啦！关卡大获全胜！</h2>
+          <p id="victory-stage-name" class="text-xs text-slate-300 font-medium">你成功征服了【神奇电梯楼】！</p>
+        </div>
+
+        <div class="flex justify-center items-center gap-2 text-3xl py-2">
+          <span class="animate-bounce" style="animation-delay: 0.1s">⭐</span>
+          <span class="animate-bounce" style="animation-delay: 0.25s">⭐</span>
+          <span class="animate-bounce" style="animation-delay: 0.4s">⭐</span>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 font-bold">
+          🏅 解锁荣誉勋章：<span id="victory-badge-name">电梯调度大宗师</span>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <button id="btn-replay-stage" class="flex-1 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
+            再玩一次 🔄
+          </button>
+          <button id="btn-next-stage" class="flex-1 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-xs font-black text-slate-950 transition shadow-lg">
+            挑战下一关 ➔
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* =====================================================================
+       1. 纯 Web Audio 游戏音效合成引擎 (零外部音频文件，免加载)
+       ===================================================================== */
+    class GameAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.12) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) {}
+      }
+      // 电梯上楼音 (上升滑音)
+      playElevatorUp() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(520, this.ctx.currentTime + 0.18);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.18);
+        } catch(e) {}
+      }
+      // 电梯下楼音 (平稳下降音)
+      playElevatorDown() {
+        if (this.muted) return;
+        this.init();
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(260, this.ctx.currentTime + 0.18);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.18);
+        } catch(e) {}
+      }
+      // 成功叮咚音
+      playDing() {
+        this.playTone(523.25, 'sine', 0.12, 0.2); // C5
+        setTimeout(() => this.playTone(659.25, 'sine', 0.18, 0.2), 100); // E5
+      }
+      // 错误啵啵音
+      playWrong() {
+        this.playTone(200, 'sawtooth', 0.15, 0.1);
+      }
+      // 通关大号角
+      playVictory() {
+        if (this.muted) return;
+        const notes = [261.63, 329.63, 392.00, 523.25];
+        notes.forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.25, 0.2), idx * 110);
+        });
+      }
+    }
+    const audio = new GameAudioEngine();
+
+    /* =====================================================================
+       2. 纯原生 Canvas 彩带礼花粒子系统 (Confetti)
+       ===================================================================== */
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let confettiAnimation = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti() {
+      particles = [];
+      const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 18,
+          vy: (Math.random() - 0.7) * 18,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          life: 1.0
+        });
+      }
+      if (confettiAnimation) cancelAnimationFrame(confettiAnimation);
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.35; // 重力
+        p.vx *= 0.98;
+        p.rotation += p.vRot;
+        p.life -= 0.012;
+
+        if (p.life > 0) {
+          alive = true;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.life);
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+          ctx.restore();
+        }
+      });
+      if (alive) {
+        confettiAnimation = requestAnimationFrame(animateConfetti);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    /* =====================================================================
+       3. 3D 魔方核心数学引擎 (无漂移、方向绝对精准)
+       ===================================================================== */
+    const CUBIE_SIZE = 58;
+    const MOVE_DURATION = 210;
+
+    const ROTATION_DEFS = {
+      "R":  { axis: 'x', sliceVal: 1,  pivotCss: 'rotateX(90deg)',  mat: [[1,0,0],[0,0,-1],[0,1,0]] },
+      "R'": { axis: 'x', sliceVal: 1,  pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
+      "L":  { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
+      "L'": { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(90deg)',  mat: [[1,0,0],[0,0,-1],[0,1,0]] },
+      "U":  { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
+      "U'": { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(90deg)',  mat: [[0,0,1],[0,1,0],[-1,0,0]] },
+      "D":  { axis: 'y', sliceVal: 1,  pivotCss: 'rotateY(90deg)',  mat: [[0,0,1],[0,1,0],[-1,0,0]] },
+      "D'": { axis: 'y', sliceVal: 1,  pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
+      "F":  { axis: 'z', sliceVal: 1,  pivotCss: 'rotateZ(90deg)',  mat: [[0,-1,0],[1,0,0],[0,0,1]] },
+      "F'": { axis: 'z', sliceVal: 1,  pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
+      "B":  { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
+      "B'": { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(90deg)',  mat: [[0,-1,0],[1,0,0],[0,0,1]] }
+    };
+
+    function matMul(a, b) {
+      const res = [[0,0,0],[0,0,0],[0,0,0]];
+      for(let i=0; i<3; i++) for(let j=0; j<3; j++) res[i][j] = a[i][0]*b[0][j] + a[i][1]*b[1][j] + a[i][2]*b[2][j];
+      return res;
+    }
+    function vecMul(m, v) {
+      return [
+        m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2],
+        m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2],
+        m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2]
+      ];
+    }
+
+    class RubiksCube {
+      constructor(cubeEl, pivotEl) {
+        this.cubeEl = cubeEl;
+        this.pivotEl = pivotEl;
+        this.cubies = [];
+        this.isBusy = false;
+        this.queue = [];
+        this.init();
+      }
+
+      init() {
+        this.cubeEl.innerHTML = '';
+        this.pivotEl.innerHTML = '';
+        this.cubies = [];
+
+        let id = 0;
+        for (let x = -1; x <= 1; x++) {
+          for (let y = -1; y <= 1; y++) {
+            for (let z = -1; z <= 1; z++) {
+              if (x === 0 && y === 0 && z === 0) continue;
+              
+              const el = document.createElement('div');
+              el.className = 'cubie';
+              el.id = `cubie-${id++}`;
+
+              const faces = [
+                { dir: 'u', sticker: (y === -1 ? 'sticker-u' : 'sticker-none') },
+                { dir: 'd', sticker: (y === 1  ? 'sticker-d' : 'sticker-none') },
+                { dir: 'f', sticker: (z === 1  ? 'sticker-f' : 'sticker-none') },
+                { dir: 'b', sticker: (z === -1 ? 'sticker-b' : 'sticker-none') },
+                { dir: 'l', sticker: (x === -1 ? 'sticker-l' : 'sticker-none') },
+                { dir: 'r', sticker: (x === 1  ? 'sticker-r' : 'sticker-none') }
+              ];
+
+              faces.forEach(f => {
+                const faceDiv = document.createElement('div');
+                faceDiv.className = `face face-${f.dir}`;
+                const st = document.createElement('div');
+                st.className = `sticker ${f.sticker}`;
+                faceDiv.appendChild(st);
+                el.appendChild(faceDiv);
+              });
+
+              const cData = {
+                id: el.id,
+                el: el,
+                pos: [x, y, z],
+                mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+              };
+
+              this.cubies.push(cData);
+              this.updateStyle(cData);
+              this.cubeEl.appendChild(el);
+            }
+          }
+        }
+      }
+
+      updateStyle(c) {
+        const [x, y, z] = c.pos;
+        const [m00, m01, m02] = c.mat[0];
+        const [m10, m11, m12] = c.mat[1];
+        const [m20, m21, m22] = c.mat[2];
+
+        const tx = x * CUBIE_SIZE;
+        const ty = y * CUBIE_SIZE;
+        const tz = z * CUBIE_SIZE;
+
+        c.el.style.transform = `translate3d(${tx}px, ${ty}px, ${tz}px) matrix3d(
+          ${m00}, ${m10}, ${m20}, 0,
+          ${m01}, ${m11}, ${m21}, 0,
+          ${m02}, ${m12}, ${m22}, 0,
+          0, 0, 0, 1
+        )`;
+      }
+
+      instantMove(code) {
+        if (code.endsWith('2')) {
+          const b = code[0];
+          this.instantMove(b);
+          this.instantMove(b);
+          return;
+        }
+        const def = ROTATION_DEFS[code];
+        if (!def) return;
+        const ax = def.axis === 'x' ? 0 : (def.axis === 'y' ? 1 : 2);
+        this.cubies.forEach(c => {
+          if (c.pos[ax] === def.sliceVal) {
+            c.pos = vecMul(def.mat, c.pos);
+            c.mat = matMul(def.mat, c.mat);
+            this.updateStyle(c);
+          }
+        });
+      }
+
+      instantMoves(moves) {
+        moves.forEach(m => this.instantMove(m));
+      }
+
+      performMove(code, onEnd = null) {
+        if (code.endsWith('2')) {
+          const b = code[0];
+          this.enqueueMoves([b, b], onEnd);
+          return;
+        }
+
+        const def = ROTATION_DEFS[code];
+        if (!def) {
+          if (onEnd) onEnd();
+          return;
+        }
+
+        // 音效触发
+        if (code === 'R') audio.playElevatorUp();
+        else if (code === "R'") audio.playElevatorDown();
+        else audio.playDing();
+
+        const ax = def.axis === 'x' ? 0 : (def.axis === 'y' ? 1 : 2);
+        const targetCubies = this.cubies.filter(c => c.pos[ax] === def.sliceVal);
+
+        targetCubies.forEach(c => this.pivotEl.appendChild(c.el));
+
+        this.pivotEl.style.transition = `transform ${MOVE_DURATION}ms cubic-bezier(0.2, 0.85, 0.35, 1)`;
+        this.pivotEl.style.transform = def.pivotCss;
+
+        setTimeout(() => {
+          targetCubies.forEach(c => {
+            c.pos = vecMul(def.mat, c.pos);
+            c.mat = matMul(def.mat, c.mat);
+            this.cubeEl.appendChild(c.el);
+            this.updateStyle(c);
+          });
+          this.pivotEl.style.transition = 'none';
+          this.pivotEl.style.transform = 'none';
+          if (onEnd) onEnd();
+        }, MOVE_DURATION + 15);
+      }
+
+      enqueueMoves(moveList, onFinish = null) {
+        this.queue.push({ moves: moveList, onFinish });
+        this.processQueue();
+      }
+
+      processQueue() {
+        if (this.isBusy || this.queue.length === 0) return;
+        this.isBusy = true;
+        const item = this.queue[0];
+        let idx = 0;
+
+        const next = () => {
+          if (idx < item.moves.length) {
+            this.performMove(item.moves[idx++], next);
+          } else {
+            this.queue.shift();
+            if (item.onFinish) item.onFinish();
+            this.isBusy = false;
+            if (this.queue.length > 0) this.processQueue();
+          }
+        };
+        next();
+      }
+    }
+
+    const cubeEl = document.getElementById('cube');
+    const pivotEl = document.getElementById('pivot');
+    const rubik = new RubiksCube(cubeEl, pivotEl);
+
+    /* =====================================================================
+       4. 3D 摄像机与全景手势旋转 (Orbit Controls)
+       ===================================================================== */
+    const viewport = document.getElementById('scene-viewport');
+    const world = document.getElementById('cube-world');
+
+    let isDrag = false;
+    let sX = 0, sY = 0;
+    let rX = -24, rY = -34, scale = 1.0;
+
+    function renderCamera(smooth = false) {
+      if (smooth) {
+        world.style.transition = 'transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        setTimeout(() => { world.style.transition = 'transform 0.08s ease-out'; }, 380);
+      }
+      world.style.transform = `rotateX(${rX}deg) rotateY(${rY}deg) scale3d(${scale}, ${scale}, ${scale})`;
+    }
+
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      isDrag = true;
+      sX = e.clientX;
+      sY = e.clientY;
+      viewport.setPointerCapture(e.pointerId);
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+      if (!isDrag) return;
+      const dx = e.clientX - sX;
+      const dy = e.clientY - sY;
+      sX = e.clientX;
+      sY = e.clientY;
+      rY += dx * 0.65;
+      rX -= dy * 0.65;
+      rX = Math.max(-85, Math.min(85, rX));
+      renderCamera(false);
+    });
+
+    viewport.addEventListener('pointerup', (e) => {
+      isDrag = false;
+      try { viewport.releasePointerCapture(e.pointerId); } catch(err) {}
+    });
+
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      scale += e.deltaY * -0.0012;
+      scale = Math.max(0.7, Math.min(1.4, scale));
+      renderCamera(false);
+    }, { passive: false });
+
+    document.getElementById('btn-cam-reset').addEventListener('click', () => {
+      rX = -24; rY = -34; scale = 1.0;
+      renderCamera(true);
+    });
+    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+      scale = Math.min(1.4, scale + 0.12);
+      renderCamera(true);
+    });
+    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+      scale = Math.max(0.7, scale - 0.12);
+      renderCamera(true);
+    });
+
+    /* =====================================================================
+       5. 五大关卡冒险数据 (儿童拟人化动作盘与故事)
+       ===================================================================== */
+    const ADVENTURE_LEVELS = [
+      {
+        id: 1,
+        title: "小黄花农场",
+        icon: "🌼",
+        badge: "小园丁勋章",
+        task: "拼出白色小十字地基",
+        rhyme: "转转顶层对颜色，前门翻滚进土壤！",
+        cam: { rX: -26, rY: -34 },
+        setup: ["R2", "U'", "F2", "U'"],
+        steps: [
+          { move: "U", name: "转顶层找朋友", icon: "🌸", desc: "转动顶层，把白色花瓣带到侧面的绿色好朋友旁边！" },
+          { move: "F2", name: "翻进土壤 (前门半圈)", icon: "🌱", desc: "前门转两圈（180度）！花瓣一跃落入白色的土地，长出第1根十字臂！" },
+          { move: "U", name: "再转顶层找朋友", icon: "🌸", desc: "继续转动顶层，寻找另一个红色好朋友！" },
+          { move: "R2", name: "翻进土壤 (右门半圈)", icon: "🌱", desc: "右门转两圈！两片花瓣都回到底层，白色十字地基大功告成！" }
+        ],
+        buttons: [
+          { move: "U", label: "转顶层找朋友", icon: "🌸", color: "bg-amber-500 hover:bg-amber-400" },
+          { move: "F2", label: "前门翻入土壤", icon: "🌱", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "R2", label: "右门翻入土壤", icon: "🌱", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "U'", label: "反向回拨顶层", icon: "↩️", color: "bg-slate-700 hover:bg-slate-600" }
+        ]
+      },
+      {
+        id: 2,
+        title: "神奇电梯楼",
+        icon: "🛗",
+        badge: "电梯调度大师",
+        task: "接白色小人回到一楼",
+        rhyme: "电梯上楼接小人，走进电梯降一楼！",
+        cam: { rX: -20, rY: -38 },
+        setup: ["U", "R", "U'", "R'"],
+        steps: [
+          { move: "R", name: "电梯上楼 ⬆️", icon: "🛗", desc: "【电梯上楼】叮咚！右边的电梯升到楼顶接白色小人啦！" },
+          { move: "U", name: "走进电梯 ◀️", icon: "🚶", desc: "【走进电梯】白色小人迈开小步，稳稳走进电梯间！" },
+          { move: "R'", name: "降回一楼 🔽", icon: "🛗", desc: "【降回一楼】电梯下楼，把小人安全送回一楼房间，地基完好无损！" },
+          { move: "U'", name: "门口整理 ▶️", icon: "🚪", desc: "【关门整理】楼上整理好，第一层多了一个快乐的小伙伴！" }
+        ],
+        buttons: [
+          { move: "R", label: "电梯上楼 ⬆️", icon: "🛗", color: "bg-amber-500 hover:bg-amber-400" },
+          { move: "U", label: "走进电梯 ◀️", icon: "🚶", color: "bg-sky-500 hover:bg-sky-400" },
+          { move: "R'", label: "降回一楼 🔽", icon: "🛗", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "U'", label: "门口整理 ▶️", icon: "🚪", color: "bg-slate-700 hover:bg-slate-600" }
+        ]
+      },
+      {
+        id: 3,
+        title: "森林捉迷藏",
+        icon: "🐿️",
+        badge: "森林寻宝猎人",
+        task: "盖好二楼，完成前两层",
+        rhyme: "想去右边往左躲，右手电梯接松鼠！",
+        cam: { rX: -26, rY: -34 },
+        setup: ["F'", "U'", "F", "U", "R", "U", "R'", "U'"],
+        steps: [
+          { move: "U", name: "向左躲猫猫 ◀️", icon: "🙈", desc: "【躲猫猫】要去右边槽位的小松鼠，先反方向向左躲开让位！" },
+          { move: "R", name: "右手电梯上楼", icon: "⬆️", desc: "右手电梯升起迎接松鼠！" },
+          { move: "U'", name: "松鼠跳进电梯", icon: "🐿️", desc: "松鼠与好朋友在楼顶牵手组队！" },
+          { move: "R'", name: "降回一楼", icon: "🔽", desc: "降回底层，角块和棱块紧紧抱在了一起！" },
+          { move: "U'", name: "侧面让位准备", icon: "◀️", desc: "转身换面，准备接入二楼！" },
+          { move: "F'", name: "前门打开迎客", icon: "🚪", desc: "前门打开，引路接应！" },
+          { move: "U", name: "松鼠整组滑入", icon: "🎯", desc: "双色组合滑入正轨！" },
+          { move: "F", name: "前门关好！大功告成", icon: "✨", desc: "前门关上！二楼整齐划一，前两层全部完工！" }
+        ],
+        buttons: [
+          { move: "U", label: "向左躲猫猫 ◀️", icon: "🙈", color: "bg-sky-500 hover:bg-sky-400" },
+          { move: "R", label: "右手电梯上 ⬆️", icon: "🛗", color: "bg-amber-500 hover:bg-amber-400" },
+          { move: "R'", label: "右手电梯下 🔽", icon: "🛗", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "F", label: "关门就位 ✨", icon: "🚪", color: "bg-indigo-500 hover:bg-indigo-400" }
+        ]
+      },
+      {
+        id: 4,
+        title: "金鱼跃龙门",
+        icon: "🐟",
+        badge: "金鱼驯龙师",
+        task: "顶面全部变纯金黄色",
+        rhyme: "推上去，拨一下；拉下来，拨一下；推上去，拨两下；拉下来金鱼变金龙！",
+        cam: { rX: -56, rY: -34 },
+        setup: ["R", "U2", "R'", "U'", "R", "U'", "R'"],
+        steps: [
+          { move: "R", name: "推上去 (上)", icon: "🌊", desc: "【推上去】小金鱼推起右边一层，浪花激起！" },
+          { move: "U", name: "拨一下 (左)", icon: "💦", desc: "【拨一下】向左拨动一朵水花！" },
+          { move: "R'", name: "拉下来 (下)", icon: "🌊", desc: "【拉下来】水花落回底层保护结构！" },
+          { move: "U", name: "拨一下 (左)", icon: "💦", desc: "【拨一下】再向左拨动一朵水花！" },
+          { move: "R", name: "推上去 (上)", icon: "🐬", desc: "【推上去】小金鱼一跃而起，冲向空中！" },
+          { move: "U2", name: "拨两下 (转两圈)", icon: "🌀", desc: "【拨两下】在空中转两个大圈圈！" },
+          { move: "R'", name: "拉下来！金龙现身", icon: "✨", desc: "【拉下来】扑通！整个顶面瞬间变成纯金黄色！" }
+        ],
+        buttons: [
+          { move: "R", label: "推上去 ⬆️", icon: "🌊", color: "bg-amber-500 hover:bg-amber-400" },
+          { move: "U", label: "拨一下 ◀️", icon: "💦", color: "bg-sky-500 hover:bg-sky-400" },
+          { move: "R'", label: "拉下来 🔽", icon: "🌊", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "U2", label: "拨两圈 🌀", icon: "💫", color: "bg-purple-500 hover:bg-purple-400" }
+        ]
+      },
+      {
+        id: 5,
+        title: "猫头鹰守卫战",
+        icon: "🦉",
+        badge: "魔方终极守护者",
+        task: "六面彻底重合，全魔方复原！",
+        rhyme: "找到猫头鹰双眼，终极魔法大合体！",
+        cam: { rX: -36, rY: -36 },
+        setup: ["L'", "U2", "L", "U", "L'", "U", "L", "U", "R", "U2", "R'", "U'", "R", "U'", "R'"],
+        steps: [
+          { move: "R", name: "小鱼第1拍", icon: "⚡", desc: "释放右手小鱼上乘功力！" },
+          { move: "U", name: "小鱼第2拍", icon: "⚡", desc: "拨开棱块！" },
+          { move: "R'", name: "小鱼第3拍", icon: "⚡", desc: "拉回保护！" },
+          { move: "U", name: "小鱼第4拍", icon: "⚡", desc: "传递交接！" },
+          { move: "R", name: "小鱼第5拍", icon: "⚡", desc: "起飞升空！" },
+          { move: "U2", name: "小鱼第6拍", icon: "⚡", desc: "半圈对接！" },
+          { move: "R'", name: "小鱼收尾", icon: "⚡", desc: "右半部就位！" },
+          { move: "U'", name: "左侧接力", icon: "⚡", desc: "转向左侧！" },
+          { move: "L'", name: "左手小鱼起", icon: "🦉", desc: "左手猫头鹰法阵开启！" },
+          { move: "U'", name: "左拨", icon: "🦉", desc: "对齐最后棱位！" },
+          { move: "L", name: "左下", icon: "🦉", desc: "嵌入侧槽！" },
+          { move: "U'", name: "左拨", icon: "🦉", desc: "校准最后角度！" },
+          { move: "L'", name: "左推", icon: "🦉", desc: "拉起底面轨道！" },
+          { move: "U2", name: "转半圈", icon: "✨", desc: "六面齿轮彻底咬合！" },
+          { move: "L", name: "大功告成！", icon: "🎉", desc: "六个面全部拼好！恭喜成为真正的魔方大师！" }
+        ],
+        buttons: [
+          { move: "R", label: "右手魔法 (R)", icon: "⚡", color: "bg-amber-500 hover:bg-amber-400" },
+          { move: "U", label: "顶层拨动 (U)", icon: "💨", color: "bg-sky-500 hover:bg-sky-400" },
+          { move: "L'", label: "左手魔法 (L')", icon: "🦉", color: "bg-indigo-500 hover:bg-indigo-400" },
+          { move: "U2", label: "大转半圈 (U2)", icon: "✨", color: "bg-purple-500 hover:bg-purple-400" }
+        ]
+      }
+    ];
+
+    /* =====================================================================
+       6. 游戏状态与交互流程控制
+       ===================================================================== */
+    let currentLevelIdx = 0; // 0 ~ 4
+    let currentStepIdx = 0;
+    let isPlayChallengeMode = false;
+    let starsStorage = JSON.parse(localStorage.getItem('rubiks_kids_stars') || '[3, 0, 0, 0, 0]');
+
+    function saveStars() {
+      localStorage.setItem('rubiks_kids_stars', JSON.stringify(starsStorage));
+      updateTotalStarsUi();
+    }
+
+    function updateTotalStarsUi() {
+      const sum = starsStorage.reduce((a, b) => a + b, 0);
+      document.getElementById('total-stars-count').textContent = sum;
+
+      // 更新关卡标签上的星星
+      document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+        const starSpan = btn.querySelector('.level-star-badge');
+        const s = starsStorage[idx];
+        starSpan.textContent = s > 0 ? '⭐'.repeat(s) : '';
+      });
+    }
+
+    function getLevelData() {
+      return ADVENTURE_LEVELS[currentLevelIdx];
+    }
+
+    function loadLevel(levelIdx) {
+      currentLevelIdx = levelIdx;
+      currentStepIdx = 0;
+      const data = getLevelData();
+
+      // UI 文本更新
+      document.getElementById('stage-task-text').textContent = data.task;
+      document.getElementById('level-rhyme-text').textContent = data.rhyme;
+
+      // 关卡标签高亮
+      document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+        if (idx === levelIdx) {
+          btn.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md font-black';
+        } else {
+          btn.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60 font-bold';
+        }
+      });
+
+      // 摄像机镜头平滑切换到关卡推荐位置
+      if (data.cam) {
+        rX = data.cam.rX;
+        rY = data.cam.rY;
+        scale = 1.0;
+        renderCamera(true);
+      }
+
+      // 重设魔方并载入本关残局
+      rubik.init();
+      if (data.setup && data.setup.length > 0) {
+        rubik.instantMoves(data.setup);
+      }
+
+      renderActionButtons();
+      renderStepUi();
+    }
+
+    function renderActionButtons() {
+      const data = getLevelData();
+      const grid = document.getElementById('action-buttons-grid');
+      grid.innerHTML = '';
+
+      const targetMove = data.steps[currentStepIdx] ? data.steps[currentStepIdx].move : null;
+
+      data.buttons.forEach(b => {
+        const btn = document.createElement('button');
+        const isTarget = (b.move === targetMove);
+        const guideClass = (!isPlayChallengeMode && isTarget) ? 'guide-pulse ring-4 ring-amber-400/50' : '';
+
+        btn.className = `p-3 rounded-2xl ${b.color} text-slate-950 font-black text-xs flex items-center justify-between shadow-md transition active:scale-95 ${guideClass}`;
+        btn.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-xl">${b.icon}</span>
+            <span>${b.label}</span>
+          </div>
+          <span class="text-[10px] font-mono opacity-60 bg-black/10 px-1.5 py-0.5 rounded">${b.move}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          handleActionClick(b.move, btn);
+        });
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderStepUi() {
+      const data = getLevelData();
+      const stepTotal = data.steps.length;
+
+      // 更新皮皮狐气泡文本
+      if (currentStepIdx < stepTotal) {
+        const cur = data.steps[currentStepIdx];
+        document.getElementById('step-hint-badge').textContent = `第 ${currentStepIdx + 1}/${stepTotal} 步`;
+        document.getElementById('dialog-bubble-text').textContent = cur.desc;
+      } else {
+        document.getElementById('step-hint-badge').textContent = `完成啦！`;
+        document.getElementById('dialog-bubble-text').textContent = `🎉 恭喜小勇士！你亲手完成了整个关卡！`;
+      }
+
+      // 更新步骤点
+      const dotsBar = document.getElementById('action-dots-bar');
+      dotsBar.innerHTML = '';
+      for (let i = 0; i < stepTotal; i++) {
+        const dot = document.createElement('span');
+        if (i < currentStepIdx) {
+          dot.className = 'w-3 h-3 rounded-full bg-emerald-400 inline-block shadow-sm';
+        } else if (i === currentStepIdx) {
+          dot.className = 'w-3.5 h-3.5 rounded-full bg-amber-400 inline-block animate-ping';
+        } else {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-700 inline-block';
+        }
+        dotsBar.appendChild(dot);
+      }
+
+      // 高亮匹配按钮
+      renderActionButtons();
+    }
+
+    function handleActionClick(moveCode, btnElement = null) {
+      if (rubik.isBusy) return;
+      const data = getLevelData();
+
+      if (currentStepIdx >= data.steps.length) {
+        return;
+      }
+
+      const expected = data.steps[currentStepIdx].move;
+
+      // 在挑战模式下，判断按键是否正确
+      if (isPlayChallengeMode) {
+        if (moveCode !== expected) {
+          audio.playWrong();
+          if (btnElement) {
+            btnElement.classList.add('animate-shake');
+            setTimeout(() => btnElement.classList.remove('animate-shake'), 400);
+          }
+          document.getElementById('dialog-bubble-text').textContent = `哎呀，这个动作还不对哦！看看儿歌口诀，再试一次吧！`;
+          return;
+        }
+      }
+
+      // 执行动作
+      rubik.performMove(moveCode, () => {
+        currentStepIdx++;
+        renderStepUi();
+
+        // 检查关卡是否全部通关
+        if (currentStepIdx >= data.steps.length) {
+          triggerLevelVictory();
+        }
+      });
+    }
+
+    function triggerLevelVictory() {
+      audio.playVictory();
+      launchConfetti();
+
+      // 更新星星
+      starsStorage[currentLevelIdx] = 3;
+      saveStars();
+
+      const data = getLevelData();
+      document.getElementById('victory-stage-name').textContent = `你成功征服了【${data.title}】！`;
+      document.getElementById('victory-badge-name').textContent = data.badge;
+
+      setTimeout(() => {
+        document.getElementById('modal-level-complete').classList.remove('hidden');
+      }, 350);
+    }
+
+    // 绑定关卡标签点击
+    document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+      btn.addEventListener('click', () => loadLevel(idx));
+    });
+
+    // 听故事演示 vs 小勇士挑战切换
+    const btnStory = document.getElementById('mode-btn-story');
+    const btnPlay = document.getElementById('mode-btn-play');
+
+    btnStory.addEventListener('click', () => {
+      isPlayChallengeMode = false;
+      btnStory.className = 'px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm transition';
+      btnPlay.className = 'px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition';
+      renderActionButtons();
+    });
+
+    btnPlay.addEventListener('click', () => {
+      isPlayChallengeMode = true;
+      btnPlay.className = 'px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm transition';
+      btnStory.className = 'px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition';
+      renderActionButtons();
+      document.getElementById('dialog-bubble-text').textContent = `勇士挑战开始！这次没有发光提示，跟着你的记忆亲自通关吧！`;
+    });
+
+    // 走一步快捷键
+    document.getElementById('btn-auto-step').addEventListener('click', () => {
+      const data = getLevelData();
+      if (currentStepIdx < data.steps.length) {
+        handleActionClick(data.steps[currentStepIdx].move);
+      }
+    });
+
+    document.getElementById('btn-restart-level').addEventListener('click', () => {
+      loadLevel(currentLevelIdx);
+    });
+
+    // 通关弹窗按钮
+    document.getElementById('btn-replay-stage').addEventListener('click', () => {
+      document.getElementById('modal-level-complete').classList.add('hidden');
+      loadLevel(currentLevelIdx);
+    });
+    document.getElementById('btn-next-stage').addEventListener('click', () => {
+      document.getElementById('modal-level-complete').classList.add('hidden');
+      let next = currentLevelIdx + 1;
+      if (next >= ADVENTURE_LEVELS.length) next = 0;
+      loadLevel(next);
+    });
+
+    // 静音切换
+    document.getElementById('btn-sound-toggle').addEventListener('click', (e) => {
+      audio.muted = !audio.muted;
+      e.target.textContent = audio.muted ? '🔇' : '🔊';
+    });
+
+    /* =====================================================================
+       7. 魔法玩具箱与儿童计时器
+       ===================================================================== */
+    const modalTools = document.getElementById('modal-magic-tools');
+    document.getElementById('btn-open-tools').addEventListener('click', () => {
+      modalTools.classList.remove('hidden');
+    });
+    document.getElementById('btn-close-tools').addEventListener('click', () => {
+      modalTools.classList.add('hidden');
+    });
+
+    // 6次神迹探索
+    document.getElementById('btn-magic-six').addEventListener('click', () => {
+      modalTools.classList.add('hidden');
+      rubik.init();
+      // 连续 6 次 Sexy Move
+      const sexySix = [];
+      for (let i = 0; i < 6; i++) {
+        sexySix.push("R", "U", "R'", "U'");
+      }
+      document.getElementById('stage-task-text').textContent = '见证 6 次神迹循环！';
+      document.getElementById('dialog-bubble-text').textContent = '快看！连续做 6 次“电梯接人”，魔方正在奇迹般地自动复原！';
+      rubik.enqueueMoves(sexySix, () => {
+        audio.playVictory();
+        launchConfetti();
+        document.getElementById('dialog-bubble-text').textContent = '🎉 哇！做完 6 次真的完全变回原样了！这就是魔方的神奇数学循环！';
+      });
+    });
+
+    // 儿童拍击计时器
+    let timerRunning = false;
+    let timerStart = 0;
+    let timerInterval = null;
+
+    function toggleTimer() {
+      const display = document.getElementById('timer-display');
+      const triggerBtn = document.getElementById('btn-timer-trigger');
+      if (!timerRunning) {
+        timerRunning = true;
+        timerStart = Date.now();
+        triggerBtn.textContent = '⏱️ 计时中... 拍击这里立即停止！';
+        triggerBtn.className = 'w-full py-3 rounded-2xl bg-rose-500 hover:bg-rose-400 text-white font-black text-sm shadow-lg active:scale-95 transition';
+        timerInterval = setInterval(() => {
+          const diff = (Date.now() - timerStart) / 1000;
+          display.textContent = diff.toFixed(2) + ' 秒';
+        }, 30);
+      } else {
+        timerRunning = false;
+        clearInterval(timerInterval);
+        triggerBtn.textContent = '拍击空格键或点击这里：开始 / 停止计时！';
+        triggerBtn.className = 'w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg active:scale-95 transition';
+        audio.playDing();
+      }
+    }
+
+    document.getElementById('btn-timer-trigger').addEventListener('click', toggleTimer);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        if (!modalTools.classList.contains('hidden')) {
+          e.preventDefault();
+          toggleTimer();
+        }
+      }
+    });
+
+    // 玩具箱沙盒打乱与复原
+    document.getElementById('btn-sandbox-scramble').addEventListener('click', () => {
+      modalTools.classList.add('hidden');
+      const allMoves = ["U", "U'", "D", "D'", "L", "L'", "R", "R'", "F", "F'", "B", "B'"];
+      const scr = [];
+      for (let i = 0; i < 15; i++) scr.push(allMoves[Math.floor(Math.random() * allMoves.length)]);
+      rubik.enqueueMoves(scr);
+    });
+
+    document.getElementById('btn-sandbox-solve').addEventListener('click', () => {
+      modalTools.classList.add('hidden');
+      rubik.init();
+      audio.playDing();
+    });
+
+    /* =====================================================================
+       8. 实物魔方 54 贴纸映射与涂色面板逻辑
+       ===================================================================== */
+    const FACELET_MAP = {
+      'U0': { pos: [-1, -1, -1], dir: 'u' }, 'U1': { pos: [0, -1, -1],  dir: 'u' }, 'U2': { pos: [1, -1, -1],  dir: 'u' },
+      'U3': { pos: [-1, -1, 0],  dir: 'u' }, 'U4': { pos: [0, -1, 0],   dir: 'u', locked: 'Y' }, 'U5': { pos: [1, -1, 0],   dir: 'u' },
+      'U6': { pos: [-1, -1, 1],  dir: 'u' }, 'U7': { pos: [0, -1, 1],   dir: 'u' }, 'U8': { pos: [1, -1, 1],   dir: 'u' },
+      'D0': { pos: [-1, 1, 1],   dir: 'd' }, 'D1': { pos: [0, 1, 1],    dir: 'd' }, 'D2': { pos: [1, 1, 1],    dir: 'd' },
+      'D3': { pos: [-1, 1, 0],   dir: 'd' }, 'D4': { pos: [0, 1, 0],    dir: 'd', locked: 'W' }, 'D5': { pos: [1, 1, 0],    dir: 'd' },
+      'D6': { pos: [-1, 1, -1],  dir: 'd' }, 'D7': { pos: [0, 1, -1],   dir: 'd' }, 'D8': { pos: [1, 1, -1],   dir: 'd' },
+      'F0': { pos: [-1, -1, 1],  dir: 'f' }, 'F1': { pos: [0, -1, 1],   dir: 'f' }, 'F2': { pos: [1, -1, 1],   dir: 'f' },
+      'F3': { pos: [-1, 0, 1],   dir: 'f' }, 'F4': { pos: [0, 0, 1],    dir: 'f', locked: 'R' }, 'F5': { pos: [1, 0, 1],    dir: 'f' },
+      'F6': { pos: [-1, 1, 1],   dir: 'f' }, 'F7': { pos: [0, 1, 1],    dir: 'f' }, 'F8': { pos: [1, 1, 1],    dir: 'f' },
+      'B0': { pos: [1, -1, -1],  dir: 'b' }, 'B1': { pos: [0, -1, -1],  dir: 'b' }, 'B2': { pos: [-1, -1, -1], dir: 'b' },
+      'B3': { pos: [1, 0, -1],   dir: 'b' }, 'B4': { pos: [0, 0, -1],   dir: 'b', locked: 'O' }, 'B5': { pos: [-1, 0, -1],  dir: 'b' },
+      'B6': { pos: [1, 1, -1],   dir: 'b' }, 'B7': { pos: [0, 1, -1],   dir: 'b' }, 'B8': { pos: [-1, 1, -1],  dir: 'b' },
+      'L0': { pos: [-1, -1, -1], dir: 'l' }, 'L1': { pos: [-1, -1, 0],  dir: 'l' }, 'L2': { pos: [-1, -1, 1],  dir: 'l' },
+      'L3': { pos: [-1, 0, -1],  dir: 'l' }, 'L4': { pos: [-1, 0, 0],   dir: 'l', locked: 'B' }, 'L5': { pos: [-1, 0, 1],   dir: 'l' },
+      'L6': { pos: [-1, 1, -1],  dir: 'l' }, 'L7': { pos: [-1, 1, 0],   dir: 'l' }, 'L8': { pos: [-1, 1, 1],   dir: 'l' },
+      'R0': { pos: [1, -1, 1],   dir: 'r' }, 'R1': { pos: [1, -1, 0],   dir: 'r' }, 'R2': { pos: [1, -1, -1],  dir: 'r' },
+      'R3': { pos: [1, 0, 1],    dir: 'r' }, 'R4': { pos: [1, 0, 0],    dir: 'r', locked: 'G' }, 'R5': { pos: [1, 0, -1],   dir: 'r' },
+      'R6': { pos: [1, 1, 1],    dir: 'r' }, 'R7': { pos: [1, 1, 0],    dir: 'r' }, 'R8': { pos: [1, 1, -1],   dir: 'r' }
+    };
+
+    const COLOR_CLASSES = {
+      'Y': 'sticker-u', 'W': 'sticker-d', 'R': 'sticker-f',
+      'O': 'sticker-b', 'B': 'sticker-l', 'G': 'sticker-r', 'none': 'sticker-none'
+    };
+
+    const COLOR_NAMES = {
+      'Y': '黄色 (顶)', 'W': '白色 (底)', 'R': '红色 (前)',
+      'O': '橙色 (后)', 'B': '蓝色 (左)', 'G': '绿色 (右)'
+    };
+
+    const COLOR_HEX = {
+      'Y': '#facc15', 'W': '#ffffff', 'R': '#ef4444',
+      'O': '#f97316', 'B': '#3b82f6', 'G': '#10b981'
+    };
+
+    let paintedState = {};
+
+    function initPaintedStateSolved() {
+      ['U', 'D', 'F', 'B', 'L', 'R'].forEach(f => {
+        const c = (f==='U'?'Y':(f==='D'?'W':(f==='F'?'R':(f==='B'?'O':(f==='L'?'B':'G')))));
+        for (let i = 0; i < 9; i++) {
+          paintedState[`${f}${i}`] = c;
+        }
+      });
+    }
+    initPaintedStateSolved();
+
+    const COLOR_CYCLE = ['Y', 'W', 'R', 'O', 'B', 'G'];
+    const FACE_NAMES_CN = { 'U': '顶面(黄)', 'D': '底面(白)', 'F': '前面(红)', 'B': '后面(橙)', 'L': '左面(蓝)', 'R': '右面(绿)' };
+    const POS_NAMES_CN = { '0': '左上角', '1': '上棱', '2': '右上角', '3': '左棱', '4': '中心(锁定)', '5': '右棱', '6': '左下角', '7': '下棱', '8': '右下角' };
+
+    let currentBrush = 'Y';
+    let selectedTileKey = null;
+
+    function updatePaletteButtonsHighlight() {
+      document.querySelectorAll('.palette-btn').forEach(b => {
+        if (b.getAttribute('data-color') === currentBrush) {
+          b.classList.remove('border-transparent');
+          b.classList.add('border-amber-400', 'ring-2', 'ring-amber-400/60', 'scale-105');
+        } else {
+          b.classList.remove('border-amber-400', 'ring-2', 'ring-amber-400/60', 'scale-105');
+          b.classList.add('border-transparent');
+        }
+      });
+    }
+
+    function selectTile(key) {
+      if (!key) return;
+      selectedTileKey = key;
+
+      // 更新所有格子样式的高亮
+      document.querySelectorAll('[id^="tile-"]').forEach(t => {
+        t.classList.remove('ring-4', 'ring-amber-400', 'scale-110', 'z-20', 'shadow-lg');
+      });
+
+      const targetEl = document.getElementById(`tile-${key}`);
+      if (targetEl) {
+        targetEl.classList.add('ring-4', 'ring-amber-400', 'scale-110', 'z-20', 'shadow-lg');
+      }
+
+      // 更新选中状态说明条
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) {
+        const face = key[0];
+        const pos = key[1];
+        const colorName = COLOR_NAMES[paintedState[key]] || '未涂色';
+        badge.textContent = `🎯 ${FACE_NAMES_CN[face]} ${POS_NAMES_CN[pos]} (当前: ${colorName})`;
+      }
+    }
+
+    function setTileColor(key, colorCode) {
+      if (!key || key[1] === '4') return; // 中心块锁定不修改
+      paintedState[key] = colorCode;
+      const tile = document.getElementById(`tile-${key}`);
+      if (tile) {
+        tile.style.backgroundColor = COLOR_HEX[colorCode] || '#1e293b';
+      }
+      currentBrush = colorCode;
+      updatePaletteButtonsHighlight();
+      updateColorCountBadges();
+      selectTile(key);
+    }
+
+    function cycleTileColor(key) {
+      if (key[1] === '4') {
+        audio.playWrong();
+        return;
+      }
+      const cur = paintedState[key] || 'none';
+      const curIdx = COLOR_CYCLE.indexOf(cur);
+      const nextColor = (curIdx === -1) ? 'Y' : COLOR_CYCLE[(curIdx + 1) % COLOR_CYCLE.length];
+      
+      setTileColor(key, nextColor);
+      audio.playTone(360 + (curIdx + 1) * 45, 'sine', 0.05, 0.12);
+    }
+
+    const CUBIE_GROUPS = {};
+    for (const [k, v] of Object.entries(FACELET_MAP)) {
+      const pKey = v.pos.join(',');
+      if (!CUBIE_GROUPS[pKey]) CUBIE_GROUPS[pKey] = [];
+      CUBIE_GROUPS[pKey].push(k);
+    }
+
+    function renderColorInputGrids() {
+      ['u', 'd', 'f', 'b', 'l', 'r'].forEach(f => {
+        const grid = document.getElementById(`face-grid-${f}`);
+        if (!grid) return;
+        grid.innerHTML = '';
+        const fUpper = f.toUpperCase();
+
+        for (let i = 0; i < 9; i++) {
+          const key = `${fUpper}${i}`;
+          const isCenter = (i === 4);
+          const tile = document.createElement('div');
+          const colorCode = paintedState[key] || 'none';
+
+          tile.id = `tile-${key}`;
+          tile.className = `w-6 h-6 sm:w-7 sm:h-7 rounded-lg border border-slate-700/80 cursor-pointer transition transform active:scale-95 flex items-center justify-center text-[9px] font-black shadow-inner`;
+          tile.style.backgroundColor = COLOR_HEX[colorCode] || '#1e293b';
+
+          // 物理块联动高亮提示
+          tile.addEventListener('mouseenter', () => {
+            const pKey = FACELET_MAP[key].pos.join(',');
+            const sisters = CUBIE_GROUPS[pKey] || [];
+            sisters.forEach(sk => {
+              const el = document.getElementById('tile-' + sk);
+              if (el && el !== tile) el.classList.add('ring-2', 'ring-sky-400');
+            });
+          });
+          tile.addEventListener('mouseleave', () => {
+            const pKey = FACELET_MAP[key].pos.join(',');
+            const sisters = CUBIE_GROUPS[pKey] || [];
+            sisters.forEach(sk => {
+              const el = document.getElementById('tile-' + sk);
+              if (el && el !== tile) el.classList.remove('ring-2', 'ring-sky-400');
+            });
+          });
+
+          if (isCenter) {
+            tile.classList.add('cursor-not-allowed', 'ring-1', 'ring-white/40');
+            tile.innerHTML = `<span class="opacity-60 text-slate-950 font-bold text-[10px]">🔒</span>`;
+            tile.title = "中心块朝向固定，不可更改";
+            tile.addEventListener('click', () => {
+              audio.playWrong();
+            });
+          } else {
+            tile.title = "点击可直接切换颜色，同一积木块会联动发光";
+            tile.addEventListener('click', () => {
+              // 点击色块直接轮转颜色，并选中它
+              cycleTileColor(key);
+            });
+          }
+          grid.appendChild(tile);
+        }
+      });
+      updatePaletteButtonsHighlight();
+      updateColorCountBadges();
+      if (selectedTileKey) selectTile(selectedTileKey);
+    }
+
+    function updateColorCountBadges() {
+      const counts = { 'Y': 0, 'W': 0, 'R': 0, 'O': 0, 'B': 0, 'G': 0 };
+      Object.values(paintedState).forEach(c => {
+        if (counts[c] !== undefined) counts[c]++;
+      });
+
+      let allExactNine = true;
+      ['Y', 'W', 'R', 'O', 'B', 'G'].forEach(c => {
+        const badge = document.getElementById(`count-${c}`);
+        if (badge) {
+          badge.textContent = `${counts[c]}/9`;
+          if (counts[c] === 9) {
+            badge.className = 'text-[10px] font-mono text-emerald-400 font-bold';
+          } else {
+            badge.className = 'text-[10px] font-mono text-amber-300 font-bold';
+            allExactNine = false;
+          }
+        }
+      });
+      return allExactNine;
+    }
+
+    // 绑定 6 色快捷拾色按钮
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const color = btn.getAttribute('data-color');
+        currentBrush = color;
+        updatePaletteButtonsHighlight();
+
+        if (selectedTileKey && selectedTileKey[1] !== '4') {
+          // 如果当前有选中的非中心色块，直接给它赋色！
+          setTileColor(selectedTileKey, color);
+          audio.playDing();
+        } else {
+          audio.playTone(520, 'sine', 0.06, 0.1);
+        }
+      });
+    });
+
+    const modalColorInput = document.getElementById('modal-color-input');
+    const modalDiagnostic = document.getElementById('modal-diagnostic-report');
+
+    document.getElementById('btn-open-color-input').addEventListener('click', () => {
+      renderColorInputGrids();
+      modalColorInput.classList.remove('hidden');
+      audio.playDing();
+    });
+
+    document.getElementById('btn-close-color-modal').addEventListener('click', () => {
+      modalColorInput.classList.add('hidden');
+    });
+
+    function resetNonCentersToNone() {
+      ['U', 'D', 'F', 'B', 'L', 'R'].forEach(f => {
+        for (let i = 0; i < 9; i++) {
+          if (i !== 4) paintedState[`${f}${i}`] = 'none';
+        }
+      });
+      paintedState['U4'] = 'Y'; paintedState['D4'] = 'W'; paintedState['F4'] = 'R';
+      paintedState['B4'] = 'O'; paintedState['L4'] = 'B'; paintedState['R4'] = 'G';
+    }
+
+    // 阶段模板 1: 底层白色十字已拼好
+    document.getElementById('btn-preset-cross').addEventListener('click', () => {
+      resetNonCentersToNone();
+      paintedState['D1'] = 'W'; paintedState['F7'] = 'R';
+      paintedState['D5'] = 'W'; paintedState['R7'] = 'G';
+      paintedState['D7'] = 'W'; paintedState['B7'] = 'O';
+      paintedState['D3'] = 'W'; paintedState['L7'] = 'B';
+      selectedTileKey = null;
+      renderColorInputGrids();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '🌼 已套用底十字基准，只需录入剩余角块和中高层';
+      audio.playDing();
+    });
+
+    // 阶段模板 2: 第一层已拼好
+    document.getElementById('btn-preset-layer1').addEventListener('click', () => {
+      resetNonCentersToNone();
+      for (let i = 0; i < 9; i++) paintedState['D' + i] = 'W';
+      paintedState['F6'] = 'R'; paintedState['F7'] = 'R'; paintedState['F8'] = 'R';
+      paintedState['R6'] = 'G'; paintedState['R7'] = 'G'; paintedState['R8'] = 'G';
+      paintedState['B6'] = 'O'; paintedState['B7'] = 'O'; paintedState['B8'] = 'O';
+      paintedState['L6'] = 'B'; paintedState['L7'] = 'B'; paintedState['L8'] = 'B';
+      selectedTileKey = null;
+      renderColorInputGrids();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '🏢 已套用第一层基准（底层+侧边全好），只需微调中层与顶层';
+      audio.playDing();
+    });
+
+    // 阶段模板 3: 前两层已拼好 (F2L)
+    document.getElementById('btn-preset-f2l').addEventListener('click', () => {
+      resetNonCentersToNone();
+      for (let i = 0; i < 9; i++) paintedState['D' + i] = 'W';
+      paintedState['F6'] = 'R'; paintedState['F7'] = 'R'; paintedState['F8'] = 'R';
+      paintedState['R6'] = 'G'; paintedState['R7'] = 'G'; paintedState['R8'] = 'G';
+      paintedState['B6'] = 'O'; paintedState['B7'] = 'O'; paintedState['B8'] = 'O';
+      paintedState['L6'] = 'B'; paintedState['L7'] = 'B'; paintedState['L8'] = 'B';
+      paintedState['F3'] = 'R'; paintedState['F5'] = 'R';
+      paintedState['R3'] = 'G'; paintedState['R5'] = 'G';
+      paintedState['B3'] = 'O'; paintedState['B5'] = 'O';
+      paintedState['L3'] = 'B'; paintedState['L5'] = 'B';
+      selectedTileKey = null;
+      renderColorInputGrids();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '🌲 已套用前两层基准（一楼二楼全好），只需点选顶层 8 个块！';
+      audio.playDing();
+    });
+
+    // 阶段模板 4: 顶面小鱼形态
+    document.getElementById('btn-preset-fish').addEventListener('click', () => {
+      resetNonCentersToNone();
+      for (let i = 0; i < 9; i++) paintedState['D' + i] = 'W';
+      paintedState['F6'] = 'R'; paintedState['F7'] = 'R'; paintedState['F8'] = 'R';
+      paintedState['R6'] = 'G'; paintedState['R7'] = 'G'; paintedState['R8'] = 'G';
+      paintedState['B6'] = 'O'; paintedState['B7'] = 'O'; paintedState['B8'] = 'O';
+      paintedState['L6'] = 'B'; paintedState['L7'] = 'B'; paintedState['L8'] = 'B';
+      paintedState['F3'] = 'R'; paintedState['F5'] = 'R';
+      paintedState['R3'] = 'G'; paintedState['R5'] = 'G';
+      paintedState['B3'] = 'O'; paintedState['B5'] = 'O';
+      paintedState['L3'] = 'B'; paintedState['L5'] = 'B';
+      // 顶面黄色十字 + 1角块黄色在 U6 (左下角小鱼)
+      paintedState['U1'] = 'Y'; paintedState['U3'] = 'Y'; paintedState['U5'] = 'Y'; paintedState['U7'] = 'Y';
+      paintedState['U6'] = 'Y';
+      paintedState['F1'] = 'R'; paintedState['R1'] = 'G'; paintedState['B1'] = 'O'; paintedState['L1'] = 'B';
+      paintedState['F2'] = 'Y'; paintedState['R2'] = 'Y'; paintedState['B2'] = 'Y';
+      paintedState['U0'] = 'B'; paintedState['U2'] = 'R'; paintedState['U8'] = 'G';
+      paintedState['F0'] = 'R'; paintedState['R0'] = 'G'; paintedState['B0'] = 'O'; paintedState['L0'] = 'B'; paintedState['L2'] = 'B';
+      selectedTileKey = null;
+      renderColorInputGrids();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '🐟 已载入经典顶面小鱼形态！';
+      audio.playVictory();
+    });
+
+    // 物理规则智能自动推导补全算法
+    function autoCompleteRemaining() {
+      const counts = { 'Y': 0, 'W': 0, 'R': 0, 'O': 0, 'B': 0, 'G': 0 };
+      Object.values(paintedState).forEach(c => {
+        if (counts[c] !== undefined) counts[c]++;
+      });
+
+      const getNeedList = () => {
+        const list = [];
+        ['Y', 'W', 'R', 'O', 'B', 'G'].forEach(c => {
+          const rem = 9 - counts[c];
+          for (let i = 0; i < rem; i++) list.push(c);
+        });
+        return list;
+      };
+
+      const corners = Object.values(CUBIE_GROUPS).filter(g => g.length === 3);
+      const edges = Object.values(CUBIE_GROUPS).filter(g => g.length === 2);
+
+      // 角块补全
+      corners.forEach(keys => {
+        const filled = keys.filter(k => paintedState[k] && paintedState[k] !== 'none');
+        const empty = keys.filter(k => !paintedState[k] || paintedState[k] === 'none');
+        if (filled.length === 2 && empty.length === 1) {
+          const c1 = paintedState[filled[0]], c2 = paintedState[filled[1]];
+          let candidate = ['Y', 'W', 'R', 'O', 'B', 'G'].find(c => {
+            return c !== c1 && c !== c2 && counts[c] < 9;
+          });
+          if (candidate) {
+            paintedState[empty[0]] = candidate;
+            counts[candidate]++;
+          }
+        }
+      });
+
+      // 棱块补全
+      edges.forEach(keys => {
+        const filled = keys.filter(k => paintedState[k] && paintedState[k] !== 'none');
+        const empty = keys.filter(k => !paintedState[k] || paintedState[k] === 'none');
+        if (filled.length === 1 && empty.length === 1) {
+          const c1 = paintedState[filled[0]];
+          let candidate = ['Y', 'W', 'R', 'O', 'B', 'G'].find(c => {
+            return c !== c1 && counts[c] < 9;
+          });
+          if (candidate) {
+            paintedState[empty[0]] = candidate;
+            counts[candidate]++;
+          }
+        }
+      });
+
+      // 剩余任何未填格，按配额贪心填满
+      const unassigned = Object.keys(paintedState).filter(k => !paintedState[k] || paintedState[k] === 'none');
+      const need = getNeedList();
+      unassigned.forEach((k, idx) => {
+        if (idx < need.length) {
+          paintedState[k] = need[idx];
+          counts[need[idx]]++;
+        }
+      });
+
+      renderColorInputGrids();
+      audio.playVictory();
+    }
+
+    document.getElementById('btn-auto-complete').addEventListener('click', () => {
+      autoCompleteRemaining();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '✨ 物理规则自动推导补全成功！全部满足 9 个';
+    });
+
+    document.getElementById('btn-color-reset-solved').addEventListener('click', () => {
+      initPaintedStateSolved();
+      selectedTileKey = null;
+      renderColorInputGrids();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '👉 点选上方任意色块';
+      audio.playTone(600, 'sine', 0.08, 0.1);
+    });
+
+    document.getElementById('btn-color-clear').addEventListener('click', () => {
+      resetNonCentersToNone();
+      selectedTileKey = null;
+      renderColorInputGrids();
+      const badge = document.getElementById('selected-tile-badge');
+      if (badge) badge.textContent = '👉 点选上方任意色块';
+      audio.playWrong();
+    });
+
+    /* =====================================================================
+       9. 智能阶段诊断与 3D 实物带练引擎
+       ===================================================================== */
+    function applyPaintedStateToCube() {
+      rubik.cubies.forEach(c => {
+        c.mat = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+        rubik.updateStyle(c);
+
+        const faces = c.el.querySelectorAll('.face');
+        faces.forEach(faceDiv => {
+          let dir = '';
+          if (faceDiv.classList.contains('face-u')) dir = 'u';
+          else if (faceDiv.classList.contains('face-d')) dir = 'd';
+          else if (faceDiv.classList.contains('face-f')) dir = 'f';
+          else if (faceDiv.classList.contains('face-b')) dir = 'b';
+          else if (faceDiv.classList.contains('face-l')) dir = 'l';
+          else if (faceDiv.classList.contains('face-r')) dir = 'r';
+
+          const stickerDiv = faceDiv.querySelector('.sticker');
+          let matchedKey = null;
+          for (const [k, v] of Object.entries(FACELET_MAP)) {
+            if (v.dir === dir && v.pos[0] === c.pos[0] && v.pos[1] === c.pos[1] && v.pos[2] === c.pos[2]) {
+              matchedKey = k;
+              break;
+            }
+          }
+
+          if (matchedKey && paintedState[matchedKey]) {
+            const colorCode = paintedState[matchedKey];
+            stickerDiv.className = `sticker ${COLOR_CLASSES[colorCode] || 'sticker-none'}`;
+          } else {
+            stickerDiv.className = `sticker sticker-none`;
+          }
+        });
+      });
+    }
+
+    function diagnoseCube() {
+      const isNine = updateColorCountBadges();
+      if (!isNine) {
+        alert("小勇士注意：有格子还没涂好，请确认每种颜色都刚好是 9 个哦！");
+        return null;
+      }
+
+      // 阶段 1: 白色底十字
+      const dfWhite = (paintedState['D1'] === 'W' && paintedState['F7'] === 'R');
+      const drWhite = (paintedState['D5'] === 'W' && paintedState['R7'] === 'G');
+      const dbWhite = (paintedState['D7'] === 'W' && paintedState['B7'] === 'O');
+      const dlWhite = (paintedState['D3'] === 'W' && paintedState['L7'] === 'B');
+      const crossDone = (dfWhite && drWhite && dbWhite && dlWhite);
+
+      // 阶段 2: 第一层角块
+      const dflDone = (paintedState['D0'] === 'W' && paintedState['F6'] === 'R' && paintedState['L8'] === 'B');
+      const dfrDone = (paintedState['D2'] === 'W' && paintedState['F8'] === 'R' && paintedState['R6'] === 'G');
+      const dbrDone = (paintedState['D8'] === 'W' && paintedState['B6'] === 'O' && paintedState['R8'] === 'G');
+      const dblDone = (paintedState['D6'] === 'W' && paintedState['B8'] === 'O' && paintedState['L6'] === 'B');
+      const firstLayerDone = crossDone && (dflDone && dfrDone && dbrDone && dblDone);
+
+      // 阶段 3: 第二层中层棱块
+      const flDone = (paintedState['F3'] === 'R' && paintedState['L5'] === 'B');
+      const frDone = (paintedState['F5'] === 'R' && paintedState['R3'] === 'G');
+      const brDone = (paintedState['B3'] === 'O' && paintedState['R5'] === 'G');
+      const blDone = (paintedState['B5'] === 'O' && paintedState['L3'] === 'B');
+      const f2lDone = firstLayerDone && (flDone && frDone && brDone && blDone);
+
+      // 阶段 4: 顶面黄色 (OLL)
+      const uEdgesYellow = [paintedState['U1'], paintedState['U3'], paintedState['U5'], paintedState['U7']].filter(c => c === 'Y').length;
+      const uCornersYellow = [paintedState['U0'], paintedState['U2'], paintedState['U6'], paintedState['U8']].filter(c => c === 'Y').length;
+      const yellowCrossDone = (uEdgesYellow === 4);
+      const yellowFaceDone = (yellowCrossDone && uCornersYellow === 4);
+
+      // 阶段 5: 全魔方复原
+      const allSolved = Object.keys(FACELET_MAP).every(k => {
+        const expectedFace = k[0];
+        const expColor = (expectedFace==='U'?'Y':(expectedFace==='D'?'W':(expectedFace==='F'?'R':(expectedFace==='B'?'O':(expectedFace==='L'?'B':'G')))));
+        return paintedState[k] === expColor;
+      });
+
+      return {
+        crossDone, firstLayerDone, f2lDone,
+        uEdgesYellow, uCornersYellow, yellowCrossDone, yellowFaceDone, allSolved
+      };
+    }
+
+    let activeCustomPlan = null;
+
+    document.getElementById('btn-run-diagnostic').addEventListener('click', () => {
+      const diag = diagnoseCube();
+      if (!diag) return;
+
+      modalColorInput.classList.add('hidden');
+      audio.playVictory();
+
+      const list = document.getElementById('diagnostic-checklist');
+      list.innerHTML = '';
+
+      function addItem(title, isOk, extraInfo = '') {
+        const div = document.createElement('div');
+        div.className = `p-2.5 rounded-xl border flex items-center justify-between ${
+          isOk ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 font-bold' : 'bg-slate-800/80 border-slate-700 text-slate-300'
+        }`;
+        div.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span>${isOk ? '✅' : '⏳'}</span>
+            <span>${title}</span>
+          </div>
+          <span class="text-[11px] font-mono opacity-80">${extraInfo}</span>
+        `;
+        list.appendChild(div);
+      }
+
+      addItem('第1关：小黄花与底十字', diag.crossDone, diag.crossDone ? '完美对齐' : '未完整');
+      addItem('第2关：神奇电梯楼(第一层)', diag.firstLayerDone, diag.firstLayerDone ? '一楼全拼好' : '差部分角块');
+      addItem('第3关：森林捉迷藏(第二层)', diag.f2lDone, diag.f2lDone ? '前两层已完成' : '中棱未全');
+      addItem('第4关：金鱼跃龙门(顶面全黄)', diag.yellowFaceDone, diag.yellowFaceDone ? '顶面纯金黄' : (diag.yellowCrossDone ? '已是小鱼/翻色态' : `黄棱数: ${diag.uEdgesYellow}/4`));
+      addItem('第5关：猫头鹰守卫(六面全解)', diag.allSolved, diag.allSolved ? '🎉 已完全复原' : '只差最后一步');
+
+      let summaryText = "";
+      let targetLevelRef = 0;
+      let planTitle = "实物定制带练";
+      let planSteps = [];
+      let planButtons = [];
+
+      if (diag.allSolved) {
+        summaryText = "太厉害啦！你手里的魔方其实已经全拼好啦！六个面全部严丝合缝！";
+        targetLevelRef = 4;
+        planSteps = [{ move: "U", name: "巡视六面", icon: "✨", desc: "魔方已经完全复原，随时可以重新打乱挑战！" }];
+        planButtons = [{ move: "U", label: "巡视魔方", icon: "✨", color: "bg-emerald-500 hover:bg-emerald-400" }];
+      } else if (!diag.crossDone) {
+        summaryText = "手里的魔方处于【第 1 关：小黄花农场】阶段！我们先在顶层找白花瓣，对齐侧面颜色转半圈，立即搞定白色十字！";
+        targetLevelRef = 0;
+        planSteps = ADVENTURE_LEVELS[0].steps;
+        planButtons = ADVENTURE_LEVELS[0].buttons;
+      } else if (!diag.firstLayerDone) {
+        summaryText = "白色地基十字已经打好啦！当前处于【第 2 关：神奇电梯楼】！我们要用【电梯接人法】把白色小人一个个送回家！";
+        targetLevelRef = 1;
+        planSteps = ADVENTURE_LEVELS[1].steps;
+        planButtons = ADVENTURE_LEVELS[1].buttons;
+      } else if (!diag.f2lDone) {
+        summaryText = "一楼地基已经稳固，目前处于【第 3 关：森林捉迷藏】！我们要用反向躲猫猫把二楼中层棱块全部嵌进去！";
+        targetLevelRef = 2;
+        planSteps = ADVENTURE_LEVELS[2].steps;
+        planButtons = ADVENTURE_LEVELS[2].buttons;
+      } else if (!diag.yellowFaceDone) {
+        summaryText = "前两层都搞定了，真棒！目前处于【第 4 关：金鱼跃龙门】！把小黄鱼的鱼头摆在左下角，念口诀：推上去拨一下、拉下来拨一下，瞬间变金龙！";
+        targetLevelRef = 3;
+        planSteps = ADVENTURE_LEVELS[3].steps;
+        planButtons = ADVENTURE_LEVELS[3].buttons;
+      } else {
+        summaryText = "顶面金黄已经拿下！只差最后【第 5 关：猫头鹰双眼】收尾！寻找侧面的双眼车灯，施展终极合体魔法！";
+        targetLevelRef = 4;
+        planSteps = ADVENTURE_LEVELS[4].steps;
+        planButtons = ADVENTURE_LEVELS[4].buttons;
+      }
+
+      document.getElementById('diagnostic-summary-text').textContent = summaryText;
+      modalDiagnostic.classList.remove('hidden');
+
+      activeCustomPlan = {
+        targetLevelRef,
+        planTitle,
+        summaryText,
+        steps: planSteps,
+        buttons: planButtons
+      };
+    });
+
+    document.getElementById('btn-close-diagnostic').addEventListener('click', () => {
+      modalDiagnostic.classList.add('hidden');
+    });
+
+    document.getElementById('btn-start-custom-guidance').addEventListener('click', () => {
+      if (!activeCustomPlan) return;
+      modalDiagnostic.classList.add('hidden');
+
+      // 同步实物贴纸到 3D 舞台
+      applyPaintedStateToCube();
+
+      // 显示并激活定制实物带练标签
+      const tabCustom = document.getElementById('tab-custom-solve');
+      tabCustom.classList.remove('hidden');
+
+      // 绑定定制数据并切换
+      currentLevelIdx = -1; // -1 表示定制实物模式
+      currentStepIdx = 0;
+
+      document.querySelectorAll('.level-tab-btn').forEach(b => {
+        b.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60 font-bold';
+      });
+      tabCustom.className = 'level-tab-btn min-w-[130px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md';
+
+      document.getElementById('stage-task-text').textContent = '手里的真实魔方专属带练';
+      document.getElementById('level-rhyme-text').textContent = activeCustomPlan.summaryText;
+
+      // 替换当前动作按钮与步骤
+      renderCustomPlanUi();
+      audio.playVictory();
+    });
+
+    function renderCustomPlanUi() {
+      if (!activeCustomPlan) return;
+      const data = activeCustomPlan;
+      const grid = document.getElementById('action-buttons-grid');
+      grid.innerHTML = '';
+
+      const targetMove = data.steps[currentStepIdx] ? data.steps[currentStepIdx].move : null;
+
+      data.buttons.forEach(b => {
+        const btn = document.createElement('button');
+        const isTarget = (b.move === targetMove);
+        const guideClass = (!isPlayChallengeMode && isTarget) ? 'guide-pulse ring-4 ring-amber-400/50' : '';
+
+        btn.className = `p-3 rounded-2xl ${b.color} text-slate-950 font-black text-xs flex items-center justify-between shadow-md transition active:scale-95 ${guideClass}`;
+        btn.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-xl">${b.icon}</span>
+            <span>${b.label}</span>
+          </div>
+          <span class="text-[10px] font-mono opacity-60 bg-black/10 px-1.5 py-0.5 rounded">${b.move}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          handleActionClick(b.move, btn);
+        });
+
+        grid.appendChild(btn);
+      });
+
+      // 更新皮皮狐气泡文本与引导手势
+      const stepTotal = data.steps.length;
+      if (currentStepIdx < stepTotal) {
+        const cur = data.steps[currentStepIdx];
+        document.getElementById('step-hint-badge').textContent = `第 ${currentStepIdx + 1}/${stepTotal} 步`;
+        document.getElementById('dialog-bubble-text').textContent = `👉 请拿起你手里的真实魔方：执行【${cur.name}】！${cur.desc}`;
+      } else {
+        document.getElementById('step-hint-badge').textContent = `完成！`;
+        document.getElementById('dialog-bubble-text').textContent = `🎉 恭喜小勇士！本阶段已完全攻克，手里的魔方已经成功升级！`;
+      }
+
+      // 更新步骤点
+      const dotsBar = document.getElementById('action-dots-bar');
+      dotsBar.innerHTML = '';
+      for (let i = 0; i < stepTotal; i++) {
+        const dot = document.createElement('span');
+        if (i < currentStepIdx) {
+          dot.className = 'w-3 h-3 rounded-full bg-emerald-400 inline-block shadow-sm';
+        } else if (i === currentStepIdx) {
+          dot.className = 'w-3.5 h-3.5 rounded-full bg-amber-400 inline-block animate-ping';
+        } else {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-700 inline-block';
+        }
+        dotsBar.appendChild(dot);
+      }
+    }
+
+    // 默认启动载入第 1 关
+    updateTotalStarsUi();
+    loadLevel(0);
+  </script>
+</body>
+</html>
