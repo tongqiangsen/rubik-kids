@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.6"/>
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Squircle Background -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="6" filter="url(#dropShadow)"/>
+
+  <!-- Star sparkles -->
+  <polygon points="110,95 113,107 125,110 113,113 110,125 107,113 95,110 107,107" fill="#facc15" opacity="0.9"/>
+  <polygon points="400,130 402,138 410,140 402,142 400,150 398,142 390,140 398,138" fill="#38bdf8" opacity="0.8"/>
+  <polygon points="390,380 392,388 400,390 392,392 390,400 388,392 380,390 388,388" fill="#f472b6" opacity="0.7"/>
+
+  <!-- 3D Isometric Cube Container -->
+  <g transform="translate(256, 240)" filter="url(#dropShadow)">
+    <!-- Top Face (Yellow dominant) -->
+    <g>
+      <polygon points="0,-120 40,-97 0,-74 -40,-97" fill="#facc15" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="45,-94 85,-71 45,-48 5,-71" fill="#fde047" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="90,-68 130,-45 90,-22 50,-45" fill="#facc15" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-45,-94 -5,-71 -45,-48 -85,-71" fill="#fef08a" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="0,-68 40,-45 0,-22 -40,-45" fill="#facc15" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="45,-42 85,-19 45,4 5,-19" fill="#fde047" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-90,-68 -50,-45 -90,-22 -130,-45" fill="#fde047" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-45,-42 -5,-19 -45,4 -85,-19" fill="#facc15" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="0,-16 40,7 0,30 -40,7" fill="#fef08a" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Left Face (Blue dominant) -->
+    <g>
+      <polygon points="-134,-41 -94,-18 -94,32 -134,9" fill="#3b82f6" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-134,14 -94,37 -94,87 -134,64" fill="#2563eb" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-134,69 -94,92 -94,142 -134,119" fill="#3b82f6" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-89,-15 -49,8 -49,58 -89,35" fill="#60a5fa" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-89,40 -49,63 -49,113 -89,90" fill="#3b82f6" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-89,95 -49,118 -49,168 -89,145" fill="#2563eb" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-44,11 -4,34 -4,84 -44,61" fill="#3b82f6" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-44,66 -4,89 -4,139 -44,116" fill="#1d4ed8" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="-44,121 -4,144 -4,194 -44,171" fill="#60a5fa" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Right Face (Red dominant) -->
+    <g>
+      <polygon points="4,34 44,11 44,61 4,84" fill="#ef4444" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="4,89 44,66 44,116 4,139" fill="#dc2626" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="4,144 44,121 44,171 4,194" fill="#f87171" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="49,8 89,-15 89,35 49,58" fill="#f87171" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="49,63 89,40 89,90 49,113" fill="#ef4444" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="49,118 89,95 89,145 49,168" fill="#dc2626" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="94,-18 134,-41 134,9 94,32" fill="#ef4444" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="94,37 134,14 134,64 94,87" fill="#b91c1c" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+      <polygon points="94,92 134,69 134,119 94,142" fill="#f87171" stroke="#1e293b" stroke-width="4" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Mascot Fox Badge at bottom-right corner -->
+  <g transform="translate(350, 350)" filter="url(#dropShadow)">
+    <circle cx="50" cy="50" r="42" fill="#f97316" stroke="#ffffff" stroke-width="4"/>
+    <polygon points="20,25 35,5 45,30" fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
+    <polygon points="80,25 65,5 55,30" fill="#ea580c" stroke="#ffffff" stroke-width="2"/>
+    <polygon points="26,23 35,11 41,27" fill="#fed7aa"/>
+    <polygon points="74,23 65,11 59,27" fill="#fed7aa"/>
+    <path d="M 18,54 C 20,75 40,86 50,86 C 60,86 80,75 82,54 C 76,46 64,52 50,58 C 36,52 24,46 18,54 Z" fill="#ffffff"/>
+    <ellipse cx="36" cy="46" rx="4" ry="5" fill="#1e293b"/>
+    <circle cx="37.5" cy="44" r="1.5" fill="#ffffff"/>
+    <ellipse cx="64" cy="46" rx="4" ry="5" fill="#1e293b"/>
+    <circle cx="65.5" cy="44" r="1.5" fill="#ffffff"/>
+    <polygon points="50,60 45,55 55,55" fill="#1e293b"/>
+    <circle cx="27" cy="56" r="4" fill="#f43f5e" opacity="0.5"/>
+    <circle cx="73" cy="56" r="4" fill="#f43f5e" opacity="0.5"/>
+  </g>
+</svg>
