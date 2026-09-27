@@ -1,3 +1,5 @@
 name = "rubik-kids"
 main = "worker.js"
 compatibility_date = "2024-09-23"
+account_id = "4d2288bda768a0cfdc2f5d296f75b307"
+workers_dev = true
