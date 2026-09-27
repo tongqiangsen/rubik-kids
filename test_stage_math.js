@@ -159,7 +159,7 @@ const LEVELS = [
   { id: 2, name: '神奇电梯楼', setup: ["U", "R", "U'", "R'"], steps: ["R", "U", "R'", "U'"] },
   { id: 3, name: '森林捉迷藏', setup: ["F'", "U'", "F", "U", "R", "U", "R'", "U'"], steps: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"] },
   { id: 4, name: '金鱼跃龙门', setup: ["R", "U2", "R'", "U'", "R", "U'", "R'"], steps: ["R", "U", "R'", "U", "R", "U2", "R'"] },
-  { id: 5, name: '猫头鹰守卫战', setup: ["L'", "U2", "L", "U", "L'", "U", "L", "U", "R", "U2", "R'", "U'", "R", "U'", "R'"], steps: ["R", "U", "R'", "U", "R", "U2", "R'", "U'", "L'", "U'", "L", "U'", "L'", "U2", "L"] }
+  { id: 5, name: '猫头鹰守卫战', setup: ['F2', "U'", "R'", 'L', 'F2', 'R', "L'", "U'", 'F2'], steps: ['F2', 'U', 'L', "R'", 'F2', "L'", 'R', 'U', 'F2'] }
 ];
 
 function runStageMathAudit() {

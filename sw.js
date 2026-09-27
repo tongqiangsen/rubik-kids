@@ -1,7 +1,21 @@
 // Service Worker for 魔方小勇士 PWA
-const CACHE_NAME = 'rubik-kids-v2';
+const CACHE_NAME = 'rubik-kids-v12';
 const ASSETS_TO_CACHE = [
   './',
+  'cube-state.js',
+  'validate-facelets.js',
+  'near-solver.js',
+  'solver-bridge.js',
+  'solver-worker.js',
+  'cross-solver.js',
+  'layer1-solver.js',
+  'middle-solver.js',
+  'yellow-cross-solver.js',
+  'yellow-face-solver.js',
+  'top-corners-solver.js',
+  'top-edges-solver.js',
+  'vendor/cubejs/cube.js',
+  'vendor/cubejs/solve.js',
   'manifest.json',
   'icon-192.png',
   'icon-512.png',

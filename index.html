@@ -13,8 +13,7 @@
   <meta name="apple-mobile-web-app-title" content="魔方小勇士">
   <meta name="theme-color" content="#0f172a">
   <meta name="application-name" content="魔方小勇士">
-  <!-- cf-build-probe: 20260927-probe2-pwa -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* iOS Safe Area Insets for standalone mode */
     body {
@@ -167,7 +166,7 @@
     <nav class="bg-slate-800/80 border border-slate-700/70 rounded-3xl p-2 shadow-sm flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
       <button id="tab-custom-solve" class="level-tab-btn hidden min-w-[130px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md" data-level="custom">
         <span>🎯</span>
-        <span>手里的魔方定制带练</span>
+        <span>实物颜色预览</span>
         <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-black/20 text-slate-950 font-mono">实物</span>
       </button>
       <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md" data-level="1">
@@ -255,7 +254,7 @@
         <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-4 shadow-md flex-1 flex flex-col justify-between space-y-3">
           
           <!-- 关卡模式切换与重置 -->
-          <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
             <div class="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-2xl text-xs font-bold">
               <button id="mode-btn-story" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm transition">
                 📖 听故事演示
@@ -265,9 +264,12 @@
               </button>
             </div>
 
-            <button id="btn-restart-level" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
-              🔄 重新摆局
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button id="btn-next-practice" class="px-3 py-1.5 rounded-xl bg-sky-700 hover:bg-sky-600 text-xs font-bold transition disabled:opacity-40">换个残局</button>
+              <button id="btn-restart-level" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
+                🔄 重新摆局
+              </button>
+            </div>
           </div>
 
           <!-- 关卡故事儿歌口诀 -->
@@ -298,9 +300,12 @@
               </div>
             </div>
 
-            <button id="btn-auto-step" class="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-1">
-              <span>▶ 走一步</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btn-undo-step" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition disabled:opacity-40" disabled>↶ 上一步</button>
+              <button id="btn-auto-step" class="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-1">
+                <span>▶ 走一步</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -495,11 +500,8 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button id="btn-auto-complete" class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 active:scale-95">
-              <span>✨ 物理规则智能补全</span>
-            </button>
             <button id="btn-run-diagnostic" class="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg active:scale-95 transition flex items-center gap-1.5">
-              <span>🔍 智能体检并生成带练</span>
+              <span>🔍 查看录入颜色</span>
             </button>
           </div>
         </div>
@@ -514,8 +516,8 @@
           <div class="flex items-center gap-2">
             <span class="text-3xl">🩺</span>
             <div>
-              <h3 class="font-black text-base text-amber-400">皮皮狐的魔方体检报告</h3>
-              <p class="text-[11px] text-slate-400">已成功识别并诊断手里的真实魔方状态</p>
+              <h3 class="font-black text-base text-amber-400">皮皮狐的颜色对照报告</h3>
+              <p class="text-[11px] text-slate-400">核对状态后，可查看 3D 模型</p>
             </div>
           </div>
           <button id="btn-close-diagnostic" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold">✕</button>
@@ -528,14 +530,14 @@
 
         <!-- 当前核心诊断总结卡片 -->
         <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
-          <div class="font-bold text-amber-400">🎯 突破卡点行动指南：</div>
+          <div class="font-bold text-amber-400">🎯 录入状态提示：</div>
           <p id="diagnostic-summary-text" class="text-slate-200 leading-relaxed font-medium">
             正在分析中...
           </p>
         </div>
 
         <button id="btn-start-custom-guidance" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-black text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2">
-          <span>🚀 开启 3D 定制带练（照着魔方一步步转）</span>
+          <span>🧊 在 3D 模型中查看录入颜色</span>
         </button>
       </div>
     </div>
@@ -630,6 +632,10 @@
 
   </div>
 
+  <script src="cube-state.js"></script>
+  <script src="validate-facelets.js"></script>
+  <script src="near-solver.js"></script>
+  <script src="solver-bridge.js"></script>
   <script>
     /* =====================================================================
        1. 纯 Web Audio 游戏音效合成引擎 (零外部音频文件，免加载)
@@ -791,33 +797,8 @@
     const CUBIE_SIZE = 58;
     const MOVE_DURATION = 210;
 
-    const ROTATION_DEFS = {
-      "R":  { axis: 'x', sliceVal: 1,  pivotCss: 'rotateX(90deg)',  mat: [[1,0,0],[0,0,-1],[0,1,0]] },
-      "R'": { axis: 'x', sliceVal: 1,  pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
-      "L":  { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
-      "L'": { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(90deg)',  mat: [[1,0,0],[0,0,-1],[0,1,0]] },
-      "U":  { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
-      "U'": { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(90deg)',  mat: [[0,0,1],[0,1,0],[-1,0,0]] },
-      "D":  { axis: 'y', sliceVal: 1,  pivotCss: 'rotateY(90deg)',  mat: [[0,0,1],[0,1,0],[-1,0,0]] },
-      "D'": { axis: 'y', sliceVal: 1,  pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
-      "F":  { axis: 'z', sliceVal: 1,  pivotCss: 'rotateZ(90deg)',  mat: [[0,-1,0],[1,0,0],[0,0,1]] },
-      "F'": { axis: 'z', sliceVal: 1,  pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
-      "B":  { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
-      "B'": { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(90deg)',  mat: [[0,-1,0],[1,0,0],[0,0,1]] }
-    };
-
-    function matMul(a, b) {
-      const res = [[0,0,0],[0,0,0],[0,0,0]];
-      for(let i=0; i<3; i++) for(let j=0; j<3; j++) res[i][j] = a[i][0]*b[0][j] + a[i][1]*b[1][j] + a[i][2]*b[2][j];
-      return res;
-    }
-    function vecMul(m, v) {
-      return [
-        m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2],
-        m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2],
-        m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2]
-      ];
-    }
+    const ROTATION_DEFS = CubeState.ROTATION_DEFS;
+    const diagnoseAdventureCube = CubeState.diagnose;
 
     class RubiksCube {
       constructor(cubeEl, pivotEl) {
@@ -875,7 +856,8 @@
                 id: el.id,
                 el: el,
                 pos: [x, y, z],
-                mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+                mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                stickers: CubeState.initialStickers([x, y, z])
               };
 
               this.cubies.push(cData);
@@ -905,22 +887,8 @@
       }
 
       instantMove(code) {
-        if (code.endsWith('2')) {
-          const b = code[0];
-          this.instantMove(b);
-          this.instantMove(b);
-          return;
-        }
-        const def = ROTATION_DEFS[code];
-        if (!def) return;
-        const ax = def.axis === 'x' ? 0 : (def.axis === 'y' ? 1 : 2);
-        this.cubies.forEach(c => {
-          if (c.pos[ax] === def.sliceVal) {
-            c.pos = vecMul(def.mat, c.pos);
-            c.mat = matMul(def.mat, c.mat);
-            this.updateStyle(c);
-          }
-        });
+        CubeState.applyMove(this.cubies, code);
+        this.cubies.forEach(c => this.updateStyle(c));
       }
 
       instantMoves(moves) {
@@ -993,9 +961,8 @@
 
         this._animTimer = setTimeout(() => {
           this._animTimer = null;
+          CubeState.applyMove(targetCubies, code);
           targetCubies.forEach(c => {
-            c.pos = vecMul(def.mat, c.pos);
-            c.mat = matMul(def.mat, c.mat);
             this.cubeEl.appendChild(c.el);
             this.updateStyle(c);
           });
@@ -1190,14 +1157,14 @@
           { move: "R'", name: "拉下来 (下)", icon: "🌊", desc: "【拉下来】水花落回底层保护结构！" },
           { move: "U", name: "拨一下 (左)", icon: "💦", desc: "【拨一下】再向左拨动一朵水花！" },
           { move: "R", name: "推上去 (上)", icon: "🐬", desc: "【推上去】小金鱼一跃而起，冲向空中！" },
-          { move: "U2", name: "拨两下 (转两圈)", icon: "🌀", desc: "【拨两下】在空中转两个大圈圈！" },
+          { move: "U2", name: "顶层转半圈 (180°)", icon: "🌀", desc: "【转半圈】顶层连续转两个 90°，合起来是 180°。" },
           { move: "R'", name: "拉下来！金龙现身", icon: "✨", desc: "【拉下来】扑通！整个顶面瞬间变成纯金黄色！" }
         ],
         buttons: [
           { move: "R", label: "推上去 ⬆️", icon: "🌊", color: "bg-amber-500 hover:bg-amber-400" },
           { move: "U", label: "拨一下 ◀️", icon: "💦", color: "bg-sky-500 hover:bg-sky-400" },
           { move: "R'", label: "拉下来 🔽", icon: "🌊", color: "bg-emerald-500 hover:bg-emerald-400" },
-          { move: "U2", label: "拨两圈 🌀", icon: "💫", color: "bg-purple-500 hover:bg-purple-400" }
+          { move: "U2", label: "转半圈 180° 🌀", icon: "💫", color: "bg-purple-500 hover:bg-purple-400" }
         ]
       },
       {
@@ -1205,38 +1172,47 @@
         title: "猫头鹰守卫战",
         icon: "🦉",
         badge: "魔方终极守护者",
-        task: "六面彻底重合，全魔方复原！",
-        rhyme: "找到猫头鹰双眼，终极魔法大合体！",
+        task: "黄色顶面已经完成，让顶层棱块回到正确位置",
+        rhyme: "黄色朝上不翻面，对准侧面中心块，让最后的棱块归位！",
         cam: { rX: -36, rY: -36 },
-        setup: ["L'", "U2", "L", "U", "L'", "U", "L", "U", "R", "U2", "R'", "U'", "R", "U'", "R'"],
+        setup: ['F2', "U'", "R'", 'L', 'F2', 'R', "L'", "U'", 'F2'],
         steps: [
-          { move: "R", name: "小鱼第1拍", icon: "⚡", desc: "释放右手小鱼上乘功力！" },
-          { move: "U", name: "小鱼第2拍", icon: "⚡", desc: "拨开棱块！" },
-          { move: "R'", name: "小鱼第3拍", icon: "⚡", desc: "拉回保护！" },
-          { move: "U", name: "小鱼第4拍", icon: "⚡", desc: "传递交接！" },
-          { move: "R", name: "小鱼第5拍", icon: "⚡", desc: "起飞升空！" },
-          { move: "U2", name: "小鱼第6拍", icon: "⚡", desc: "半圈对接！" },
-          { move: "R'", name: "小鱼收尾", icon: "⚡", desc: "右半部就位！" },
-          { move: "U'", name: "左侧接力", icon: "⚡", desc: "转向左侧！" },
-          { move: "L'", name: "左手小鱼起", icon: "🦉", desc: "左手猫头鹰法阵开启！" },
-          { move: "U'", name: "左拨", icon: "🦉", desc: "对齐最后棱位！" },
-          { move: "L", name: "左下", icon: "🦉", desc: "嵌入侧槽！" },
-          { move: "U'", name: "左拨", icon: "🦉", desc: "校准最后角度！" },
-          { move: "L'", name: "左推", icon: "🦉", desc: "拉起底面轨道！" },
-          { move: "U2", name: "转半圈", icon: "✨", desc: "六面齿轮彻底咬合！" },
-          { move: "L", name: "大功告成！", icon: "🎉", desc: "六个面全部拼好！恭喜成为真正的魔方大师！" }
+          { move: 'F2', name: '前面转半圈', desc: '先把前面的两层轨道让开，注意白色底层仍要在下面。' },
+          { move: 'U', name: '顶层转一格', desc: '顶层顺时针转 90°，观察黄色棱块的位置。' },
+          { move: 'L', name: '左面转一格', desc: '左面顺时针转 90°。' },
+          { move: "R'", name: '右面反转一格', desc: '右面逆时针转 90°。' },
+          { move: 'F2', name: '前面再转半圈', desc: '前面转 180°，把棱块带到另一侧。' },
+          { move: "L'", name: '左面转回来', desc: '左面逆时针转 90°。' },
+          { move: 'R', name: '右面转回来', desc: '右面顺时针转 90°。' },
+          { move: 'U', name: '顶层再转一格', desc: '顶层顺时针转 90°，对齐侧面颜色。' },
+          { move: 'F2', name: '前面复位', desc: '前面再转 180°，检查六个面是否都与中心块同色。' }
         ],
         buttons: [
-          { move: "R", label: "右手推上去 ⬆️", icon: "⚡", color: "bg-amber-500 hover:bg-amber-400" },
-          { move: "R'", label: "右手拉下来 🔽", icon: "⚡", color: "bg-emerald-500 hover:bg-emerald-400" },
-          { move: "L'", label: "左手推上去 ⬆️", icon: "🦉", color: "bg-indigo-500 hover:bg-indigo-400" },
-          { move: "L", label: "左手拉下来 🔽", icon: "🦉", color: "bg-teal-500 hover:bg-teal-400" },
-          { move: "U", label: "顶层顺时针 ◀️", icon: "💨", color: "bg-sky-500 hover:bg-sky-400" },
-          { move: "U'", label: "顶层逆时针 ▶️", icon: "↩️", color: "bg-slate-700 hover:bg-slate-600" },
-          { move: "U2", label: "空中转半圈 🌀", icon: "✨", color: "bg-purple-500 hover:bg-purple-400" }
+          { move: 'F2', label: '前面半圈 180°', icon: '🦉', color: 'bg-purple-500 hover:bg-purple-400' },
+          { move: 'U', label: '顶层顺时针', icon: '💨', color: 'bg-sky-500 hover:bg-sky-400' },
+          { move: 'L', label: '左面顺时针', icon: '⬅️', color: 'bg-teal-500 hover:bg-teal-400' },
+          { move: "L'", label: '左面逆时针', icon: '↩️', color: 'bg-indigo-500 hover:bg-indigo-400' },
+          { move: 'R', label: '右面顺时针', icon: '➡️', color: 'bg-amber-500 hover:bg-amber-400' },
+          { move: "R'", label: '右面逆时针', icon: '↩️', color: 'bg-emerald-500 hover:bg-emerald-400' }
         ]
       }
     ];
+
+    const PRACTICE_CASES = [
+      { name: '从另一侧拼白十字', base: ADVENTURE_LEVELS[1].setup, moves: ["U'", 'R2', "U'", 'F2'] },
+      { name: '左手电梯接白角', base: ADVENTURE_LEVELS[2].setup, moves: ["L'", "U'", 'L', 'U'] },
+      { name: '从左边放入中层棱块', base: ADVENTURE_LEVELS[3].setup, moves: ["U'", "L'", 'U', 'L', 'U', 'F', "U'", "F'"] },
+      { name: '从左边完成黄色顶面', base: ADVENTURE_LEVELS[4].setup, moves: ["L'", "U'", 'L', "U'", "L'", 'U2', 'L'] },
+      { name: '让顶层角块归位', base: [], moves: ["F'", 'L', "F'", 'R2', 'F', "L'", "F'", 'R2', 'F2'] }
+    ];
+    const MOVE_NAMES = {
+      U: '顶层顺时针 90°', "U'": '顶层逆时针 90°', U2: '顶层转半圈 180°',
+      R: '右面顺时针 90°', "R'": '右面逆时针 90°', R2: '右面转半圈 180°',
+      L: '左面顺时针 90°', "L'": '左面逆时针 90°', L2: '左面转半圈 180°',
+      F: '前面顺时针 90°', "F'": '前面逆时针 90°', F2: '前面转半圈 180°',
+      D: '底面顺时针 90°', "D'": '底面逆时针 90°', D2: '底面转半圈 180°',
+      B: '后面顺时针 90°', "B'": '后面逆时针 90°', B2: '后面转半圈 180°'
+    };
 
     /* =====================================================================
        6. 游戏状态与交互流程控制
@@ -1244,6 +1220,10 @@
     let currentLevelIdx = 0; // 0 ~ 4
     let currentStepIdx = 0;
     let isPlayChallengeMode = false;
+    let victoryTimer = null;
+    const practiceIndex = [0, 0, 0, 0, 0];
+    const adventureTabs = Array.from(document.querySelectorAll('.level-tab-btn[data-level]'))
+      .filter(btn => btn.dataset.level !== 'custom');
     let starsStorage = JSON.parse(localStorage.getItem('rubiks_kids_stars') || '[3, 0, 0, 0, 0]');
 
     function saveStars() {
@@ -1256,7 +1236,7 @@
       document.getElementById('total-stars-count').textContent = sum;
 
       // 更新关卡标签上的星星
-      document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+      adventureTabs.forEach((btn, idx) => {
         const starSpan = btn.querySelector('.level-star-badge');
         const s = starsStorage[idx];
         starSpan.textContent = s > 0 ? '⭐'.repeat(s) : '';
@@ -1267,20 +1247,51 @@
       if (currentLevelIdx === -1 && typeof activeCustomPlan !== 'undefined' && activeCustomPlan) {
         return activeCustomPlan;
       }
+      if (practiceIndex[currentLevelIdx] === 1) {
+        const base = ADVENTURE_LEVELS[currentLevelIdx];
+        const practice = PRACTICE_CASES[currentLevelIdx];
+        const steps = practice.moves.map(move => ({
+          move,
+          name: MOVE_NAMES[move],
+          desc: `保持黄色朝上、红色朝前。做【${MOVE_NAMES[move]}】，观察哪几块发生变化。`
+        }));
+        const buttons = [...new Set(practice.moves)].map(move => ({
+          move, label: MOVE_NAMES[move], icon: '↪️', color: 'bg-sky-500 hover:bg-sky-400'
+        }));
+        return {
+          ...base,
+          task: `练习 2：${practice.name}`,
+          rhyme: '先观察要找的色块，再按提示一步步转动。完成本关目标即可。',
+          setup: [...practice.base, ...practice.moves.slice().reverse().map(CubeState.inverseMove)],
+          steps, buttons
+        };
+      }
       return ADVENTURE_LEVELS[currentLevelIdx] || ADVENTURE_LEVELS[0];
     }
 
     function loadLevel(levelIdx) {
+      customAwaitingCheck = false;
+      if (victoryTimer) clearTimeout(victoryTimer);
+      victoryTimer = null;
+      document.getElementById('modal-level-complete').classList.add('hidden');
       currentLevelIdx = levelIdx;
       currentStepIdx = 0;
+      document.getElementById('btn-auto-step').disabled = false;
+      const practiceButton = document.getElementById('btn-next-practice');
+      practiceButton.disabled = !PRACTICE_CASES[levelIdx];
+      practiceButton.textContent = practiceIndex[levelIdx] === 1 ? '返回示范残局' : '换个残局';
       const data = getLevelData();
+      const customTab = document.getElementById('tab-custom-solve');
+      if (!customTab.classList.contains('hidden')) {
+        customTab.className = 'level-tab-btn min-w-[130px] py-2 px-3 rounded-2xl text-slate-300 hover:bg-slate-700/60 font-bold';
+      }
 
       // UI 文本更新
       document.getElementById('stage-task-text').textContent = data.task;
       document.getElementById('level-rhyme-text').textContent = data.rhyme;
 
       // 关卡标签高亮
-      document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+      adventureTabs.forEach((btn, idx) => {
         if (idx === levelIdx) {
           btn.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md font-black';
         } else {
@@ -1351,7 +1362,7 @@
         document.getElementById('dialog-bubble-text').textContent = cur.desc;
       } else {
         document.getElementById('step-hint-badge').textContent = `完成啦！`;
-        document.getElementById('dialog-bubble-text').textContent = `🎉 恭喜小勇士！你亲手完成了整个关卡！`;
+        document.getElementById('dialog-bubble-text').textContent = '动作已完成，正在核对魔方状态。';
       }
 
       // 更新步骤点
@@ -1371,10 +1382,12 @@
 
       // 高亮匹配按钮
       renderActionButtons();
+      document.getElementById('btn-undo-step').disabled = currentStepIdx === 0;
     }
 
     function handleActionClick(moveCode, btnElement = null) {
       if (rubik.isBusy) return;
+      if (currentLevelIdx === -1 && customAwaitingCheck) return;
       const data = getLevelData();
 
       if (currentStepIdx >= data.steps.length) {
@@ -1383,23 +1396,26 @@
 
       const expected = data.steps[currentStepIdx].move;
 
-      // 在挑战模式下，判断按键是否正确
-      if (isPlayChallengeMode) {
-        if (moveCode !== expected) {
+      // 两种模式均按当前步骤执行，避免误点后模型与提示错位。
+      if (moveCode !== expected) {
           audio.playWrong();
           if (btnElement) {
             btnElement.classList.add('animate-shake');
             setTimeout(() => btnElement.classList.remove('animate-shake'), 400);
           }
-          document.getElementById('dialog-bubble-text').textContent = `哎呀，这个动作还不对哦！看看儿歌口诀，再试一次吧！`;
+          document.getElementById('dialog-bubble-text').textContent = isPlayChallengeMode
+            ? '这个动作还不对，看看儿歌口诀再试一次吧！'
+            : `当前要做的是【${data.steps[currentStepIdx].name}】，跟着发光按钮试试。`;
           return;
-        }
       }
 
       // 执行动作
       rubik.performMove(moveCode, () => {
+        const completedStep = data.steps[currentStepIdx];
         currentStepIdx++;
         if (currentLevelIdx === -1) {
+          customMoveHistory.push(moveCode);
+          customAwaitingCheck = !!completedStep.checkpoint;
           renderCustomPlanUi();
         } else {
           renderStepUi();
@@ -1407,11 +1423,20 @@
 
         // 检查关卡是否全部通关
         if (currentStepIdx >= data.steps.length) {
-          if (currentLevelIdx === -1) {
-            audio.playVictory();
-            launchConfetti();
+          if (currentLevelIdx === -1 && !customAwaitingCheck) {
+            const mode = activeCustomPlan.mode;
+            const goal = CUSTOM_GOALS[mode] || 'allSolved';
+            const achieved = diagnoseAdventureCube(rubik.cubies)[goal];
+            document.getElementById('dialog-bubble-text').textContent = achieved
+              ? CUSTOM_COMPLETION[mode] || '模型已复原！请核对手中实物是否也六面同色。'
+              : '引导步骤已走完，但模型未达到目标，请核对操作。';
           } else {
-            triggerLevelVictory();
+            const goals = ['crossDone', 'firstLayerDone', 'f2lDone', 'yellowFaceDone', 'allSolved'];
+            if (diagnoseAdventureCube(rubik.cubies)[goals[currentLevelIdx]]) {
+              triggerLevelVictory();
+            } else {
+              document.getElementById('dialog-bubble-text').textContent = '动作已经走完，但魔方还没有达到本关目标。请点“上一步”检查。';
+            }
           }
         }
       });
@@ -1464,15 +1489,23 @@
       document.getElementById('victory-stage-name').textContent = `你成功征服了【${data.title}】！`;
       document.getElementById('victory-badge-name').textContent = data.badge;
 
-      setTimeout(() => {
+      victoryTimer = setTimeout(() => {
         document.getElementById('modal-level-complete').classList.remove('hidden');
+        victoryTimer = null;
       }, 1500);
     }
 
     // 绑定关卡标签点击
-    document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+    adventureTabs.forEach((btn, idx) => {
       btn.addEventListener('click', () => loadLevel(idx));
     });
+    function switchPracticeCase() {
+      if (currentLevelIdx < 0 || !PRACTICE_CASES[currentLevelIdx]) return;
+      practiceIndex[currentLevelIdx] = 1 - practiceIndex[currentLevelIdx];
+      loadLevel(currentLevelIdx);
+    }
+    document.getElementById('btn-next-practice').addEventListener('click', switchPracticeCase);
+    document.getElementById('tab-custom-solve').addEventListener('click', showColorPreview);
 
     // 听故事演示 vs 小勇士挑战切换
     const btnStory = document.getElementById('mode-btn-story');
@@ -1501,8 +1534,43 @@
       }
     });
 
+    document.getElementById('btn-undo-step').addEventListener('click', () => {
+      if (currentLevelIdx === -1) {
+        if (activeCustomPlan.steps.length) {
+          if (rubik.isBusy || customAwaitingCheck || currentStepIdx === 0) return;
+          const previous = activeCustomPlan.steps[currentStepIdx - 1].move;
+          rubik.performMove(CubeState.inverseMove(previous), () => {
+            currentStepIdx--;
+            customMoveHistory.pop();
+            renderCustomPlanUi();
+          });
+          return;
+        }
+        if (rubik.isBusy || customMoveHistory.length === 0) return;
+        const last = customMoveHistory[customMoveHistory.length - 1];
+        rubik.performMove(CubeState.inverseMove(last), () => {
+          customMoveHistory.pop();
+          document.getElementById('btn-undo-step').disabled = customMoveHistory.length === 0;
+          document.getElementById('dialog-bubble-text').textContent = `已撤销 ${last}。请核对模型与实物的六面颜色。`;
+        });
+        return;
+      }
+      if (rubik.isBusy || currentStepIdx === 0) return;
+      if (victoryTimer) clearTimeout(victoryTimer);
+      victoryTimer = null;
+      document.getElementById('modal-level-complete').classList.add('hidden');
+      const move = getLevelData().steps[currentStepIdx - 1].move;
+      const inverse = CubeState.inverseMove(move);
+      rubik.performMove(inverse, () => {
+        currentStepIdx--;
+        if (currentLevelIdx === -1) renderCustomPlanUi();
+        else renderStepUi();
+      });
+    });
+
     document.getElementById('btn-restart-level').addEventListener('click', () => {
-      loadLevel(currentLevelIdx);
+      if (currentLevelIdx === -1) showColorPreview();
+      else loadLevel(currentLevelIdx);
     });
 
     // 通关弹窗按钮
@@ -1927,77 +1995,6 @@
       audio.playVictory();
     });
 
-    // 物理规则智能自动推导补全算法
-    function autoCompleteRemaining() {
-      const counts = { 'Y': 0, 'W': 0, 'R': 0, 'O': 0, 'B': 0, 'G': 0 };
-      Object.values(paintedState).forEach(c => {
-        if (counts[c] !== undefined) counts[c]++;
-      });
-
-      const getNeedList = () => {
-        const list = [];
-        ['Y', 'W', 'R', 'O', 'B', 'G'].forEach(c => {
-          const rem = 9 - counts[c];
-          for (let i = 0; i < rem; i++) list.push(c);
-        });
-        return list;
-      };
-
-      const corners = Object.values(CUBIE_GROUPS).filter(g => g.length === 3);
-      const edges = Object.values(CUBIE_GROUPS).filter(g => g.length === 2);
-
-      // 角块补全
-      corners.forEach(keys => {
-        const filled = keys.filter(k => paintedState[k] && paintedState[k] !== 'none');
-        const empty = keys.filter(k => !paintedState[k] || paintedState[k] === 'none');
-        if (filled.length === 2 && empty.length === 1) {
-          const c1 = paintedState[filled[0]], c2 = paintedState[filled[1]];
-          let candidate = ['Y', 'W', 'R', 'O', 'B', 'G'].find(c => {
-            return c !== c1 && c !== c2 && counts[c] < 9;
-          });
-          if (candidate) {
-            paintedState[empty[0]] = candidate;
-            counts[candidate]++;
-          }
-        }
-      });
-
-      // 棱块补全
-      edges.forEach(keys => {
-        const filled = keys.filter(k => paintedState[k] && paintedState[k] !== 'none');
-        const empty = keys.filter(k => !paintedState[k] || paintedState[k] === 'none');
-        if (filled.length === 1 && empty.length === 1) {
-          const c1 = paintedState[filled[0]];
-          let candidate = ['Y', 'W', 'R', 'O', 'B', 'G'].find(c => {
-            return c !== c1 && counts[c] < 9;
-          });
-          if (candidate) {
-            paintedState[empty[0]] = candidate;
-            counts[candidate]++;
-          }
-        }
-      });
-
-      // 剩余任何未填格，按配额贪心填满
-      const unassigned = Object.keys(paintedState).filter(k => !paintedState[k] || paintedState[k] === 'none');
-      const need = getNeedList();
-      unassigned.forEach((k, idx) => {
-        if (idx < need.length) {
-          paintedState[k] = need[idx];
-          counts[need[idx]]++;
-        }
-      });
-
-      renderColorInputGrids();
-      audio.playVictory();
-    }
-
-    document.getElementById('btn-auto-complete').addEventListener('click', () => {
-      autoCompleteRemaining();
-      const badge = document.getElementById('selected-tile-badge');
-      if (badge) badge.textContent = '✨ 物理规则自动推导补全成功！全部满足 9 个';
-    });
-
     document.getElementById('btn-color-reset-solved').addEventListener('click', () => {
       initPaintedStateSolved();
       selectedTileKey = null;
@@ -2020,43 +2017,15 @@
        9. 智能阶段诊断与 3D 实物带练引擎
        ===================================================================== */
     function applyPaintedStateToCube() {
-      rubik.cubies.forEach(c => {
-        c.mat = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
-        rubik.updateStyle(c);
-
-        const faces = c.el.querySelectorAll('.face');
-        faces.forEach(faceDiv => {
-          let dir = '';
-          if (faceDiv.classList.contains('face-u')) dir = 'u';
-          else if (faceDiv.classList.contains('face-d')) dir = 'd';
-          else if (faceDiv.classList.contains('face-f')) dir = 'f';
-          else if (faceDiv.classList.contains('face-b')) dir = 'b';
-          else if (faceDiv.classList.contains('face-l')) dir = 'l';
-          else if (faceDiv.classList.contains('face-r')) dir = 'r';
-
-          const stickerDiv = faceDiv.querySelector('.sticker');
-          let matchedKey = null;
-          for (const [k, v] of Object.entries(FACELET_MAP)) {
-            if (v.dir === dir && v.pos[0] === c.pos[0] && v.pos[1] === c.pos[1] && v.pos[2] === c.pos[2]) {
-              matchedKey = k;
-              break;
-            }
-          }
-
-          if (matchedKey && paintedState[matchedKey]) {
-            const colorCode = paintedState[matchedKey];
-            stickerDiv.className = `sticker ${COLOR_CLASSES[colorCode] || 'sticker-none'}`;
-          } else {
-            stickerDiv.className = `sticker sticker-none`;
-          }
-        });
-      });
+      CubeState.loadFacelets(rubik.cubies, paintedState, FACELET_MAP);
+      rubik.cubies.forEach(c => rubik.updateStyle(c));
     }
 
     function diagnoseCube() {
-      const isNine = updateColorCountBadges();
-      if (!isNine) {
-        alert("小勇士注意：有格子还没涂好，请确认每种颜色都刚好是 9 个哦！");
+      updateColorCountBadges();
+      const check = FaceletValidator.validate(paintedState);
+      if (!check.valid) {
+        alert(`录入状态无法由正常转动得到：${check.reason}。请核对实物和六面方向。`);
         return null;
       }
 
@@ -2101,6 +2070,53 @@
     }
 
     let activeCustomPlan = null;
+    let customMoveHistory = [];
+    let customAwaitingCheck = false;
+    const CUSTOM_GOALS = {cross:'crossDone',layer1:'firstLayerDone',middle:'f2lDone',yellowCross:'yellowCrossDone',yellowFace:'yellowFaceDone',topCorners:'topCornersDone',topEdges:'allSolved',full:'allSolved'};
+    const CUSTOM_COMPLETION = {
+      cross:'白十字完成！检查四条白棱的侧色是否都与中心对齐。返回手动同步后可进入第二阶段。',
+      layer1:'第一层完成！检查白色底面与侧面底层颜色。返回手动同步后可进入中层。',
+      middle:'前两层完成！检查中层四条棱块的侧色。返回手动同步后可进入黄色十字。',
+      yellowCross:'黄色十字完成！检查黄色顶面的四条棱块。返回手动同步后可进入黄色整面。',
+      yellowFace:'黄色整面完成！检查四个顶角的黄色是否都朝上。返回手动同步后可练习顶角归位。',
+      topCorners:'顶层角块归位！检查顶角侧色是否对齐中心。返回手动同步后可完成最后的棱块。',
+      topEdges:'六面复原！请核对手中的实物魔方是否也全部同色。'
+    };
+    let solverWorker = null;
+    let solverRequestId = 0;
+    let solverPending = false;
+
+    function requestSolution(faceletString, mode) {
+      if (!solverWorker) solverWorker = new Worker('solver-worker.js');
+      const worker = solverWorker;
+      const id = ++solverRequestId;
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          worker.terminate();
+          solverWorker = null;
+          finish(new Error('求解超时，请稍后重试'));
+        }, 60000);
+        const onMessage = event => {
+          if (event.data.id !== id) return;
+          finish(event.data.error ? new Error(event.data.error) : null, event.data);
+        };
+        const onError = () => {
+          worker.terminate();
+          solverWorker = null;
+          finish(new Error('求解器加载失败'));
+        };
+        function finish(error, result) {
+          clearTimeout(timeout);
+          worker.removeEventListener('message', onMessage);
+          worker.removeEventListener('error', onError);
+          if (error) reject(error);
+          else resolve(result);
+        }
+        worker.addEventListener('message', onMessage);
+        worker.addEventListener('error', onError);
+        worker.postMessage({ id, facelets:faceletString, mode });
+      });
+    }
 
     document.getElementById('btn-run-diagnostic').addEventListener('click', () => {
       const diag = diagnoseCube();
@@ -2131,69 +2147,33 @@
       addItem('第2关：神奇电梯楼(第一层)', diag.firstLayerDone, diag.firstLayerDone ? '一楼全拼好' : '差部分角块');
       addItem('第3关：森林捉迷藏(第二层)', diag.f2lDone, diag.f2lDone ? '前两层已完成' : '中棱未全');
       addItem('第4关：金鱼跃龙门(顶面全黄)', diag.yellowFaceDone, diag.yellowFaceDone ? '顶面纯金黄' : (diag.yellowCrossDone ? '已是小鱼/翻色态' : `黄棱数: ${diag.uEdgesYellow}/4`));
-      addItem('第5关：猫头鹰守卫(六面全解)', diag.allSolved, diag.allSolved ? '🎉 已完全复原' : '只差最后一步');
+      addItem('第5关：猫头鹰守卫(六面全解)', diag.allSolved, diag.allSolved ? '六面颜色相同' : '尚未复原');
 
-      let summaryText = "";
-      let targetLevelRef = 0;
-      let planTitle = "实物定制带练";
-      let planSteps = [];
-      let planButtons = [];
-
-      if (diag.allSolved) {
-        summaryText = "太厉害啦！你手里的魔方其实已经全拼好啦！六个面全部严丝合缝！";
-        targetLevelRef = 4;
-        planSteps = [{ move: "U", name: "巡视六面", icon: "✨", desc: "魔方已经完全复原，随时可以重新打乱挑战！" }];
-        planButtons = [{ move: "U", label: "巡视魔方", icon: "✨", color: "bg-emerald-500 hover:bg-emerald-400" }];
-      } else if (!diag.crossDone) {
-        summaryText = "手里的魔方处于【第 1 关：小黄花农场】阶段！我们先在顶层找白花瓣，对齐侧面颜色转半圈，立即搞定白色十字！";
-        targetLevelRef = 0;
-        planSteps = ADVENTURE_LEVELS[0].steps;
-        planButtons = ADVENTURE_LEVELS[0].buttons;
-      } else if (!diag.firstLayerDone) {
-        summaryText = "白色地基十字已经打好啦！当前处于【第 2 关：神奇电梯楼】！我们要用【电梯接人法】把白色小人一个个送回家！";
-        targetLevelRef = 1;
-        planSteps = ADVENTURE_LEVELS[1].steps;
-        planButtons = ADVENTURE_LEVELS[1].buttons;
-      } else if (!diag.f2lDone) {
-        summaryText = "一楼地基已经稳固，目前处于【第 3 关：森林捉迷藏】！我们要用反向躲猫猫把二楼中层棱块全部嵌进去！";
-        targetLevelRef = 2;
-        planSteps = ADVENTURE_LEVELS[2].steps;
-        planButtons = ADVENTURE_LEVELS[2].buttons;
-      } else if (!diag.yellowFaceDone) {
-        summaryText = "前两层都搞定了，真棒！目前处于【第 4 关：金鱼跃龙门】！把小黄鱼的鱼头摆在左下角，念口诀：推上去拨一下、拉下来拨一下，瞬间变金龙！";
-        targetLevelRef = 3;
-        planSteps = ADVENTURE_LEVELS[3].steps;
-        planButtons = ADVENTURE_LEVELS[3].buttons;
-      } else {
-        summaryText = "顶面金黄已经拿下！只差最后【第 5 关：猫头鹰双眼】收尾！寻找侧面的双眼车灯，施展终极合体魔法！";
-        targetLevelRef = 4;
-        planSteps = ADVENTURE_LEVELS[4].steps;
-        planButtons = ADVENTURE_LEVELS[4].buttons;
-      }
-
-      document.getElementById('diagnostic-summary-text').textContent = summaryText;
+      document.getElementById('diagnostic-summary-text').textContent = '录入状态已通过颜色、块组合、朝向及奇偶性检查。进入 3D 模型后，可计算复原动作；请先核对录入颜色。';
       modalDiagnostic.classList.remove('hidden');
 
-      activeCustomPlan = {
-        targetLevelRef,
-        planTitle,
-        summaryText,
-        steps: planSteps,
-        buttons: planButtons
-      };
+      activeCustomPlan = { steps: [], buttons: [] };
     });
 
     document.getElementById('btn-close-diagnostic').addEventListener('click', () => {
       modalDiagnostic.classList.add('hidden');
     });
 
-    document.getElementById('btn-start-custom-guidance').addEventListener('click', () => {
+    function showColorPreview() {
       if (!activeCustomPlan) return;
+      const check = FaceletValidator.validate(paintedState);
+      if (!check.valid) {
+        alert(`请先核对六面颜色：${check.reason}`);
+        modalColorInput.classList.remove('hidden');
+        return;
+      }
       modalDiagnostic.classList.add('hidden');
 
       // 同步实物贴纸到 3D 舞台
       rubik.init();
       applyPaintedStateToCube();
+      customMoveHistory = [];
+      customAwaitingCheck = false;
 
       // 显示并激活定制实物带练标签
       const tabCustom = document.getElementById('tab-custom-solve');
@@ -2202,25 +2182,196 @@
       // 绑定定制数据并切换
       currentLevelIdx = -1; // -1 表示定制实物模式
       currentStepIdx = 0;
+      activeCustomPlan = { steps: [], buttons: [] };
 
-      document.querySelectorAll('.level-tab-btn').forEach(b => {
+      adventureTabs.forEach(b => {
         b.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60 font-bold';
       });
       tabCustom.className = 'level-tab-btn min-w-[130px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md';
 
-      document.getElementById('stage-task-text').textContent = '手里的真实魔方专属带练';
-      document.getElementById('level-rhyme-text').textContent = activeCustomPlan.summaryText;
+      document.getElementById('stage-task-text').textContent = '对照实物，同步转动 3D 魔方';
+      document.getElementById('level-rhyme-text').textContent = '保持黄色朝上、红色朝前；可计算复原动作，或逐步手动同步。';
+      document.getElementById('btn-auto-step').disabled = true;
+      document.getElementById('btn-next-practice').disabled = true;
 
       // 替换当前动作按钮与步骤
       renderCustomPlanUi();
-      audio.playVictory();
-    });
+    }
+    document.getElementById('btn-start-custom-guidance').addEventListener('click', showColorPreview);
 
     function renderCustomPlanUi() {
       if (!activeCustomPlan) return;
       const data = activeCustomPlan;
       const grid = document.getElementById('action-buttons-grid');
       grid.innerHTML = '';
+
+      if (customAwaitingCheck) {
+        const last = data.steps[currentStepIdx - 1];
+        document.getElementById('step-hint-badge').textContent = '暂停：核对实物';
+        document.getElementById('dialog-bubble-text').textContent = `${last.checkpointLabel} 保持黄色朝上、红色朝前，对照实物和模型六面；确认一致后才能继续。`;
+        document.getElementById('btn-auto-step').disabled = true;
+        document.getElementById('btn-undo-step').disabled = true;
+        const confirm = document.createElement('button');
+        confirm.className = 'col-span-2 p-3 rounded-2xl bg-emerald-600 text-white font-bold';
+        confirm.textContent = '✅ 实物与模型一致，继续';
+        confirm.addEventListener('click', () => {
+          customAwaitingCheck = false;
+          document.getElementById('btn-auto-step').disabled = currentStepIdx >= data.steps.length;
+          renderCustomPlanUi();
+        });
+        grid.appendChild(confirm);
+        const retry = document.createElement('button');
+        retry.className = 'col-span-2 p-3 rounded-2xl bg-amber-600 text-white font-bold';
+        retry.textContent = '🔁 不一致，重新录入当前六面';
+        retry.addEventListener('click', () => {
+          paintedState = CubeState.faceletsFromCubies(rubik.cubies, FACELET_MAP);
+          activeCustomPlan = { steps:[], buttons:[] };
+          customAwaitingCheck = false;
+          document.getElementById('btn-auto-step').disabled = true;
+          renderCustomPlanUi();
+          renderColorInputGrids();
+          modalColorInput.classList.remove('hidden');
+          document.getElementById('dialog-bubble-text').textContent = '已用当前模型作底稿。按手中实物修正六面，完成诊断后重新计算动作。';
+        });
+        grid.appendChild(retry);
+        return;
+      }
+
+      if (!data.steps.length) {
+        document.getElementById('step-hint-badge').textContent = '手动同步';
+        document.getElementById('dialog-bubble-text').textContent = '核对六面颜色后，实物转一步，点击下方同名动作让模型跟上。点“重新摆局”可返回录入时的状态。';
+        document.getElementById('action-dots-bar').innerHTML = '';
+        document.getElementById('btn-undo-step').disabled = customMoveHistory.length === 0;
+        for (const mode of ['cross','layer1','middle','yellowCross','yellowFace','topCorners','topEdges','full']) {
+          const solveButton = document.createElement('button');
+          solveButton.className = `col-span-2 p-3 rounded-2xl ${mode === 'cross' ? 'bg-amber-600 hover:bg-amber-500' : mode === 'layer1' ? 'bg-sky-600 hover:bg-sky-500' : mode === 'middle' ? 'bg-indigo-600 hover:bg-indigo-500' : mode === 'yellowCross' ? 'bg-yellow-600 hover:bg-yellow-500' : mode === 'yellowFace' ? 'bg-orange-600 hover:bg-orange-500' : mode === 'topCorners' ? 'bg-purple-600 hover:bg-purple-500' : mode === 'topEdges' ? 'bg-teal-600 hover:bg-teal-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white font-bold text-sm disabled:opacity-40`;
+          solveButton.textContent = mode === 'cross' ? '🌼 第一阶段：教我拼白十字' : mode === 'layer1' ? '🏠 第二阶段：拼好白色第一层' : mode === 'middle' ? '🌳 第三阶段：中层棱块入位' : mode === 'yellowCross' ? '☀️ 第四阶段：做出黄色十字' : mode === 'yellowFace' ? '🐟 第五阶段：黄色整面' : mode === 'topCorners' ? '🦉 第六阶段：顶角归位' : mode === 'topEdges' ? '🏆 第七阶段：顶棱归位' : '🧭 计算完整复原动作';
+          if (mode === 'layer1' && !diagnoseAdventureCube(rubik.cubies).crossDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成第一阶段白十字';
+          }
+          if (mode === 'middle' && !diagnoseAdventureCube(rubik.cubies).firstLayerDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成白色第一层';
+          }
+          if (mode === 'yellowCross' && !diagnoseAdventureCube(rubik.cubies).f2lDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成前两层';
+          }
+          if (mode === 'yellowFace' && !diagnoseAdventureCube(rubik.cubies).yellowCrossDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成黄色十字';
+          }
+          if (mode === 'topCorners' && !diagnoseAdventureCube(rubik.cubies).yellowFaceDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成黄色整面';
+          }
+          if (mode === 'topEdges' && !diagnoseAdventureCube(rubik.cubies).topCornersDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先让黄色顶角归位';
+          }
+          solveButton.addEventListener('click', async () => {
+            if (rubik.isBusy || solverPending) return;
+            solverPending = true;
+            solveButton.disabled = true;
+            const before = SolverBridge.toFaceletString(CubeState.faceletsFromCubies(rubik.cubies, FACELET_MAP));
+            document.getElementById('dialog-bubble-text').textContent = mode === 'cross'
+              ? '正在找白色棱块的位置，请稍候…' : mode === 'layer1'
+                ? '正在找四个白角的入位动作，请稍候…' : mode === 'middle'
+                  ? '正在找四条中层棱块的位置，请稍候…' : mode === 'yellowCross'
+                    ? '正在观察顶面黄棱的朝向，请稍候…' : mode === 'yellowFace'
+                      ? '正在观察四个黄色顶角，请稍候…' : mode === 'topCorners'
+                        ? '正在找顶角的正确位置，请稍候…' : mode === 'topEdges'
+                          ? '正在找最后四条顶棱的位置，请稍候…' : '正在计算复原动作，首次使用可能需要数秒…';
+            try {
+              const result = await requestSolution(before,mode);
+              if (currentLevelIdx !== -1) return;
+              const after = SolverBridge.toFaceletString(CubeState.faceletsFromCubies(rubik.cubies, FACELET_MAP));
+              if (before !== after) {
+                document.getElementById('dialog-bubble-text').textContent = '计算期间模型发生变化，请重新计算。';
+                return;
+              }
+              const solution = SolverBridge.parseMoves(result.algorithm);
+              const goal = CUSTOM_GOALS[mode];
+              if (!SolverBridge.verify(rubik.cubies,solution,goal)) throw new Error('动作与当前模型不一致');
+              if (!solution.length) {
+                document.getElementById('dialog-bubble-text').textContent = mode === 'cross'
+                  ? '白十字已经完成：四条白棱与侧面中心对齐。' : mode === 'layer1'
+                    ? '第一层已经完成：检查白色底面与侧面底层。' : mode === 'middle'
+                      ? '中层已经完成：检查前两层的侧面颜色。' : mode === 'yellowCross'
+                        ? '黄色十字已经完成：检查顶面四条黄色棱块。' : mode === 'yellowFace'
+                          ? '黄色整面已经完成：检查顶面九格是否全黄。' : mode === 'topCorners'
+                            ? '顶角已经归位：检查四个角的侧面颜色。' : '魔方已复原，请核对实物六面颜色。';
+                return;
+              }
+              const preview = rubik.cubies.map(c => ({pos:c.pos.slice(),mat:c.mat.map(row => row.slice()),stickers:c.stickers}));
+              const groupMeta = ['layer1','middle','yellowCross','yellowFace','topCorners','topEdges'].includes(mode) ? result.groups.flatMap((group,index) =>
+                group.map((_,beat) => ({number:index+1,total:result.groups.length,beat:beat+1,size:group.length}))) : [];
+              activeCustomPlan = {
+                mode,
+                steps: solution.map((move,index) => {
+                  CubeState.applyMove(preview,move);
+                  const desc = mode === 'cross'
+                    ? `保持黄色朝上、红色朝前。做完 ${move} 后，预计有 ${CubeState.crossCount(preview)}/4 条白棱与侧面中心对齐；中途可能暂时移开已对齐的白棱。`
+                    : mode === 'layer1'
+                      ? `第 ${groupMeta[index].number}/${groupMeta[index].total} 组，第 ${groupMeta[index].beat}/${groupMeta[index].size} 拍：${MOVE_NAMES[move]}。预计已有 ${CubeState.firstLayerCornerCount(preview)}/4 个白角入位。${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查白十字是否仍对齐。' : '先做完整组，中途白十字可能暂时移开。'}`
+                      : mode === 'middle'
+                        ? `第 ${groupMeta[index].number}/${groupMeta[index].total} 组，第 ${groupMeta[index].beat}/${groupMeta[index].size} 拍：${MOVE_NAMES[move]}。预计已有 ${CubeState.middleEdgeCount(preview)}/4 条中层棱块入位。${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查白色第一层是否仍完成。' : '先做完整组，中途第一层可能暂时移开。'}`
+                        : mode === 'yellowCross'
+                          ? `第 ${groupMeta[index].number}/${groupMeta[index].total} 组，第 ${groupMeta[index].beat}/${groupMeta[index].size} 拍：${MOVE_NAMES[move]}。顶面目前有 ${CubeState.yellowEdgeCount(preview)}/4 条黄色棱块朝上。${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查前两层是否仍完成。' : '继续完成整组，中途前两层可能暂时移开。'}`
+                          : mode === 'yellowFace'
+                            ? `第 ${groupMeta[index].number}/${groupMeta[index].total} 组，第 ${groupMeta[index].beat}/${groupMeta[index].size} 拍：${MOVE_NAMES[move]}。顶面目前有 ${CubeState.yellowCornerCount(preview)}/4 个黄角朝上。${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查黄色十字和前两层。' : '继续完成整组，中途可能暂时看不到黄色十字。'}`
+                            : mode === 'topCorners'
+                              ? `第 ${groupMeta[index].number}/${groupMeta[index].total} 组，第 ${groupMeta[index].beat}/${groupMeta[index].size} 拍：${MOVE_NAMES[move]}。预计有 ${CubeState.topCornerCount(preview)}/4 个顶角位置正确。${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查黄色整面和前两层。' : '先做完整组，中途黄色顶面可能暂时打乱。'}`
+                              : mode === 'topEdges'
+                                ? `第 ${groupMeta[index].number}/${groupMeta[index].total} 组，第 ${groupMeta[index].beat}/${groupMeta[index].size} 拍：${MOVE_NAMES[move]}。预计有 ${CubeState.topEdgeCount(preview)}/4 条顶棱位置正确。${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查顶角是否仍对齐。' : '先做完整组，中途顶层可能暂时打乱。'}`
+                                : `保持黄色朝上、红色朝前。顺逆时针从正在转动的那一面正对着看；完成 ${move} 后与模型核对。`;
+                  const checkpoint = !groupMeta.length || groupMeta[index].beat === groupMeta[index].size;
+                  const checkpointLabel = groupMeta.length ? `第 ${groupMeta[index].number} 组已完成。` : '这一步已完成。';
+                  return {move,name:MOVE_NAMES[move],desc,checkpoint,checkpointLabel};
+                }),
+                buttons: [...new Set(solution)].map(move => ({move,label:MOVE_NAMES[move],icon:'↪️',color:'bg-emerald-500 hover:bg-emerald-400'}))
+              };
+              document.getElementById('stage-task-text').textContent = mode === 'cross'
+                ? '第一阶段：白十字和侧面中心对齐' : mode === 'layer1'
+                  ? '第二阶段：四个白角入位，完成白色第一层' : mode === 'middle'
+                    ? '第三阶段：四条中层棱块入位' : mode === 'yellowCross'
+                      ? '第四阶段：黄色顶面做出十字' : mode === 'yellowFace'
+                        ? '第五阶段：四个黄色顶角翻到顶面' : mode === 'topCorners'
+                          ? '第六阶段：黄色顶角位置归位' : mode === 'topEdges'
+                            ? '第七阶段：最后四条顶棱归位' : '完整复原动作（按步核对实物）';
+              currentStepIdx = 0;
+              customAwaitingCheck = false;
+              document.getElementById('btn-auto-step').disabled = false;
+              renderCustomPlanUi();
+            } catch (error) {
+              if (currentLevelIdx === -1) document.getElementById('dialog-bubble-text').textContent = `暂时无法计算：${error.message}。请检查资源或继续手动同步。`;
+            } finally {
+              solverPending = false;
+              solveButton.disabled = false;
+            }
+          });
+          grid.appendChild(solveButton);
+        }
+        for (const move of ['U', "U'", 'D', "D'", 'F', "F'", 'B', "B'", 'L', "L'", 'R', "R'"]) {
+          const btn = document.createElement('button');
+          btn.className = 'p-3 rounded-2xl bg-sky-700 hover:bg-sky-600 text-white font-bold text-xs shadow-md active:scale-95';
+          btn.textContent = `${MOVE_NAMES[move] || `${move[0]} 面${move.endsWith("'") ? '逆时针' : '顺时针'} 90°`} (${move})`;
+          btn.addEventListener('click', () => {
+            if (rubik.isBusy) return;
+            rubik.performMove(move, () => {
+              customMoveHistory.push(move);
+              renderCustomPlanUi();
+              const state = diagnoseAdventureCube(rubik.cubies);
+              document.getElementById('dialog-bubble-text').textContent = state.allSolved
+                ? '模型已经复原！请核对手中的实物是否也六面同色。'
+                : `模型已同步 ${move}。继续对照实物转动，或重新计算后续动作。`;
+            });
+          });
+          grid.appendChild(btn);
+        }
+        return;
+      }
 
       const targetMove = data.steps[currentStepIdx] ? data.steps[currentStepIdx].move : null;
 
@@ -2246,14 +2397,31 @@
       });
 
       // 更新皮皮狐气泡文本与引导手势
+      const manualButton = document.createElement('button');
+      manualButton.className = 'col-span-2 p-2 rounded-2xl bg-slate-700 text-white font-bold text-xs';
+      manualButton.textContent = '返回手动同步';
+      manualButton.addEventListener('click', () => {
+        activeCustomPlan = { steps:[], buttons:[] };
+        customAwaitingCheck = false;
+        document.getElementById('stage-task-text').textContent = '对照实物，同步转动 3D 魔方';
+        document.getElementById('btn-auto-step').disabled = true;
+        renderCustomPlanUi();
+      });
+      grid.appendChild(manualButton);
+
       const stepTotal = data.steps.length;
+      document.getElementById('btn-undo-step').disabled = currentStepIdx === 0;
       if (currentStepIdx < stepTotal) {
         const cur = data.steps[currentStepIdx];
         document.getElementById('step-hint-badge').textContent = `第 ${currentStepIdx + 1}/${stepTotal} 步`;
         document.getElementById('dialog-bubble-text').textContent = `👉 请拿起你手里的真实魔方：执行【${cur.name}】！${cur.desc}`;
       } else {
         document.getElementById('step-hint-badge').textContent = `完成！`;
-        document.getElementById('dialog-bubble-text').textContent = `🎉 恭喜小勇士！本阶段已完全攻克，手里的魔方已经成功升级！`;
+        const goal = CUSTOM_GOALS[data.mode] || 'allSolved';
+        const achieved = diagnoseAdventureCube(rubik.cubies)[goal];
+        document.getElementById('dialog-bubble-text').textContent = achieved
+          ? CUSTOM_COMPLETION[data.mode] || '模型已复原！请核对手中的实物是否也六面同色。'
+          : '引导步骤已走完，但模型未达到目标，请核对操作。';
       }
 
       // 更新步骤点

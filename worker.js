@@ -14,8 +14,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
   <meta name="apple-mobile-web-app-title" content="魔方小勇士">
   <meta name="theme-color" content="#0f172a">
   <meta name="application-name" content="魔方小勇士">
-  <!-- cf-build-probe: 20260927-probe2-pwa -->
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* iOS Safe Area Insets for standalone mode */
     body {
@@ -115,12 +114,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased p-2 sm:p-4 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
-  
+
   <!-- 全屏礼花庆祝 Canvas (通关时爆发) -->
   <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full"></canvas>
 
   <div class="max-w-5xl mx-auto w-full space-y-3">
-    
+
     <!-- 顶部导航与小勇士成就栏 -->
     <header class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-3 sm:p-4 shadow-lg backdrop-blur-md flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -145,7 +144,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
           <span id="total-stars-count">0</span>
           <span class="text-xs text-amber-500/80">/ 15 星</span>
         </div>
-        
+
         <button id="btn-sound-toggle" class="p-2 rounded-2xl bg-slate-700 hover:bg-slate-600 text-sm transition" title="开关音效">
           🔊
         </button>
@@ -168,7 +167,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <nav class="bg-slate-800/80 border border-slate-700/70 rounded-3xl p-2 shadow-sm flex items-center gap-1.5 overflow-x-auto text-xs font-bold">
       <button id="tab-custom-solve" class="level-tab-btn hidden min-w-[130px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md" data-level="custom">
         <span>🎯</span>
-        <span>手里的魔方定制带练</span>
+        <span>实物颜色预览</span>
         <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-black/20 text-slate-950 font-mono">实物</span>
       </button>
       <button class="level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md" data-level="1">
@@ -200,10 +199,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
     <!-- 主交互舞台区：左侧 3D 萌化魔方，右侧趣味剧情与大按键操作盘 -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-      
+
       <!-- 左侧：3D 魔方视口 (占 7 列) -->
       <div class="lg:col-span-7 bg-slate-800/90 border border-slate-700/80 rounded-3xl p-4 flex flex-col justify-between relative overflow-hidden min-h-[390px] sm:min-h-[440px] shadow-md">
-        
+
         <!-- 顶部快捷辅助按钮 -->
         <div class="w-full flex items-center justify-between z-10">
           <div class="flex items-center gap-2">
@@ -251,12 +250,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
       <!-- 右侧：关卡交互与大按键操作盘 (占 5 列) -->
       <div class="lg:col-span-5 flex flex-col gap-3">
-        
+
         <!-- 闯关面板 -->
         <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-4 shadow-md flex-1 flex flex-col justify-between space-y-3">
-          
+
           <!-- 关卡模式切换与重置 -->
-          <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/80 pb-3">
             <div class="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-2xl text-xs font-bold">
               <button id="mode-btn-story" class="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 shadow-sm transition">
                 📖 听故事演示
@@ -266,9 +265,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
               </button>
             </div>
 
-            <button id="btn-restart-level" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
-              🔄 重新摆局
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button id="btn-next-practice" class="px-3 py-1.5 rounded-xl bg-sky-700 hover:bg-sky-600 text-xs font-bold transition disabled:opacity-40">换个残局</button>
+              <button id="btn-restart-level" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
+                🔄 重新摆局
+              </button>
+            </div>
           </div>
 
           <!-- 关卡故事儿歌口诀 -->
@@ -284,7 +286,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
           <!-- 核心拟人化动作大按键区 (彻底消除抽象字母代号) -->
           <div class="space-y-2 flex-1 flex flex-col justify-center">
             <span class="text-xs font-bold text-slate-400">✨ 点击魔法动作盘（跟着发光的按键点）：</span>
-            
+
             <div id="action-buttons-grid" class="grid grid-cols-2 gap-2.5">
               <!-- 由 JS 根据当前关卡动态填充大号图标按钮 -->
             </div>
@@ -299,9 +301,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
               </div>
             </div>
 
-            <button id="btn-auto-step" class="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-1">
-              <span>▶ 走一步</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btn-undo-step" class="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition disabled:opacity-40" disabled>↶ 上一步</button>
+              <button id="btn-auto-step" class="px-3 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-1">
+                <span>▶ 走一步</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -357,7 +362,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
     <!-- 实物魔方涂色录入大弹窗 -->
     <div id="modal-color-input" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div class="bg-slate-900 border border-slate-700 rounded-3xl p-4 sm:p-5 max-w-2xl w-full space-y-3.5 shadow-2xl relative my-auto">
-        
+
         <!-- 弹窗头部 -->
         <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
           <div class="flex items-center gap-2">
@@ -397,7 +402,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
         <!-- 2D 十字展开图涂色区 (4列网格) -->
         <div class="flex flex-col items-center justify-center py-1">
           <div class="inline-grid grid-cols-4 gap-2 sm:gap-3 text-center text-[10px] font-bold select-none">
-            
+
             <!-- Row 1: 空白, U (顶黄), 空白, 空白 -->
             <div class="invisible w-[90px] sm:w-[104px] h-[90px] sm:h-[104px]"></div>
             <div class="flex flex-col items-center">
@@ -496,11 +501,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
           </div>
 
           <div class="flex items-center gap-2">
-            <button id="btn-auto-complete" class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm shadow-md transition flex items-center gap-1.5 active:scale-95">
-              <span>✨ 物理规则智能补全</span>
-            </button>
             <button id="btn-run-diagnostic" class="px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg active:scale-95 transition flex items-center gap-1.5">
-              <span>🔍 智能体检并生成带练</span>
+              <span>🔍 查看录入颜色</span>
             </button>
           </div>
         </div>
@@ -515,8 +517,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
           <div class="flex items-center gap-2">
             <span class="text-3xl">🩺</span>
             <div>
-              <h3 class="font-black text-base text-amber-400">皮皮狐的魔方体检报告</h3>
-              <p class="text-[11px] text-slate-400">已成功识别并诊断手里的真实魔方状态</p>
+              <h3 class="font-black text-base text-amber-400">皮皮狐的颜色对照报告</h3>
+              <p class="text-[11px] text-slate-400">核对状态后，可查看 3D 模型</p>
             </div>
           </div>
           <button id="btn-close-diagnostic" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 font-bold">✕</button>
@@ -529,14 +531,14 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         <!-- 当前核心诊断总结卡片 -->
         <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
-          <div class="font-bold text-amber-400">🎯 突破卡点行动指南：</div>
+          <div class="font-bold text-amber-400">🎯 录入状态提示：</div>
           <p id="diagnostic-summary-text" class="text-slate-200 leading-relaxed font-medium">
             正在分析中...
           </p>
         </div>
 
         <button id="btn-start-custom-guidance" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 font-black text-sm shadow-xl active:scale-95 transition flex items-center justify-center gap-2">
-          <span>🚀 开启 3D 定制带练（照着魔方一步步转）</span>
+          <span>🧊 在 3D 模型中查看录入颜色</span>
         </button>
       </div>
     </div>
@@ -631,6 +633,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
   </div>
 
+  <script src="cube-state.js"></script>
+  <script src="validate-facelets.js"></script>
+  <script src="near-solver.js"></script>
+  <script src="solver-bridge.js"></script>
   <script>
     /* =====================================================================
        1. 纯 Web Audio 游戏音效合成引擎 (零外部音频文件，免加载)
@@ -792,33 +798,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
     const CUBIE_SIZE = 58;
     const MOVE_DURATION = 210;
 
-    const ROTATION_DEFS = {
-      "R":  { axis: 'x', sliceVal: 1,  pivotCss: 'rotateX(90deg)',  mat: [[1,0,0],[0,0,-1],[0,1,0]] },
-      "R'": { axis: 'x', sliceVal: 1,  pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
-      "L":  { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
-      "L'": { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(90deg)',  mat: [[1,0,0],[0,0,-1],[0,1,0]] },
-      "U":  { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
-      "U'": { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(90deg)',  mat: [[0,0,1],[0,1,0],[-1,0,0]] },
-      "D":  { axis: 'y', sliceVal: 1,  pivotCss: 'rotateY(90deg)',  mat: [[0,0,1],[0,1,0],[-1,0,0]] },
-      "D'": { axis: 'y', sliceVal: 1,  pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
-      "F":  { axis: 'z', sliceVal: 1,  pivotCss: 'rotateZ(90deg)',  mat: [[0,-1,0],[1,0,0],[0,0,1]] },
-      "F'": { axis: 'z', sliceVal: 1,  pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
-      "B":  { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
-      "B'": { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(90deg)',  mat: [[0,-1,0],[1,0,0],[0,0,1]] }
-    };
-
-    function matMul(a, b) {
-      const res = [[0,0,0],[0,0,0],[0,0,0]];
-      for(let i=0; i<3; i++) for(let j=0; j<3; j++) res[i][j] = a[i][0]*b[0][j] + a[i][1]*b[1][j] + a[i][2]*b[2][j];
-      return res;
-    }
-    function vecMul(m, v) {
-      return [
-        m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2],
-        m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2],
-        m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2]
-      ];
-    }
+    const ROTATION_DEFS = CubeState.ROTATION_DEFS;
+    const diagnoseAdventureCube = CubeState.diagnose;
 
     class RubiksCube {
       constructor(cubeEl, pivotEl) {
@@ -849,7 +830,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
           for (let y = -1; y <= 1; y++) {
             for (let z = -1; z <= 1; z++) {
               if (x === 0 && y === 0 && z === 0) continue;
-              
+
               const el = document.createElement('div');
               el.className = 'cubie';
               el.id = \`cubie-\${id++}\`;
@@ -876,7 +857,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
                 id: el.id,
                 el: el,
                 pos: [x, y, z],
-                mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+                mat: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                stickers: CubeState.initialStickers([x, y, z])
               };
 
               this.cubies.push(cData);
@@ -906,22 +888,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
       }
 
       instantMove(code) {
-        if (code.endsWith('2')) {
-          const b = code[0];
-          this.instantMove(b);
-          this.instantMove(b);
-          return;
-        }
-        const def = ROTATION_DEFS[code];
-        if (!def) return;
-        const ax = def.axis === 'x' ? 0 : (def.axis === 'y' ? 1 : 2);
-        this.cubies.forEach(c => {
-          if (c.pos[ax] === def.sliceVal) {
-            c.pos = vecMul(def.mat, c.pos);
-            c.mat = matMul(def.mat, c.mat);
-            this.updateStyle(c);
-          }
-        });
+        CubeState.applyMove(this.cubies, code);
+        this.cubies.forEach(c => this.updateStyle(c));
       }
 
       instantMoves(moves) {
@@ -994,9 +962,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         this._animTimer = setTimeout(() => {
           this._animTimer = null;
+          CubeState.applyMove(targetCubies, code);
           targetCubies.forEach(c => {
-            c.pos = vecMul(def.mat, c.pos);
-            c.mat = matMul(def.mat, c.mat);
             this.cubeEl.appendChild(c.el);
             this.updateStyle(c);
           });
@@ -1191,14 +1158,14 @@ const HTML_CONTENT = `<!DOCTYPE html>
           { move: "R'", name: "拉下来 (下)", icon: "🌊", desc: "【拉下来】水花落回底层保护结构！" },
           { move: "U", name: "拨一下 (左)", icon: "💦", desc: "【拨一下】再向左拨动一朵水花！" },
           { move: "R", name: "推上去 (上)", icon: "🐬", desc: "【推上去】小金鱼一跃而起，冲向空中！" },
-          { move: "U2", name: "拨两下 (转两圈)", icon: "🌀", desc: "【拨两下】在空中转两个大圈圈！" },
+          { move: "U2", name: "顶层转半圈 (180°)", icon: "🌀", desc: "【转半圈】顶层连续转两个 90°，合起来是 180°。" },
           { move: "R'", name: "拉下来！金龙现身", icon: "✨", desc: "【拉下来】扑通！整个顶面瞬间变成纯金黄色！" }
         ],
         buttons: [
           { move: "R", label: "推上去 ⬆️", icon: "🌊", color: "bg-amber-500 hover:bg-amber-400" },
           { move: "U", label: "拨一下 ◀️", icon: "💦", color: "bg-sky-500 hover:bg-sky-400" },
           { move: "R'", label: "拉下来 🔽", icon: "🌊", color: "bg-emerald-500 hover:bg-emerald-400" },
-          { move: "U2", label: "拨两圈 🌀", icon: "💫", color: "bg-purple-500 hover:bg-purple-400" }
+          { move: "U2", label: "转半圈 180° 🌀", icon: "💫", color: "bg-purple-500 hover:bg-purple-400" }
         ]
       },
       {
@@ -1206,38 +1173,47 @@ const HTML_CONTENT = `<!DOCTYPE html>
         title: "猫头鹰守卫战",
         icon: "🦉",
         badge: "魔方终极守护者",
-        task: "六面彻底重合，全魔方复原！",
-        rhyme: "找到猫头鹰双眼，终极魔法大合体！",
+        task: "黄色顶面已经完成，让顶层棱块回到正确位置",
+        rhyme: "黄色朝上不翻面，对准侧面中心块，让最后的棱块归位！",
         cam: { rX: -36, rY: -36 },
-        setup: ["L'", "U2", "L", "U", "L'", "U", "L", "U", "R", "U2", "R'", "U'", "R", "U'", "R'"],
+        setup: ['F2', "U'", "R'", 'L', 'F2', 'R', "L'", "U'", 'F2'],
         steps: [
-          { move: "R", name: "小鱼第1拍", icon: "⚡", desc: "释放右手小鱼上乘功力！" },
-          { move: "U", name: "小鱼第2拍", icon: "⚡", desc: "拨开棱块！" },
-          { move: "R'", name: "小鱼第3拍", icon: "⚡", desc: "拉回保护！" },
-          { move: "U", name: "小鱼第4拍", icon: "⚡", desc: "传递交接！" },
-          { move: "R", name: "小鱼第5拍", icon: "⚡", desc: "起飞升空！" },
-          { move: "U2", name: "小鱼第6拍", icon: "⚡", desc: "半圈对接！" },
-          { move: "R'", name: "小鱼收尾", icon: "⚡", desc: "右半部就位！" },
-          { move: "U'", name: "左侧接力", icon: "⚡", desc: "转向左侧！" },
-          { move: "L'", name: "左手小鱼起", icon: "🦉", desc: "左手猫头鹰法阵开启！" },
-          { move: "U'", name: "左拨", icon: "🦉", desc: "对齐最后棱位！" },
-          { move: "L", name: "左下", icon: "🦉", desc: "嵌入侧槽！" },
-          { move: "U'", name: "左拨", icon: "🦉", desc: "校准最后角度！" },
-          { move: "L'", name: "左推", icon: "🦉", desc: "拉起底面轨道！" },
-          { move: "U2", name: "转半圈", icon: "✨", desc: "六面齿轮彻底咬合！" },
-          { move: "L", name: "大功告成！", icon: "🎉", desc: "六个面全部拼好！恭喜成为真正的魔方大师！" }
+          { move: 'F2', name: '前面转半圈', desc: '先把前面的两层轨道让开，注意白色底层仍要在下面。' },
+          { move: 'U', name: '顶层转一格', desc: '顶层顺时针转 90°，观察黄色棱块的位置。' },
+          { move: 'L', name: '左面转一格', desc: '左面顺时针转 90°。' },
+          { move: "R'", name: '右面反转一格', desc: '右面逆时针转 90°。' },
+          { move: 'F2', name: '前面再转半圈', desc: '前面转 180°，把棱块带到另一侧。' },
+          { move: "L'", name: '左面转回来', desc: '左面逆时针转 90°。' },
+          { move: 'R', name: '右面转回来', desc: '右面顺时针转 90°。' },
+          { move: 'U', name: '顶层再转一格', desc: '顶层顺时针转 90°，对齐侧面颜色。' },
+          { move: 'F2', name: '前面复位', desc: '前面再转 180°，检查六个面是否都与中心块同色。' }
         ],
         buttons: [
-          { move: "R", label: "右手推上去 ⬆️", icon: "⚡", color: "bg-amber-500 hover:bg-amber-400" },
-          { move: "R'", label: "右手拉下来 🔽", icon: "⚡", color: "bg-emerald-500 hover:bg-emerald-400" },
-          { move: "L'", label: "左手推上去 ⬆️", icon: "🦉", color: "bg-indigo-500 hover:bg-indigo-400" },
-          { move: "L", label: "左手拉下来 🔽", icon: "🦉", color: "bg-teal-500 hover:bg-teal-400" },
-          { move: "U", label: "顶层顺时针 ◀️", icon: "💨", color: "bg-sky-500 hover:bg-sky-400" },
-          { move: "U'", label: "顶层逆时针 ▶️", icon: "↩️", color: "bg-slate-700 hover:bg-slate-600" },
-          { move: "U2", label: "空中转半圈 🌀", icon: "✨", color: "bg-purple-500 hover:bg-purple-400" }
+          { move: 'F2', label: '前面半圈 180°', icon: '🦉', color: 'bg-purple-500 hover:bg-purple-400' },
+          { move: 'U', label: '顶层顺时针', icon: '💨', color: 'bg-sky-500 hover:bg-sky-400' },
+          { move: 'L', label: '左面顺时针', icon: '⬅️', color: 'bg-teal-500 hover:bg-teal-400' },
+          { move: "L'", label: '左面逆时针', icon: '↩️', color: 'bg-indigo-500 hover:bg-indigo-400' },
+          { move: 'R', label: '右面顺时针', icon: '➡️', color: 'bg-amber-500 hover:bg-amber-400' },
+          { move: "R'", label: '右面逆时针', icon: '↩️', color: 'bg-emerald-500 hover:bg-emerald-400' }
         ]
       }
     ];
+
+    const PRACTICE_CASES = [
+      { name: '从另一侧拼白十字', base: ADVENTURE_LEVELS[1].setup, moves: ["U'", 'R2', "U'", 'F2'] },
+      { name: '左手电梯接白角', base: ADVENTURE_LEVELS[2].setup, moves: ["L'", "U'", 'L', 'U'] },
+      { name: '从左边放入中层棱块', base: ADVENTURE_LEVELS[3].setup, moves: ["U'", "L'", 'U', 'L', 'U', 'F', "U'", "F'"] },
+      { name: '从左边完成黄色顶面', base: ADVENTURE_LEVELS[4].setup, moves: ["L'", "U'", 'L', "U'", "L'", 'U2', 'L'] },
+      { name: '让顶层角块归位', base: [], moves: ["F'", 'L', "F'", 'R2', 'F', "L'", "F'", 'R2', 'F2'] }
+    ];
+    const MOVE_NAMES = {
+      U: '顶层顺时针 90°', "U'": '顶层逆时针 90°', U2: '顶层转半圈 180°',
+      R: '右面顺时针 90°', "R'": '右面逆时针 90°', R2: '右面转半圈 180°',
+      L: '左面顺时针 90°', "L'": '左面逆时针 90°', L2: '左面转半圈 180°',
+      F: '前面顺时针 90°', "F'": '前面逆时针 90°', F2: '前面转半圈 180°',
+      D: '底面顺时针 90°', "D'": '底面逆时针 90°', D2: '底面转半圈 180°',
+      B: '后面顺时针 90°', "B'": '后面逆时针 90°', B2: '后面转半圈 180°'
+    };
 
     /* =====================================================================
        6. 游戏状态与交互流程控制
@@ -1245,6 +1221,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
     let currentLevelIdx = 0; // 0 ~ 4
     let currentStepIdx = 0;
     let isPlayChallengeMode = false;
+    let victoryTimer = null;
+    const practiceIndex = [0, 0, 0, 0, 0];
+    const adventureTabs = Array.from(document.querySelectorAll('.level-tab-btn[data-level]'))
+      .filter(btn => btn.dataset.level !== 'custom');
     let starsStorage = JSON.parse(localStorage.getItem('rubiks_kids_stars') || '[3, 0, 0, 0, 0]');
 
     function saveStars() {
@@ -1257,7 +1237,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
       document.getElementById('total-stars-count').textContent = sum;
 
       // 更新关卡标签上的星星
-      document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+      adventureTabs.forEach((btn, idx) => {
         const starSpan = btn.querySelector('.level-star-badge');
         const s = starsStorage[idx];
         starSpan.textContent = s > 0 ? '⭐'.repeat(s) : '';
@@ -1268,20 +1248,51 @@ const HTML_CONTENT = `<!DOCTYPE html>
       if (currentLevelIdx === -1 && typeof activeCustomPlan !== 'undefined' && activeCustomPlan) {
         return activeCustomPlan;
       }
+      if (practiceIndex[currentLevelIdx] === 1) {
+        const base = ADVENTURE_LEVELS[currentLevelIdx];
+        const practice = PRACTICE_CASES[currentLevelIdx];
+        const steps = practice.moves.map(move => ({
+          move,
+          name: MOVE_NAMES[move],
+          desc: \`保持黄色朝上、红色朝前。做【\${MOVE_NAMES[move]}】，观察哪几块发生变化。\`
+        }));
+        const buttons = [...new Set(practice.moves)].map(move => ({
+          move, label: MOVE_NAMES[move], icon: '↪️', color: 'bg-sky-500 hover:bg-sky-400'
+        }));
+        return {
+          ...base,
+          task: \`练习 2：\${practice.name}\`,
+          rhyme: '先观察要找的色块，再按提示一步步转动。完成本关目标即可。',
+          setup: [...practice.base, ...practice.moves.slice().reverse().map(CubeState.inverseMove)],
+          steps, buttons
+        };
+      }
       return ADVENTURE_LEVELS[currentLevelIdx] || ADVENTURE_LEVELS[0];
     }
 
     function loadLevel(levelIdx) {
+      customAwaitingCheck = false;
+      if (victoryTimer) clearTimeout(victoryTimer);
+      victoryTimer = null;
+      document.getElementById('modal-level-complete').classList.add('hidden');
       currentLevelIdx = levelIdx;
       currentStepIdx = 0;
+      document.getElementById('btn-auto-step').disabled = false;
+      const practiceButton = document.getElementById('btn-next-practice');
+      practiceButton.disabled = !PRACTICE_CASES[levelIdx];
+      practiceButton.textContent = practiceIndex[levelIdx] === 1 ? '返回示范残局' : '换个残局';
       const data = getLevelData();
+      const customTab = document.getElementById('tab-custom-solve');
+      if (!customTab.classList.contains('hidden')) {
+        customTab.className = 'level-tab-btn min-w-[130px] py-2 px-3 rounded-2xl text-slate-300 hover:bg-slate-700/60 font-bold';
+      }
 
       // UI 文本更新
       document.getElementById('stage-task-text').textContent = data.task;
       document.getElementById('level-rhyme-text').textContent = data.rhyme;
 
       // 关卡标签高亮
-      document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+      adventureTabs.forEach((btn, idx) => {
         if (idx === levelIdx) {
           btn.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-md font-black';
         } else {
@@ -1352,7 +1363,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
         document.getElementById('dialog-bubble-text').textContent = cur.desc;
       } else {
         document.getElementById('step-hint-badge').textContent = \`完成啦！\`;
-        document.getElementById('dialog-bubble-text').textContent = \`🎉 恭喜小勇士！你亲手完成了整个关卡！\`;
+        document.getElementById('dialog-bubble-text').textContent = '动作已完成，正在核对魔方状态。';
       }
 
       // 更新步骤点
@@ -1372,10 +1383,12 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
       // 高亮匹配按钮
       renderActionButtons();
+      document.getElementById('btn-undo-step').disabled = currentStepIdx === 0;
     }
 
     function handleActionClick(moveCode, btnElement = null) {
       if (rubik.isBusy) return;
+      if (currentLevelIdx === -1 && customAwaitingCheck) return;
       const data = getLevelData();
 
       if (currentStepIdx >= data.steps.length) {
@@ -1384,23 +1397,26 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
       const expected = data.steps[currentStepIdx].move;
 
-      // 在挑战模式下，判断按键是否正确
-      if (isPlayChallengeMode) {
-        if (moveCode !== expected) {
+      // 两种模式均按当前步骤执行，避免误点后模型与提示错位。
+      if (moveCode !== expected) {
           audio.playWrong();
           if (btnElement) {
             btnElement.classList.add('animate-shake');
             setTimeout(() => btnElement.classList.remove('animate-shake'), 400);
           }
-          document.getElementById('dialog-bubble-text').textContent = \`哎呀，这个动作还不对哦！看看儿歌口诀，再试一次吧！\`;
+          document.getElementById('dialog-bubble-text').textContent = isPlayChallengeMode
+            ? '这个动作还不对，看看儿歌口诀再试一次吧！'
+            : \`当前要做的是【\${data.steps[currentStepIdx].name}】，跟着发光按钮试试。\`;
           return;
-        }
       }
 
       // 执行动作
       rubik.performMove(moveCode, () => {
+        const completedStep = data.steps[currentStepIdx];
         currentStepIdx++;
         if (currentLevelIdx === -1) {
+          customMoveHistory.push(moveCode);
+          customAwaitingCheck = !!completedStep.checkpoint;
           renderCustomPlanUi();
         } else {
           renderStepUi();
@@ -1408,11 +1424,20 @@ const HTML_CONTENT = `<!DOCTYPE html>
 
         // 检查关卡是否全部通关
         if (currentStepIdx >= data.steps.length) {
-          if (currentLevelIdx === -1) {
-            audio.playVictory();
-            launchConfetti();
+          if (currentLevelIdx === -1 && !customAwaitingCheck) {
+            const mode = activeCustomPlan.mode;
+            const goal = CUSTOM_GOALS[mode] || 'allSolved';
+            const achieved = diagnoseAdventureCube(rubik.cubies)[goal];
+            document.getElementById('dialog-bubble-text').textContent = achieved
+              ? CUSTOM_COMPLETION[mode] || '模型已复原！请核对手中实物是否也六面同色。'
+              : '引导步骤已走完，但模型未达到目标，请核对操作。';
           } else {
-            triggerLevelVictory();
+            const goals = ['crossDone', 'firstLayerDone', 'f2lDone', 'yellowFaceDone', 'allSolved'];
+            if (diagnoseAdventureCube(rubik.cubies)[goals[currentLevelIdx]]) {
+              triggerLevelVictory();
+            } else {
+              document.getElementById('dialog-bubble-text').textContent = '动作已经走完，但魔方还没有达到本关目标。请点“上一步”检查。';
+            }
           }
         }
       });
@@ -1465,15 +1490,23 @@ const HTML_CONTENT = `<!DOCTYPE html>
       document.getElementById('victory-stage-name').textContent = \`你成功征服了【\${data.title}】！\`;
       document.getElementById('victory-badge-name').textContent = data.badge;
 
-      setTimeout(() => {
+      victoryTimer = setTimeout(() => {
         document.getElementById('modal-level-complete').classList.remove('hidden');
+        victoryTimer = null;
       }, 1500);
     }
 
     // 绑定关卡标签点击
-    document.querySelectorAll('.level-tab-btn').forEach((btn, idx) => {
+    adventureTabs.forEach((btn, idx) => {
       btn.addEventListener('click', () => loadLevel(idx));
     });
+    function switchPracticeCase() {
+      if (currentLevelIdx < 0 || !PRACTICE_CASES[currentLevelIdx]) return;
+      practiceIndex[currentLevelIdx] = 1 - practiceIndex[currentLevelIdx];
+      loadLevel(currentLevelIdx);
+    }
+    document.getElementById('btn-next-practice').addEventListener('click', switchPracticeCase);
+    document.getElementById('tab-custom-solve').addEventListener('click', showColorPreview);
 
     // 听故事演示 vs 小勇士挑战切换
     const btnStory = document.getElementById('mode-btn-story');
@@ -1502,8 +1535,43 @@ const HTML_CONTENT = `<!DOCTYPE html>
       }
     });
 
+    document.getElementById('btn-undo-step').addEventListener('click', () => {
+      if (currentLevelIdx === -1) {
+        if (activeCustomPlan.steps.length) {
+          if (rubik.isBusy || customAwaitingCheck || currentStepIdx === 0) return;
+          const previous = activeCustomPlan.steps[currentStepIdx - 1].move;
+          rubik.performMove(CubeState.inverseMove(previous), () => {
+            currentStepIdx--;
+            customMoveHistory.pop();
+            renderCustomPlanUi();
+          });
+          return;
+        }
+        if (rubik.isBusy || customMoveHistory.length === 0) return;
+        const last = customMoveHistory[customMoveHistory.length - 1];
+        rubik.performMove(CubeState.inverseMove(last), () => {
+          customMoveHistory.pop();
+          document.getElementById('btn-undo-step').disabled = customMoveHistory.length === 0;
+          document.getElementById('dialog-bubble-text').textContent = \`已撤销 \${last}。请核对模型与实物的六面颜色。\`;
+        });
+        return;
+      }
+      if (rubik.isBusy || currentStepIdx === 0) return;
+      if (victoryTimer) clearTimeout(victoryTimer);
+      victoryTimer = null;
+      document.getElementById('modal-level-complete').classList.add('hidden');
+      const move = getLevelData().steps[currentStepIdx - 1].move;
+      const inverse = CubeState.inverseMove(move);
+      rubik.performMove(inverse, () => {
+        currentStepIdx--;
+        if (currentLevelIdx === -1) renderCustomPlanUi();
+        else renderStepUi();
+      });
+    });
+
     document.getElementById('btn-restart-level').addEventListener('click', () => {
-      loadLevel(currentLevelIdx);
+      if (currentLevelIdx === -1) showColorPreview();
+      else loadLevel(currentLevelIdx);
     });
 
     // 通关弹窗按钮
@@ -1723,7 +1791,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
       const cur = paintedState[key] || 'none';
       const curIdx = COLOR_CYCLE.indexOf(cur);
       const nextColor = (curIdx === -1) ? 'Y' : COLOR_CYCLE[(curIdx + 1) % COLOR_CYCLE.length];
-      
+
       setTileColor(key, nextColor);
       audio.playTone(360 + (curIdx + 1) * 45, 'sine', 0.05, 0.12);
     }
@@ -1928,77 +1996,6 @@ const HTML_CONTENT = `<!DOCTYPE html>
       audio.playVictory();
     });
 
-    // 物理规则智能自动推导补全算法
-    function autoCompleteRemaining() {
-      const counts = { 'Y': 0, 'W': 0, 'R': 0, 'O': 0, 'B': 0, 'G': 0 };
-      Object.values(paintedState).forEach(c => {
-        if (counts[c] !== undefined) counts[c]++;
-      });
-
-      const getNeedList = () => {
-        const list = [];
-        ['Y', 'W', 'R', 'O', 'B', 'G'].forEach(c => {
-          const rem = 9 - counts[c];
-          for (let i = 0; i < rem; i++) list.push(c);
-        });
-        return list;
-      };
-
-      const corners = Object.values(CUBIE_GROUPS).filter(g => g.length === 3);
-      const edges = Object.values(CUBIE_GROUPS).filter(g => g.length === 2);
-
-      // 角块补全
-      corners.forEach(keys => {
-        const filled = keys.filter(k => paintedState[k] && paintedState[k] !== 'none');
-        const empty = keys.filter(k => !paintedState[k] || paintedState[k] === 'none');
-        if (filled.length === 2 && empty.length === 1) {
-          const c1 = paintedState[filled[0]], c2 = paintedState[filled[1]];
-          let candidate = ['Y', 'W', 'R', 'O', 'B', 'G'].find(c => {
-            return c !== c1 && c !== c2 && counts[c] < 9;
-          });
-          if (candidate) {
-            paintedState[empty[0]] = candidate;
-            counts[candidate]++;
-          }
-        }
-      });
-
-      // 棱块补全
-      edges.forEach(keys => {
-        const filled = keys.filter(k => paintedState[k] && paintedState[k] !== 'none');
-        const empty = keys.filter(k => !paintedState[k] || paintedState[k] === 'none');
-        if (filled.length === 1 && empty.length === 1) {
-          const c1 = paintedState[filled[0]];
-          let candidate = ['Y', 'W', 'R', 'O', 'B', 'G'].find(c => {
-            return c !== c1 && counts[c] < 9;
-          });
-          if (candidate) {
-            paintedState[empty[0]] = candidate;
-            counts[candidate]++;
-          }
-        }
-      });
-
-      // 剩余任何未填格，按配额贪心填满
-      const unassigned = Object.keys(paintedState).filter(k => !paintedState[k] || paintedState[k] === 'none');
-      const need = getNeedList();
-      unassigned.forEach((k, idx) => {
-        if (idx < need.length) {
-          paintedState[k] = need[idx];
-          counts[need[idx]]++;
-        }
-      });
-
-      renderColorInputGrids();
-      audio.playVictory();
-    }
-
-    document.getElementById('btn-auto-complete').addEventListener('click', () => {
-      autoCompleteRemaining();
-      const badge = document.getElementById('selected-tile-badge');
-      if (badge) badge.textContent = '✨ 物理规则自动推导补全成功！全部满足 9 个';
-    });
-
     document.getElementById('btn-color-reset-solved').addEventListener('click', () => {
       initPaintedStateSolved();
       selectedTileKey = null;
@@ -2021,43 +2018,15 @@ const HTML_CONTENT = `<!DOCTYPE html>
        9. 智能阶段诊断与 3D 实物带练引擎
        ===================================================================== */
     function applyPaintedStateToCube() {
-      rubik.cubies.forEach(c => {
-        c.mat = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
-        rubik.updateStyle(c);
-
-        const faces = c.el.querySelectorAll('.face');
-        faces.forEach(faceDiv => {
-          let dir = '';
-          if (faceDiv.classList.contains('face-u')) dir = 'u';
-          else if (faceDiv.classList.contains('face-d')) dir = 'd';
-          else if (faceDiv.classList.contains('face-f')) dir = 'f';
-          else if (faceDiv.classList.contains('face-b')) dir = 'b';
-          else if (faceDiv.classList.contains('face-l')) dir = 'l';
-          else if (faceDiv.classList.contains('face-r')) dir = 'r';
-
-          const stickerDiv = faceDiv.querySelector('.sticker');
-          let matchedKey = null;
-          for (const [k, v] of Object.entries(FACELET_MAP)) {
-            if (v.dir === dir && v.pos[0] === c.pos[0] && v.pos[1] === c.pos[1] && v.pos[2] === c.pos[2]) {
-              matchedKey = k;
-              break;
-            }
-          }
-
-          if (matchedKey && paintedState[matchedKey]) {
-            const colorCode = paintedState[matchedKey];
-            stickerDiv.className = \`sticker \${COLOR_CLASSES[colorCode] || 'sticker-none'}\`;
-          } else {
-            stickerDiv.className = \`sticker sticker-none\`;
-          }
-        });
-      });
+      CubeState.loadFacelets(rubik.cubies, paintedState, FACELET_MAP);
+      rubik.cubies.forEach(c => rubik.updateStyle(c));
     }
 
     function diagnoseCube() {
-      const isNine = updateColorCountBadges();
-      if (!isNine) {
-        alert("小勇士注意：有格子还没涂好，请确认每种颜色都刚好是 9 个哦！");
+      updateColorCountBadges();
+      const check = FaceletValidator.validate(paintedState);
+      if (!check.valid) {
+        alert(\`录入状态无法由正常转动得到：\${check.reason}。请核对实物和六面方向。\`);
         return null;
       }
 
@@ -2102,6 +2071,53 @@ const HTML_CONTENT = `<!DOCTYPE html>
     }
 
     let activeCustomPlan = null;
+    let customMoveHistory = [];
+    let customAwaitingCheck = false;
+    const CUSTOM_GOALS = {cross:'crossDone',layer1:'firstLayerDone',middle:'f2lDone',yellowCross:'yellowCrossDone',yellowFace:'yellowFaceDone',topCorners:'topCornersDone',topEdges:'allSolved',full:'allSolved'};
+    const CUSTOM_COMPLETION = {
+      cross:'白十字完成！检查四条白棱的侧色是否都与中心对齐。返回手动同步后可进入第二阶段。',
+      layer1:'第一层完成！检查白色底面与侧面底层颜色。返回手动同步后可进入中层。',
+      middle:'前两层完成！检查中层四条棱块的侧色。返回手动同步后可进入黄色十字。',
+      yellowCross:'黄色十字完成！检查黄色顶面的四条棱块。返回手动同步后可进入黄色整面。',
+      yellowFace:'黄色整面完成！检查四个顶角的黄色是否都朝上。返回手动同步后可练习顶角归位。',
+      topCorners:'顶层角块归位！检查顶角侧色是否对齐中心。返回手动同步后可完成最后的棱块。',
+      topEdges:'六面复原！请核对手中的实物魔方是否也全部同色。'
+    };
+    let solverWorker = null;
+    let solverRequestId = 0;
+    let solverPending = false;
+
+    function requestSolution(faceletString, mode) {
+      if (!solverWorker) solverWorker = new Worker('solver-worker.js');
+      const worker = solverWorker;
+      const id = ++solverRequestId;
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          worker.terminate();
+          solverWorker = null;
+          finish(new Error('求解超时，请稍后重试'));
+        }, 60000);
+        const onMessage = event => {
+          if (event.data.id !== id) return;
+          finish(event.data.error ? new Error(event.data.error) : null, event.data);
+        };
+        const onError = () => {
+          worker.terminate();
+          solverWorker = null;
+          finish(new Error('求解器加载失败'));
+        };
+        function finish(error, result) {
+          clearTimeout(timeout);
+          worker.removeEventListener('message', onMessage);
+          worker.removeEventListener('error', onError);
+          if (error) reject(error);
+          else resolve(result);
+        }
+        worker.addEventListener('message', onMessage);
+        worker.addEventListener('error', onError);
+        worker.postMessage({ id, facelets:faceletString, mode });
+      });
+    }
 
     document.getElementById('btn-run-diagnostic').addEventListener('click', () => {
       const diag = diagnoseCube();
@@ -2132,69 +2148,33 @@ const HTML_CONTENT = `<!DOCTYPE html>
       addItem('第2关：神奇电梯楼(第一层)', diag.firstLayerDone, diag.firstLayerDone ? '一楼全拼好' : '差部分角块');
       addItem('第3关：森林捉迷藏(第二层)', diag.f2lDone, diag.f2lDone ? '前两层已完成' : '中棱未全');
       addItem('第4关：金鱼跃龙门(顶面全黄)', diag.yellowFaceDone, diag.yellowFaceDone ? '顶面纯金黄' : (diag.yellowCrossDone ? '已是小鱼/翻色态' : \`黄棱数: \${diag.uEdgesYellow}/4\`));
-      addItem('第5关：猫头鹰守卫(六面全解)', diag.allSolved, diag.allSolved ? '🎉 已完全复原' : '只差最后一步');
+      addItem('第5关：猫头鹰守卫(六面全解)', diag.allSolved, diag.allSolved ? '六面颜色相同' : '尚未复原');
 
-      let summaryText = "";
-      let targetLevelRef = 0;
-      let planTitle = "实物定制带练";
-      let planSteps = [];
-      let planButtons = [];
-
-      if (diag.allSolved) {
-        summaryText = "太厉害啦！你手里的魔方其实已经全拼好啦！六个面全部严丝合缝！";
-        targetLevelRef = 4;
-        planSteps = [{ move: "U", name: "巡视六面", icon: "✨", desc: "魔方已经完全复原，随时可以重新打乱挑战！" }];
-        planButtons = [{ move: "U", label: "巡视魔方", icon: "✨", color: "bg-emerald-500 hover:bg-emerald-400" }];
-      } else if (!diag.crossDone) {
-        summaryText = "手里的魔方处于【第 1 关：小黄花农场】阶段！我们先在顶层找白花瓣，对齐侧面颜色转半圈，立即搞定白色十字！";
-        targetLevelRef = 0;
-        planSteps = ADVENTURE_LEVELS[0].steps;
-        planButtons = ADVENTURE_LEVELS[0].buttons;
-      } else if (!diag.firstLayerDone) {
-        summaryText = "白色地基十字已经打好啦！当前处于【第 2 关：神奇电梯楼】！我们要用【电梯接人法】把白色小人一个个送回家！";
-        targetLevelRef = 1;
-        planSteps = ADVENTURE_LEVELS[1].steps;
-        planButtons = ADVENTURE_LEVELS[1].buttons;
-      } else if (!diag.f2lDone) {
-        summaryText = "一楼地基已经稳固，目前处于【第 3 关：森林捉迷藏】！我们要用反向躲猫猫把二楼中层棱块全部嵌进去！";
-        targetLevelRef = 2;
-        planSteps = ADVENTURE_LEVELS[2].steps;
-        planButtons = ADVENTURE_LEVELS[2].buttons;
-      } else if (!diag.yellowFaceDone) {
-        summaryText = "前两层都搞定了，真棒！目前处于【第 4 关：金鱼跃龙门】！把小黄鱼的鱼头摆在左下角，念口诀：推上去拨一下、拉下来拨一下，瞬间变金龙！";
-        targetLevelRef = 3;
-        planSteps = ADVENTURE_LEVELS[3].steps;
-        planButtons = ADVENTURE_LEVELS[3].buttons;
-      } else {
-        summaryText = "顶面金黄已经拿下！只差最后【第 5 关：猫头鹰双眼】收尾！寻找侧面的双眼车灯，施展终极合体魔法！";
-        targetLevelRef = 4;
-        planSteps = ADVENTURE_LEVELS[4].steps;
-        planButtons = ADVENTURE_LEVELS[4].buttons;
-      }
-
-      document.getElementById('diagnostic-summary-text').textContent = summaryText;
+      document.getElementById('diagnostic-summary-text').textContent = '录入状态已通过颜色、块组合、朝向及奇偶性检查。进入 3D 模型后，可计算复原动作；请先核对录入颜色。';
       modalDiagnostic.classList.remove('hidden');
 
-      activeCustomPlan = {
-        targetLevelRef,
-        planTitle,
-        summaryText,
-        steps: planSteps,
-        buttons: planButtons
-      };
+      activeCustomPlan = { steps: [], buttons: [] };
     });
 
     document.getElementById('btn-close-diagnostic').addEventListener('click', () => {
       modalDiagnostic.classList.add('hidden');
     });
 
-    document.getElementById('btn-start-custom-guidance').addEventListener('click', () => {
+    function showColorPreview() {
       if (!activeCustomPlan) return;
+      const check = FaceletValidator.validate(paintedState);
+      if (!check.valid) {
+        alert(\`请先核对六面颜色：\${check.reason}\`);
+        modalColorInput.classList.remove('hidden');
+        return;
+      }
       modalDiagnostic.classList.add('hidden');
 
       // 同步实物贴纸到 3D 舞台
       rubik.init();
       applyPaintedStateToCube();
+      customMoveHistory = [];
+      customAwaitingCheck = false;
 
       // 显示并激活定制实物带练标签
       const tabCustom = document.getElementById('tab-custom-solve');
@@ -2203,25 +2183,196 @@ const HTML_CONTENT = `<!DOCTYPE html>
       // 绑定定制数据并切换
       currentLevelIdx = -1; // -1 表示定制实物模式
       currentStepIdx = 0;
+      activeCustomPlan = { steps: [], buttons: [] };
 
-      document.querySelectorAll('.level-tab-btn').forEach(b => {
+      adventureTabs.forEach(b => {
         b.className = 'level-tab-btn flex-1 min-w-[120px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-700/60 font-bold';
       });
       tabCustom.className = 'level-tab-btn min-w-[130px] py-2 px-3 rounded-2xl transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md';
 
-      document.getElementById('stage-task-text').textContent = '手里的真实魔方专属带练';
-      document.getElementById('level-rhyme-text').textContent = activeCustomPlan.summaryText;
+      document.getElementById('stage-task-text').textContent = '对照实物，同步转动 3D 魔方';
+      document.getElementById('level-rhyme-text').textContent = '保持黄色朝上、红色朝前；可计算复原动作，或逐步手动同步。';
+      document.getElementById('btn-auto-step').disabled = true;
+      document.getElementById('btn-next-practice').disabled = true;
 
       // 替换当前动作按钮与步骤
       renderCustomPlanUi();
-      audio.playVictory();
-    });
+    }
+    document.getElementById('btn-start-custom-guidance').addEventListener('click', showColorPreview);
 
     function renderCustomPlanUi() {
       if (!activeCustomPlan) return;
       const data = activeCustomPlan;
       const grid = document.getElementById('action-buttons-grid');
       grid.innerHTML = '';
+
+      if (customAwaitingCheck) {
+        const last = data.steps[currentStepIdx - 1];
+        document.getElementById('step-hint-badge').textContent = '暂停：核对实物';
+        document.getElementById('dialog-bubble-text').textContent = \`\${last.checkpointLabel} 保持黄色朝上、红色朝前，对照实物和模型六面；确认一致后才能继续。\`;
+        document.getElementById('btn-auto-step').disabled = true;
+        document.getElementById('btn-undo-step').disabled = true;
+        const confirm = document.createElement('button');
+        confirm.className = 'col-span-2 p-3 rounded-2xl bg-emerald-600 text-white font-bold';
+        confirm.textContent = '✅ 实物与模型一致，继续';
+        confirm.addEventListener('click', () => {
+          customAwaitingCheck = false;
+          document.getElementById('btn-auto-step').disabled = currentStepIdx >= data.steps.length;
+          renderCustomPlanUi();
+        });
+        grid.appendChild(confirm);
+        const retry = document.createElement('button');
+        retry.className = 'col-span-2 p-3 rounded-2xl bg-amber-600 text-white font-bold';
+        retry.textContent = '🔁 不一致，重新录入当前六面';
+        retry.addEventListener('click', () => {
+          paintedState = CubeState.faceletsFromCubies(rubik.cubies, FACELET_MAP);
+          activeCustomPlan = { steps:[], buttons:[] };
+          customAwaitingCheck = false;
+          document.getElementById('btn-auto-step').disabled = true;
+          renderCustomPlanUi();
+          renderColorInputGrids();
+          modalColorInput.classList.remove('hidden');
+          document.getElementById('dialog-bubble-text').textContent = '已用当前模型作底稿。按手中实物修正六面，完成诊断后重新计算动作。';
+        });
+        grid.appendChild(retry);
+        return;
+      }
+
+      if (!data.steps.length) {
+        document.getElementById('step-hint-badge').textContent = '手动同步';
+        document.getElementById('dialog-bubble-text').textContent = '核对六面颜色后，实物转一步，点击下方同名动作让模型跟上。点“重新摆局”可返回录入时的状态。';
+        document.getElementById('action-dots-bar').innerHTML = '';
+        document.getElementById('btn-undo-step').disabled = customMoveHistory.length === 0;
+        for (const mode of ['cross','layer1','middle','yellowCross','yellowFace','topCorners','topEdges','full']) {
+          const solveButton = document.createElement('button');
+          solveButton.className = \`col-span-2 p-3 rounded-2xl \${mode === 'cross' ? 'bg-amber-600 hover:bg-amber-500' : mode === 'layer1' ? 'bg-sky-600 hover:bg-sky-500' : mode === 'middle' ? 'bg-indigo-600 hover:bg-indigo-500' : mode === 'yellowCross' ? 'bg-yellow-600 hover:bg-yellow-500' : mode === 'yellowFace' ? 'bg-orange-600 hover:bg-orange-500' : mode === 'topCorners' ? 'bg-purple-600 hover:bg-purple-500' : mode === 'topEdges' ? 'bg-teal-600 hover:bg-teal-500' : 'bg-emerald-600 hover:bg-emerald-500'} text-white font-bold text-sm disabled:opacity-40\`;
+          solveButton.textContent = mode === 'cross' ? '🌼 第一阶段：教我拼白十字' : mode === 'layer1' ? '🏠 第二阶段：拼好白色第一层' : mode === 'middle' ? '🌳 第三阶段：中层棱块入位' : mode === 'yellowCross' ? '☀️ 第四阶段：做出黄色十字' : mode === 'yellowFace' ? '🐟 第五阶段：黄色整面' : mode === 'topCorners' ? '🦉 第六阶段：顶角归位' : mode === 'topEdges' ? '🏆 第七阶段：顶棱归位' : '🧭 计算完整复原动作';
+          if (mode === 'layer1' && !diagnoseAdventureCube(rubik.cubies).crossDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成第一阶段白十字';
+          }
+          if (mode === 'middle' && !diagnoseAdventureCube(rubik.cubies).firstLayerDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成白色第一层';
+          }
+          if (mode === 'yellowCross' && !diagnoseAdventureCube(rubik.cubies).f2lDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成前两层';
+          }
+          if (mode === 'yellowFace' && !diagnoseAdventureCube(rubik.cubies).yellowCrossDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成黄色十字';
+          }
+          if (mode === 'topCorners' && !diagnoseAdventureCube(rubik.cubies).yellowFaceDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先完成黄色整面';
+          }
+          if (mode === 'topEdges' && !diagnoseAdventureCube(rubik.cubies).topCornersDone) {
+            solveButton.disabled = true;
+            solveButton.title = '先让黄色顶角归位';
+          }
+          solveButton.addEventListener('click', async () => {
+            if (rubik.isBusy || solverPending) return;
+            solverPending = true;
+            solveButton.disabled = true;
+            const before = SolverBridge.toFaceletString(CubeState.faceletsFromCubies(rubik.cubies, FACELET_MAP));
+            document.getElementById('dialog-bubble-text').textContent = mode === 'cross'
+              ? '正在找白色棱块的位置，请稍候…' : mode === 'layer1'
+                ? '正在找四个白角的入位动作，请稍候…' : mode === 'middle'
+                  ? '正在找四条中层棱块的位置，请稍候…' : mode === 'yellowCross'
+                    ? '正在观察顶面黄棱的朝向，请稍候…' : mode === 'yellowFace'
+                      ? '正在观察四个黄色顶角，请稍候…' : mode === 'topCorners'
+                        ? '正在找顶角的正确位置，请稍候…' : mode === 'topEdges'
+                          ? '正在找最后四条顶棱的位置，请稍候…' : '正在计算复原动作，首次使用可能需要数秒…';
+            try {
+              const result = await requestSolution(before,mode);
+              if (currentLevelIdx !== -1) return;
+              const after = SolverBridge.toFaceletString(CubeState.faceletsFromCubies(rubik.cubies, FACELET_MAP));
+              if (before !== after) {
+                document.getElementById('dialog-bubble-text').textContent = '计算期间模型发生变化，请重新计算。';
+                return;
+              }
+              const solution = SolverBridge.parseMoves(result.algorithm);
+              const goal = CUSTOM_GOALS[mode];
+              if (!SolverBridge.verify(rubik.cubies,solution,goal)) throw new Error('动作与当前模型不一致');
+              if (!solution.length) {
+                document.getElementById('dialog-bubble-text').textContent = mode === 'cross'
+                  ? '白十字已经完成：四条白棱与侧面中心对齐。' : mode === 'layer1'
+                    ? '第一层已经完成：检查白色底面与侧面底层。' : mode === 'middle'
+                      ? '中层已经完成：检查前两层的侧面颜色。' : mode === 'yellowCross'
+                        ? '黄色十字已经完成：检查顶面四条黄色棱块。' : mode === 'yellowFace'
+                          ? '黄色整面已经完成：检查顶面九格是否全黄。' : mode === 'topCorners'
+                            ? '顶角已经归位：检查四个角的侧面颜色。' : '魔方已复原，请核对实物六面颜色。';
+                return;
+              }
+              const preview = rubik.cubies.map(c => ({pos:c.pos.slice(),mat:c.mat.map(row => row.slice()),stickers:c.stickers}));
+              const groupMeta = ['layer1','middle','yellowCross','yellowFace','topCorners','topEdges'].includes(mode) ? result.groups.flatMap((group,index) =>
+                group.map((_,beat) => ({number:index+1,total:result.groups.length,beat:beat+1,size:group.length}))) : [];
+              activeCustomPlan = {
+                mode,
+                steps: solution.map((move,index) => {
+                  CubeState.applyMove(preview,move);
+                  const desc = mode === 'cross'
+                    ? \`保持黄色朝上、红色朝前。做完 \${move} 后，预计有 \${CubeState.crossCount(preview)}/4 条白棱与侧面中心对齐；中途可能暂时移开已对齐的白棱。\`
+                    : mode === 'layer1'
+                      ? \`第 \${groupMeta[index].number}/\${groupMeta[index].total} 组，第 \${groupMeta[index].beat}/\${groupMeta[index].size} 拍：\${MOVE_NAMES[move]}。预计已有 \${CubeState.firstLayerCornerCount(preview)}/4 个白角入位。\${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查白十字是否仍对齐。' : '先做完整组，中途白十字可能暂时移开。'}\`
+                      : mode === 'middle'
+                        ? \`第 \${groupMeta[index].number}/\${groupMeta[index].total} 组，第 \${groupMeta[index].beat}/\${groupMeta[index].size} 拍：\${MOVE_NAMES[move]}。预计已有 \${CubeState.middleEdgeCount(preview)}/4 条中层棱块入位。\${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查白色第一层是否仍完成。' : '先做完整组，中途第一层可能暂时移开。'}\`
+                        : mode === 'yellowCross'
+                          ? \`第 \${groupMeta[index].number}/\${groupMeta[index].total} 组，第 \${groupMeta[index].beat}/\${groupMeta[index].size} 拍：\${MOVE_NAMES[move]}。顶面目前有 \${CubeState.yellowEdgeCount(preview)}/4 条黄色棱块朝上。\${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查前两层是否仍完成。' : '继续完成整组，中途前两层可能暂时移开。'}\`
+                          : mode === 'yellowFace'
+                            ? \`第 \${groupMeta[index].number}/\${groupMeta[index].total} 组，第 \${groupMeta[index].beat}/\${groupMeta[index].size} 拍：\${MOVE_NAMES[move]}。顶面目前有 \${CubeState.yellowCornerCount(preview)}/4 个黄角朝上。\${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查黄色十字和前两层。' : '继续完成整组，中途可能暂时看不到黄色十字。'}\`
+                            : mode === 'topCorners'
+                              ? \`第 \${groupMeta[index].number}/\${groupMeta[index].total} 组，第 \${groupMeta[index].beat}/\${groupMeta[index].size} 拍：\${MOVE_NAMES[move]}。预计有 \${CubeState.topCornerCount(preview)}/4 个顶角位置正确。\${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查黄色整面和前两层。' : '先做完整组，中途黄色顶面可能暂时打乱。'}\`
+                              : mode === 'topEdges'
+                                ? \`第 \${groupMeta[index].number}/\${groupMeta[index].total} 组，第 \${groupMeta[index].beat}/\${groupMeta[index].size} 拍：\${MOVE_NAMES[move]}。预计有 \${CubeState.topEdgeCount(preview)}/4 条顶棱位置正确。\${groupMeta[index].beat === groupMeta[index].size ? '这一组结束，检查顶角是否仍对齐。' : '先做完整组，中途顶层可能暂时打乱。'}\`
+                                : \`保持黄色朝上、红色朝前。顺逆时针从正在转动的那一面正对着看；完成 \${move} 后与模型核对。\`;
+                  const checkpoint = !groupMeta.length || groupMeta[index].beat === groupMeta[index].size;
+                  const checkpointLabel = groupMeta.length ? \`第 \${groupMeta[index].number} 组已完成。\` : '这一步已完成。';
+                  return {move,name:MOVE_NAMES[move],desc,checkpoint,checkpointLabel};
+                }),
+                buttons: [...new Set(solution)].map(move => ({move,label:MOVE_NAMES[move],icon:'↪️',color:'bg-emerald-500 hover:bg-emerald-400'}))
+              };
+              document.getElementById('stage-task-text').textContent = mode === 'cross'
+                ? '第一阶段：白十字和侧面中心对齐' : mode === 'layer1'
+                  ? '第二阶段：四个白角入位，完成白色第一层' : mode === 'middle'
+                    ? '第三阶段：四条中层棱块入位' : mode === 'yellowCross'
+                      ? '第四阶段：黄色顶面做出十字' : mode === 'yellowFace'
+                        ? '第五阶段：四个黄色顶角翻到顶面' : mode === 'topCorners'
+                          ? '第六阶段：黄色顶角位置归位' : mode === 'topEdges'
+                            ? '第七阶段：最后四条顶棱归位' : '完整复原动作（按步核对实物）';
+              currentStepIdx = 0;
+              customAwaitingCheck = false;
+              document.getElementById('btn-auto-step').disabled = false;
+              renderCustomPlanUi();
+            } catch (error) {
+              if (currentLevelIdx === -1) document.getElementById('dialog-bubble-text').textContent = \`暂时无法计算：\${error.message}。请检查资源或继续手动同步。\`;
+            } finally {
+              solverPending = false;
+              solveButton.disabled = false;
+            }
+          });
+          grid.appendChild(solveButton);
+        }
+        for (const move of ['U', "U'", 'D', "D'", 'F', "F'", 'B', "B'", 'L', "L'", 'R', "R'"]) {
+          const btn = document.createElement('button');
+          btn.className = 'p-3 rounded-2xl bg-sky-700 hover:bg-sky-600 text-white font-bold text-xs shadow-md active:scale-95';
+          btn.textContent = \`\${MOVE_NAMES[move] || \`\${move[0]} 面\${move.endsWith("'") ? '逆时针' : '顺时针'} 90°\`} (\${move})\`;
+          btn.addEventListener('click', () => {
+            if (rubik.isBusy) return;
+            rubik.performMove(move, () => {
+              customMoveHistory.push(move);
+              renderCustomPlanUi();
+              const state = diagnoseAdventureCube(rubik.cubies);
+              document.getElementById('dialog-bubble-text').textContent = state.allSolved
+                ? '模型已经复原！请核对手中的实物是否也六面同色。'
+                : \`模型已同步 \${move}。继续对照实物转动，或重新计算后续动作。\`;
+            });
+          });
+          grid.appendChild(btn);
+        }
+        return;
+      }
 
       const targetMove = data.steps[currentStepIdx] ? data.steps[currentStepIdx].move : null;
 
@@ -2247,14 +2398,31 @@ const HTML_CONTENT = `<!DOCTYPE html>
       });
 
       // 更新皮皮狐气泡文本与引导手势
+      const manualButton = document.createElement('button');
+      manualButton.className = 'col-span-2 p-2 rounded-2xl bg-slate-700 text-white font-bold text-xs';
+      manualButton.textContent = '返回手动同步';
+      manualButton.addEventListener('click', () => {
+        activeCustomPlan = { steps:[], buttons:[] };
+        customAwaitingCheck = false;
+        document.getElementById('stage-task-text').textContent = '对照实物，同步转动 3D 魔方';
+        document.getElementById('btn-auto-step').disabled = true;
+        renderCustomPlanUi();
+      });
+      grid.appendChild(manualButton);
+
       const stepTotal = data.steps.length;
+      document.getElementById('btn-undo-step').disabled = currentStepIdx === 0;
       if (currentStepIdx < stepTotal) {
         const cur = data.steps[currentStepIdx];
         document.getElementById('step-hint-badge').textContent = \`第 \${currentStepIdx + 1}/\${stepTotal} 步\`;
         document.getElementById('dialog-bubble-text').textContent = \`👉 请拿起你手里的真实魔方：执行【\${cur.name}】！\${cur.desc}\`;
       } else {
         document.getElementById('step-hint-badge').textContent = \`完成！\`;
-        document.getElementById('dialog-bubble-text').textContent = \`🎉 恭喜小勇士！本阶段已完全攻克，手里的魔方已经成功升级！\`;
+        const goal = CUSTOM_GOALS[data.mode] || 'allSolved';
+        const achieved = diagnoseAdventureCube(rubik.cubies)[goal];
+        document.getElementById('dialog-bubble-text').textContent = achieved
+          ? CUSTOM_COMPLETION[data.mode] || '模型已复原！请核对手中的实物是否也六面同色。'
+          : '引导步骤已走完，但模型未达到目标，请核对操作。';
       }
 
       // 更新步骤点
@@ -2346,6 +2514,3009 @@ const HTML_CONTENT = `<!DOCTYPE html>
 </body>
 </html>
 `;
+const CUBE_STATE_CONTENT = `// Cube state shared by the lesson UI and tests. Coordinates: U=-Y, F=+Z.
+const CubeState = (() => {
+  const ROTATION_DEFS = {
+    R: { axis: 'x', sliceVal: 1, pivotCss: 'rotateX(90deg)', mat: [[1,0,0],[0,0,-1],[0,1,0]] },
+    "R'": { axis: 'x', sliceVal: 1, pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
+    L: { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(-90deg)', mat: [[1,0,0],[0,0,1],[0,-1,0]] },
+    "L'": { axis: 'x', sliceVal: -1, pivotCss: 'rotateX(90deg)', mat: [[1,0,0],[0,0,-1],[0,1,0]] },
+    U: { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
+    "U'": { axis: 'y', sliceVal: -1, pivotCss: 'rotateY(90deg)', mat: [[0,0,1],[0,1,0],[-1,0,0]] },
+    D: { axis: 'y', sliceVal: 1, pivotCss: 'rotateY(90deg)', mat: [[0,0,1],[0,1,0],[-1,0,0]] },
+    "D'": { axis: 'y', sliceVal: 1, pivotCss: 'rotateY(-90deg)', mat: [[0,0,-1],[0,1,0],[1,0,0]] },
+    F: { axis: 'z', sliceVal: 1, pivotCss: 'rotateZ(90deg)', mat: [[0,-1,0],[1,0,0],[0,0,1]] },
+    "F'": { axis: 'z', sliceVal: 1, pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
+    B: { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(-90deg)', mat: [[0,1,0],[-1,0,0],[0,0,1]] },
+    "B'": { axis: 'z', sliceVal: -1, pivotCss: 'rotateZ(90deg)', mat: [[0,-1,0],[1,0,0],[0,0,1]] }
+  };
+  const FACE_COLORS = { '0,-1,0': 'Y', '0,1,0': 'W', '0,0,1': 'R', '0,0,-1': 'O', '-1,0,0': 'B', '1,0,0': 'G' };
+  const D = [0, 1, 0], U = [0, -1, 0], F = [0, 0, 1], B = [0, 0, -1], L = [-1, 0, 0], R = [1, 0, 0];
+
+  function vecMul(m, v) {
+    return [
+      m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2],
+      m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2],
+      m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2]
+    ];
+  }
+
+  function matMul(a, b) {
+    const result = [[0,0,0],[0,0,0],[0,0,0]];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      result[i][j] = a[i][0]*b[0][j] + a[i][1]*b[1][j] + a[i][2]*b[2][j];
+    }
+    return result;
+  }
+
+  function initialStickers(pos) {
+    const [x, y, z] = pos;
+    return [
+      y === -1 && { initNorm: U, color: 'Y' },
+      y === 1 && { initNorm: D, color: 'W' },
+      z === 1 && { initNorm: F, color: 'R' },
+      z === -1 && { initNorm: B, color: 'O' },
+      x === -1 && { initNorm: L, color: 'B' },
+      x === 1 && { initNorm: R, color: 'G' }
+    ].filter(Boolean);
+  }
+
+  function inverseMove(move) {
+    if (move.endsWith('2')) return move;
+    if (!ROTATION_DEFS[move]) throw new Error(\`Unknown move: \${move}\`);
+    return move.endsWith("'") ? move[0] : \`\${move}'\`;
+  }
+
+  function applyMove(cubies, move) {
+    if (move.endsWith('2')) {
+      const base = move.slice(0, -1);
+      if (!ROTATION_DEFS[base]) throw new Error(\`Unknown move: \${move}\`);
+      applyMove(cubies, base);
+      applyMove(cubies, base);
+      return;
+    }
+    const def = ROTATION_DEFS[move];
+    if (!def) throw new Error(\`Unknown move: \${move}\`);
+    const axis = { x: 0, y: 1, z: 2 }[def.axis];
+    cubies.forEach(piece => {
+      if (piece.pos[axis] !== def.sliceVal) return;
+      piece.pos = vecMul(def.mat, piece.pos);
+      piece.mat = matMul(def.mat, piece.mat);
+    });
+  }
+
+  function diagnose(cubies) {
+    const stickerAt = (pos, norm) => {
+      const piece = cubies.find(c => c.pos.every((value, i) => value === pos[i]));
+      const sticker = piece && piece.stickers.find(s => vecMul(piece.mat, s.initNorm).every((value, i) => value === norm[i]));
+      return sticker && sticker.color;
+    };
+    const matches = (pos, normals) => normals.every(norm => stickerAt(pos, norm) === FACE_COLORS[norm.join(',')]);
+    const crossDone = matches([0, 1, 1], [D, F]) && matches([1, 1, 0], [D, R]) &&
+      matches([0, 1, -1], [D, B]) && matches([-1, 1, 0], [D, L]);
+    const firstLayerDone = crossDone && matches([-1, 1, 1], [D, F, L]) &&
+      matches([1, 1, 1], [D, F, R]) && matches([1, 1, -1], [D, B, R]) && matches([-1, 1, -1], [D, B, L]);
+    const f2lDone = firstLayerDone && matches([-1, 0, 1], [F, L]) &&
+      matches([1, 0, 1], [F, R]) && matches([1, 0, -1], [B, R]) && matches([-1, 0, -1], [B, L]);
+    const yellowCrossDone = f2lDone && [[0,-1,1],[1,-1,0],[0,-1,-1],[-1,-1,0]]
+      .every(pos => stickerAt(pos,U) === 'Y');
+    const yellowFaceDone = yellowCrossDone && [-1, 0, 1].every(x => [-1, 0, 1].every(z => stickerAt([x, -1, z], U) === 'Y'));
+    const topCornersDone = yellowFaceDone && topCornerCount(cubies) === 4;
+    const allSolved = cubies.every(c => c.stickers.every(s => FACE_COLORS[vecMul(c.mat, s.initNorm).join(',')] === s.color));
+    return { crossDone, firstLayerDone, f2lDone, yellowCrossDone, yellowFaceDone, topCornersDone, allSolved };
+  }
+
+  function crossCount(cubies) {
+    const stickerAt = (pos, norm) => {
+      const piece = cubies.find(c => c.pos.every((v,i) => v === pos[i]));
+      const sticker = piece && piece.stickers.find(s => vecMul(piece.mat,s.initNorm).every((v,i) => v === norm[i]));
+      return sticker && sticker.color;
+    };
+    return [[0,1,1,F], [1,1,0,R], [0,1,-1,B], [-1,1,0,L]]
+      .filter(([x,y,z,side]) => stickerAt([x,y,z],D) === 'W' && stickerAt([x,y,z],side) === FACE_COLORS[side.join(',')]).length;
+  }
+
+  function firstLayerCornerCount(cubies) {
+    const stickerAt = (pos, norm) => {
+      const piece = cubies.find(c => c.pos.every((v,i) => v === pos[i]));
+      const sticker = piece && piece.stickers.find(s => vecMul(piece.mat,s.initNorm).every((v,i) => v === norm[i]));
+      return sticker && sticker.color;
+    };
+    return [[-1,1,1,[D,F,L]], [1,1,1,[D,F,R]], [-1,1,-1,[D,B,L]], [1,1,-1,[D,B,R]]]
+      .filter(([x,y,z,normals]) => normals.every(normal => stickerAt([x,y,z],normal) === FACE_COLORS[normal.join(',')])).length;
+  }
+
+  function middleEdgeCount(cubies) {
+    const stickerAt = (pos, norm) => {
+      const piece = cubies.find(c => c.pos.every((v,i) => v === pos[i]));
+      const sticker = piece && piece.stickers.find(s => vecMul(piece.mat,s.initNorm).every((v,i) => v === norm[i]));
+      return sticker && sticker.color;
+    };
+    return [[-1,0,1,[F,L]], [1,0,1,[F,R]], [-1,0,-1,[B,L]], [1,0,-1,[B,R]]]
+      .filter(([x,y,z,normals]) => normals.every(normal => stickerAt([x,y,z],normal) === FACE_COLORS[normal.join(',')])).length;
+  }
+  function yellowEdgeCount(cubies) {
+    return [[0,-1,1],[1,-1,0],[0,-1,-1],[-1,-1,0]]
+      .filter(pos => {
+        const piece = cubies.find(c => c.pos.every((v,i) => v === pos[i]));
+        const sticker = piece && piece.stickers.find(s => vecMul(piece.mat,s.initNorm).every((v,i) => v === U[i]));
+        return sticker && sticker.color === 'Y';
+      }).length;
+  }
+  function yellowCornerCount(cubies) {
+    return [[-1,-1,1],[1,-1,1],[-1,-1,-1],[1,-1,-1]]
+      .filter(pos => {
+        const piece = cubies.find(c => c.pos.every((v,i) => v === pos[i]));
+        const sticker = piece && piece.stickers.find(s => vecMul(piece.mat,s.initNorm).every((v,i) => v === U[i]));
+        return sticker && sticker.color === 'Y';
+      }).length;
+  }
+  function topCornerCount(cubies) {
+    const slots = [[-1,-1,1,[U,F,L]],[1,-1,1,[U,F,R]],[-1,-1,-1,[U,B,L]],[1,-1,-1,[U,B,R]]];
+    return slots.filter(([x,y,z,normals]) => {
+      const piece = cubies.find(c => c.pos.every((v,i) => v === [x,y,z][i]));
+      return normals.every(normal => piece.stickers.some(s =>
+        s.color === FACE_COLORS[normal.join(',')] && vecMul(piece.mat,s.initNorm).every((v,i) => v === normal[i])));
+    }).length;
+  }
+  function topEdgeCount(cubies) {
+    const slots = [[0,-1,1,[U,F]],[1,-1,0,[U,R]],[0,-1,-1,[U,B]],[-1,-1,0,[U,L]]];
+    return slots.filter(([x,y,z,normals]) => {
+      const piece = cubies.find(c => c.pos.every((v,i) => v === [x,y,z][i]));
+      return normals.every(normal => piece.stickers.some(s =>
+        s.color === FACE_COLORS[normal.join(',')] && vecMul(piece.mat,s.initNorm).every((v,i) => v === normal[i])));
+    }).length;
+  }
+
+  // Map a checked set of facelets onto physical pieces, including orientation.
+  function loadFacelets(cubies, facelets, faceletMap) {
+    const normals = { u:U, d:D, f:F, b:B, l:L, r:R };
+    const quarterTurns = [ROTATION_DEFS.R.mat, ROTATION_DEFS.U.mat, ROTATION_DEFS.F.mat];
+    const identity = [[1,0,0],[0,1,0],[0,0,1]];
+    const rotations = [identity];
+    for (let i = 0; i < rotations.length; i++) for (const turn of quarterTurns) {
+      const next = matMul(turn, rotations[i]);
+      if (!rotations.some(m => JSON.stringify(m) === JSON.stringify(next))) rotations.push(next);
+    }
+    const slots = new Map();
+    for (const [key, {pos,dir}] of Object.entries(faceletMap)) {
+      const id = pos.join(',');
+      if (!slots.has(id)) slots.set(id, { pos, stickers:[] });
+      slots.get(id).stickers.push({ norm:normals[dir], color:facelets[key] });
+    }
+    const used = new Set();
+    for (const slot of slots.values()) {
+      const colors = slot.stickers.map(s => s.color).sort().join('');
+      const piece = cubies.find(c => !used.has(c) && c.stickers.map(s => s.color).sort().join('') === colors);
+      if (!piece) throw new Error('Facelets do not identify a unique piece');
+      const mat = rotations.find(rotation => piece.stickers.every(sticker =>
+        slot.stickers.some(target => target.color === sticker.color &&
+          vecMul(rotation, sticker.initNorm).every((value,i) => value === target.norm[i]))));
+      if (!mat) throw new Error('Facelets cannot orient a piece');
+      piece.pos = slot.pos.slice();
+      piece.mat = mat.map(row => row.slice());
+      used.add(piece);
+    }
+    if (used.size !== cubies.length) throw new Error('Facelets are incomplete');
+  }
+
+  function faceletsFromCubies(cubies, faceletMap) {
+    const normals = { u:U, d:D, f:F, b:B, l:L, r:R };
+    return Object.fromEntries(Object.entries(faceletMap).map(([key, {pos,dir}]) => {
+      const piece = cubies.find(c => c.pos.every((v,i) => v === pos[i]));
+      const sticker = piece && piece.stickers.find(s =>
+        vecMul(piece.mat,s.initNorm).every((v,i) => v === normals[dir][i]));
+      if (!sticker) throw new Error(\`Missing sticker at \${key}\`);
+      return [key, sticker.color];
+    }));
+  }
+
+  return { ROTATION_DEFS, vecMul, matMul, initialStickers, inverseMove, applyMove, diagnose, crossCount, firstLayerCornerCount, middleEdgeCount, yellowEdgeCount, yellowCornerCount, topCornerCount, topEdgeCount, loadFacelets, faceletsFromCubies };
+})();
+
+if (typeof module !== 'undefined' && module.exports) module.exports = CubeState;
+`;
+const VALIDATOR_CONTENT = `// Standard 3x3 facelet ordering, expressed in the site's face-grid coordinates.
+const FaceletValidator = (() => {
+  const corners = [
+    ['U8','R0','F2'], ['U6','F0','L2'], ['U0','L0','B2'], ['U2','B0','R2'],
+    ['D2','F8','R6'], ['D0','L8','F6'], ['D6','B8','L6'], ['D8','R8','B6']
+  ];
+  const edges = [
+    ['U5','R1'], ['U7','F1'], ['U3','L1'], ['U1','B1'],
+    ['D5','R7'], ['D1','F7'], ['D3','L7'], ['D7','B7'],
+    ['F5','R3'], ['F3','L5'], ['B5','L3'], ['B3','R5']
+  ];
+  const centers = { U:'Y', D:'W', F:'R', B:'O', L:'B', R:'G' };
+  const expected = slots => slots.map(slot => slot.map(key => centers[key[0]]));
+  const cornerColors = expected(corners);
+  const edgeColors = expected(edges);
+  const parity = perm => perm.reduce((count, value, i) =>
+    count + perm.slice(i + 1).filter(other => value > other).length, 0) % 2;
+
+  function validate(facelets) {
+    for (const [face, color] of Object.entries(centers)) {
+      if (facelets[\`\${face}4\`] !== color) return { valid:false, reason:\`\${face} 面中心颜色应为 \${color}\` };
+    }
+    const counts = Object.fromEntries(Object.values(centers).map(c => [c,0]));
+    for (const face of Object.keys(centers)) for (let i = 0; i < 9; i++) {
+      const color = facelets[\`\${face}\${i}\`];
+      if (!(color in counts)) return { valid:false, reason:'仍有未填写或未知颜色的格子' };
+      counts[color]++;
+    }
+    if (Object.values(counts).some(n => n !== 9)) return { valid:false, reason:'每种颜色都需要正好 9 格' };
+
+    const cp = [], co = [], ep = [], eo = [];
+    for (const slot of corners) {
+      const colors = slot.map(key => facelets[key]);
+      const orientation = colors.findIndex(c => c === 'Y' || c === 'W');
+      const piece = cornerColors.findIndex(c => c[1] === colors[(orientation + 1) % 3] && c[2] === colors[(orientation + 2) % 3]);
+      if (orientation < 0 || piece < 0) return { valid:false, reason:'角块颜色组合不可能，请检查相邻三面' };
+      cp.push(piece); co.push(orientation);
+    }
+    if (new Set(cp).size !== 8) return { valid:false, reason:'出现重复或缺失的角块' };
+    if (co.reduce((a,b) => a+b, 0) % 3) return { valid:false, reason:'角块朝向不可能：请检查顶角的三张贴纸' };
+
+    for (const slot of edges) {
+      const colors = slot.map(key => facelets[key]);
+      const piece = edgeColors.findIndex(c => c[0] === colors[0] && c[1] === colors[1]);
+      const flipped = piece < 0 ? edgeColors.findIndex(c => c[0] === colors[1] && c[1] === colors[0]) : -1;
+      if (piece < 0 && flipped < 0) return { valid:false, reason:'棱块颜色组合不可能，请检查相邻两面' };
+      ep.push(piece < 0 ? flipped : piece); eo.push(piece < 0 ? 1 : 0);
+    }
+    if (new Set(ep).size !== 12) return { valid:false, reason:'出现重复或缺失的棱块' };
+    if (eo.reduce((a,b) => a+b, 0) % 2) return { valid:false, reason:'棱块朝向不可能：有单独翻转的棱块' };
+    if (parity(cp) !== parity(ep)) return { valid:false, reason:'角块与棱块位置不匹配，可能有两块被互换' };
+    return { valid:true, reason:'颜色、块组合和魔方状态均通过检查' };
+  }
+  return { validate };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = FaceletValidator;
+`;
+const NEAR_SOLVER_CONTENT = `// Meet-in-the-middle search for short solutions; null means outside the supported range.
+const NearSolver = (() => {
+  const math = typeof module !== 'undefined' && module.exports ? require('./cube-state') : CubeState;
+  const moves = ['U','D','F','B','L','R'].flatMap(face => [face, \`\${face}'\`, \`\${face}2\`]);
+  const opposite = { U:'D', D:'U', F:'B', B:'F', L:'R', R:'L' };
+  const clone = cubies => cubies.filter(c => c.stickers.length > 1)
+    .map(c => ({ pos:c.pos.slice(), mat:c.mat.map(row => row.slice()), stickers:c.stickers }))
+    .sort((a,b) => a.stickers.map(s => s.color).sort().join('').localeCompare(b.stickers.map(s => s.color).sort().join('')));
+  const normCode = n => (n[0]+1)*9 + (n[1]+1)*3 + n[2]+1;
+  function key(cubies) {
+    return cubies.map(c => String.fromCharCode(
+      65 + normCode(c.pos),
+      ...c.stickers.map(s => 65 + normCode(math.vecMul(c.mat, s.initNorm)))
+    )).join('');
+  }
+  function solvedFrom(cubies) {
+    return cubies.map(c => {
+      const pos = [0,0,0];
+      c.stickers.forEach(s => s.initNorm.forEach((v,i) => { if (v) pos[i] = v; }));
+      return { pos, mat:[[1,0,0],[0,1,0],[0,0,1]], stickers:c.stickers };
+    });
+  }
+  function walk(state, limit, visit) {
+    const path = [];
+    function visitDepth(depth, previous) {
+      if (visit(key(state), path)) return true;
+      if (depth === limit) return false;
+      for (const move of moves) {
+        const face = move[0];
+        // Consecutive equal faces combine; opposite faces commute in fixed order.
+        if (face === previous || (opposite[face] === previous && face < previous)) continue;
+        math.applyMove(state, move);
+        path.push(move);
+        if (visitDepth(depth + 1, face)) return true;
+        path.pop();
+        math.applyMove(state, math.inverseMove(move));
+      }
+      return false;
+    }
+    return visitDepth(0, '');
+  }
+  function solve(cubies, maxDepth = 8) {
+    if (!Number.isInteger(maxDepth) || maxDepth < 0 || maxDepth > 8) throw new Error('Search depth must be 0–8');
+    const start = clone(cubies);
+    const goal = solvedFrom(start);
+    const goalKey = key(goal);
+    if (key(start) === goalKey) return [];
+    const goalDepth = Math.floor(maxDepth / 2);
+    const paths = new Map();
+    walk(goal, goalDepth, (stateKey, path) => {
+      if (!paths.has(stateKey) || paths.get(stateKey).length > path.length) paths.set(stateKey, path.slice());
+      return false;
+    });
+    let solution = null;
+    walk(start, maxDepth - goalDepth, (stateKey, path) => {
+      const fromGoal = paths.get(stateKey);
+      if (!fromGoal) return false;
+      solution = path.concat(fromGoal.slice().reverse().map(math.inverseMove));
+      return true;
+    });
+    return solution;
+  }
+  return { solve };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = NearSolver;
+`;
+const SOLVER_BRIDGE_CONTENT = `const SolverBridge = (() => {
+  const faces = 'URFDLB';
+  const colorToFace = { Y:'U', G:'R', R:'F', W:'D', B:'L', O:'B' };
+  function toFaceletString(facelets) {
+    const result = [...faces].flatMap(face => Array.from({length:9}, (_,i) => colorToFace[facelets[\`\${face}\${i}\`]])).join('');
+    if (result.length !== 54 || /[^URFDLB]/.test(result)) throw new Error('Invalid facelets');
+    return result;
+  }
+  function parseMoves(algorithm) {
+    if (!algorithm.trim()) return [];
+    const moves = algorithm.trim().split(/\\s+/);
+    if (moves.some(move => !/^[URFDLB](?:2|')?$/.test(move))) throw new Error('Unknown solver move');
+    return moves;
+  }
+  function verify(cubies, moves, goal = 'allSolved') {
+    const math = typeof module !== 'undefined' && module.exports ? require('./cube-state') : CubeState;
+    const copy = cubies.map(c => ({ pos:c.pos.slice(), mat:c.mat.map(row => row.slice()), stickers:c.stickers }));
+    moves.forEach(move => math.applyMove(copy, move));
+    if (!['crossDone','firstLayerDone','f2lDone','yellowCrossDone','yellowFaceDone','topCornersDone','allSolved'].includes(goal)) throw new Error('Unknown verification goal');
+    return math.diagnose(copy)[goal];
+  }
+  return { toFaceletString, parseMoves, verify };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = SolverBridge;
+`;
+const SOLVER_WORKER_CONTENT = `// Runs only in a Web Worker so table initialization and search do not block the page.
+importScripts('vendor/cubejs/cube.js', 'vendor/cubejs/solve.js', 'cross-solver.js', 'layer1-solver.js', 'middle-solver.js', 'yellow-cross-solver.js', 'yellow-face-solver.js', 'top-corners-solver.js', 'top-edges-solver.js');
+let ready = false;
+self.onmessage = ({data}) => {
+  const {id, facelets, mode} = data;
+  try {
+    if (mode === 'cross') {
+      const algorithm = CrossSolver.solve(facelets).join(' ');
+      const cube = Cube.fromString(facelets).move(algorithm);
+      if (![4,5,6,7].every(index => cube.ep[index] === index && cube.eo[index] === 0)) throw new Error('Cross result failed verification');
+      self.postMessage({id, algorithm});
+    } else if (mode === 'layer1') {
+      const groups = Layer1Solver.solveGroups(facelets);
+      const algorithm = groups.flat().join(' ');
+      const cube = Cube.fromString(facelets).move(algorithm);
+      if (![4,5,6,7].every(index => cube.ep[index] === index && cube.eo[index] === 0 && cube.cp[index] === index && cube.co[index] === 0))
+        throw new Error('First-layer result failed verification');
+      self.postMessage({id, algorithm, groups});
+    } else if (mode === 'middle') {
+      const groups = MiddleSolver.solveGroups(facelets);
+      const algorithm = groups.flat().join(' ');
+      const cube = Cube.fromString(facelets).move(algorithm);
+      if (![4,5,6,7,8,9,10,11].every(index => cube.ep[index] === index && cube.eo[index] === 0) ||
+          ![4,5,6,7].every(index => cube.cp[index] === index && cube.co[index] === 0))
+        throw new Error('Middle-layer result failed verification');
+      self.postMessage({id, algorithm, groups});
+    } else if (mode === 'yellowCross') {
+      const groups = YellowCrossSolver.solveGroups(facelets);
+      const algorithm = groups.flat().join(' ');
+      const cube = Cube.fromString(facelets).move(algorithm);
+      if (![4,5,6,7,8,9,10,11].every(index => cube.ep[index] === index && cube.eo[index] === 0) ||
+          ![4,5,6,7].every(index => cube.cp[index] === index && cube.co[index] === 0) ||
+          !cube.eo.slice(0,4).every(orientation => orientation === 0))
+        throw new Error('Yellow-cross result failed verification');
+      self.postMessage({id, algorithm, groups});
+    } else if (mode === 'yellowFace') {
+      const groups = YellowFaceSolver.solveGroups(facelets);
+      const algorithm = groups.flat().join(' ');
+      const cube = Cube.fromString(facelets).move(algorithm);
+      if (![4,5,6,7,8,9,10,11].every(index => cube.ep[index] === index && cube.eo[index] === 0) ||
+          ![4,5,6,7].every(index => cube.cp[index] === index && cube.co[index] === 0) ||
+          !cube.eo.slice(0,4).every(orientation => orientation === 0) ||
+          !cube.co.slice(0,4).every(orientation => orientation === 0))
+        throw new Error('Yellow-face result failed verification');
+      self.postMessage({id, algorithm, groups});
+    } else if (mode === 'topCorners') {
+      const groups = TopCornersSolver.solveGroups(facelets);
+      const algorithm = groups.flat().join(' ');
+      const cube = Cube.fromString(facelets).move(algorithm);
+      if (![4,5,6,7,8,9,10,11].every(index => cube.ep[index] === index && cube.eo[index] === 0) ||
+          ![4,5,6,7].every(index => cube.cp[index] === index && cube.co[index] === 0) ||
+          !cube.eo.slice(0,4).every(orientation => orientation === 0) ||
+          !cube.co.slice(0,4).every(orientation => orientation === 0) ||
+          !cube.cp.slice(0,4).every((piece,index) => piece === index))
+        throw new Error('Top-corners result failed verification');
+      self.postMessage({id, algorithm, groups});
+    } else if (mode === 'topEdges') {
+      const groups = TopEdgesSolver.solveGroups(facelets);
+      const algorithm = groups.flat().join(' ');
+      if (!Cube.fromString(facelets).move(algorithm).isSolved()) throw new Error('Top-edges result failed verification');
+      self.postMessage({id, algorithm, groups});
+    } else if (mode === 'full') {
+      if (!ready) {
+        Cube.initSolver();
+        ready = true;
+      }
+      const cube = Cube.fromString(facelets);
+      const algorithm = cube.solve();
+      if (!Cube.fromString(facelets).move(algorithm).isSolved()) throw new Error('Solver result failed verification');
+      self.postMessage({id, algorithm});
+    } else {
+      throw new Error('Unknown solve mode');
+    }
+  } catch (error) {
+    self.postMessage({id, error:String(error.message || error)});
+  }
+};
+`;
+const CROSS_SOLVER_CONTENT = `// Exact shortest white-cross solver. Tracks the four bottom edges only.
+const CrossSolver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const moves = ['U','U2',"U'",'R','R2',"R'",'F','F2',"F'",'D','D2',"D'",'L','L2',"L'",'B','B2',"B'"];
+  const inverse = index => index % 3 === 0 ? index + 2 : index % 3 === 2 ? index - 2 : index;
+  const SIZE = 24 ** 4;
+  const target = [4,5,6,7]; // DR, DF, DL, DB in cubejs's edge order.
+  const encode = codes => ((codes[0] * 24 + codes[1]) * 24 + codes[2]) * 24 + codes[3];
+  const decode = code => {
+    const result = [0,0,0,0];
+    for (let i=3;i>=0;i--) { result[i] = code % 24; code = Math.floor(code / 24); }
+    return result;
+  };
+  const goal = encode(target.map(pos => pos * 2));
+  let nextMove = null;
+  let transitions = null;
+
+  function buildTransitions() {
+    transitions = [];
+    for (let face=0;face<6;face++) {
+      const quarter = new Uint8Array(24);
+      const definition = SolverCube.moves[face];
+      for (let newPos=0;newPos<12;newPos++) for (let flip=0;flip<2;flip++) {
+        const oldPos = definition.ep[newPos];
+        quarter[oldPos * 2 + flip] = newPos * 2 + ((flip + definition.eo[newPos]) % 2);
+      }
+      const half = quarter.map(code => quarter[code]);
+      const reverse = half.map(code => quarter[code]);
+      transitions.push(quarter, half, reverse);
+    }
+  }
+  function moved(code, move) {
+    const trans = transitions[move];
+    const a = decode(code);
+    return encode([trans[a[0]],trans[a[1]],trans[a[2]],trans[a[3]]]);
+  }
+  function initialize() {
+    if (nextMove) return;
+    buildTransitions();
+    const table = new Uint8Array(SIZE);
+    table.fill(255);
+    table[goal] = 254;
+    const queue = new Uint32Array(SIZE);
+    queue[0] = goal;
+    let head = 0, tail = 1;
+    while (head < tail) {
+      const current = queue[head++];
+      for (let move=0;move<18;move++) {
+        const neighbor = moved(current,move);
+        if (table[neighbor] !== 255) continue;
+        table[neighbor] = inverse(move);
+        queue[tail++] = neighbor;
+      }
+    }
+    nextMove = table;
+  }
+  function stateCode(cube) {
+    return encode(target.map(edge => {
+      const position = cube.ep.indexOf(edge);
+      if (position < 0) throw new Error('Missing white edge');
+      return position * 2 + cube.eo[position];
+    }));
+  }
+  function solve(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    let state = stateCode(cube);
+    if (nextMove[state] === 255) throw new Error('White cross state is unreachable');
+    const result = [];
+    while (state !== goal) {
+      const move = nextMove[state];
+      result.push(moves[move]);
+      state = moved(state,move);
+    }
+    return result;
+  }
+  return { solve };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = CrossSolver;
+`;
+const LAYER1_SOLVER_CONTENT = `// First-layer corner search over macros that preserve a completed white cross.
+const Layer1Solver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const faces = ['U','R','F','D','L','B'];
+  const target = [4,5,6,7]; // DFR, DLF, DBL, DRB.
+  const macros = [['U'],['U2'],["U'"]];
+  for (const side of ['R',"R'",'F',"F'",'L',"L'",'B',"B'"])
+    for (const top of ['U','U2',"U'"])
+      macros.push([side,top,SolverCube.inverse(side)]);
+  const SIZE = 24 ** 4;
+  const encode = codes => ((codes[0] * 24 + codes[1]) * 24 + codes[2]) * 24 + codes[3];
+  const decode = number => {
+    const result = [0,0,0,0];
+    for (let i=3;i>=0;i--) { result[i]=number % 24; number=Math.floor(number / 24); }
+    return result;
+  };
+  const goal = encode(target.map(position => position * 3));
+  let table = null;
+  let transitions = null;
+
+  function initialize() {
+    if (table) return;
+    const quarters = faces.map((face,faceIndex) => {
+      const definition = SolverCube.moves[faceIndex];
+      const trans = new Uint8Array(24);
+      for (let newPos=0;newPos<8;newPos++) for (let orientation=0;orientation<3;orientation++)
+        trans[definition.cp[newPos] * 3 + orientation] = newPos * 3 + (orientation + definition.co[newPos]) % 3;
+      return trans;
+    });
+    const moveTransition = move => {
+      const quarter = quarters[faces.indexOf(move[0])];
+      const turns = move.endsWith('2') ? 2 : move.endsWith("'") ? 3 : 1;
+      return Uint8Array.from({length:24},(_,code) => {
+        for (let i=0;i<turns;i++) code=quarter[code];
+        return code;
+      });
+    };
+    transitions = macros.map(macro => {
+      const steps = macro.map(moveTransition);
+      return Uint8Array.from({length:24},(_,original) => steps.reduce((code,step) => step[code],original));
+    });
+    const lookup = new Map(macros.map((macro,index) => [macro.join(' '),index]));
+    const inverse = macros.map(macro => {
+      const reversed = macro.slice().reverse().map(SolverCube.inverse).join(' ');
+      const index = lookup.get(reversed);
+      if (index === undefined) throw new Error('Missing inverse teaching macro');
+      return index;
+    });
+    const next = new Uint8Array(SIZE);
+    next.fill(255);
+    next[goal] = 254;
+    const queue = new Uint32Array(SIZE);
+    queue[0] = goal;
+    let head=0,tail=1;
+    while (head < tail) {
+      const current = queue[head++];
+      const codes = decode(current);
+      for (let macro=0;macro<macros.length;macro++) {
+        const trans = transitions[macro];
+        const neighbor = encode(codes.map(code => trans[code]));
+        if (next[neighbor] !== 255) continue;
+        next[neighbor] = inverse[macro];
+        queue[tail++] = neighbor;
+      }
+    }
+    table = next;
+  }
+  function solveGroups(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    if (![4,5,6,7].every(position => cube.ep[position] === position && cube.eo[position] === 0))
+      throw new Error('先完成白十字，再练习第一层角块');
+    let state = encode(target.map(corner => {
+      const position = cube.cp.indexOf(corner);
+      if (position < 0) throw new Error('Missing white corner');
+      return position * 3 + cube.co[position];
+    }));
+    if (table[state] === 255) throw new Error('First-layer corner state is unreachable');
+    const result = [];
+    while (state !== goal) {
+      const macroIndex = table[state];
+      result.push(macros[macroIndex].slice());
+      const trans = transitions[macroIndex];
+      state = encode(decode(state).map(code => trans[code]));
+    }
+    return result;
+  }
+  const solve = faceletString => solveGroups(faceletString).flat();
+  return { solve, solveGroups };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = Layer1Solver;
+`;
+const MIDDLE_SOLVER_CONTENT = `// Middle-layer edge search over insertion and extraction macros preserving layer one.
+const MiddleSolver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const faces = ['U','R','F','D','L','B'];
+  const target = [8,9,10,11]; // FR, FL, BL, BR.
+  const ring = ['F','R','B','L'];
+  const patterns = [
+    ['U','R',"U'","R'","U'","F'",'U','F'],
+    ["U'","L'",'U','L','U','F',"U'","F'"]
+  ];
+  const macros = [['U'],['U2'],["U'"]];
+  for (let rotation=0;rotation<4;rotation++) for (const pattern of patterns) {
+    const macro = pattern.map(move => move.replace(/[FRBL]/g,face => ring[(ring.indexOf(face) + rotation) % 4]));
+    macros.push(macro, macro.slice().reverse().map(SolverCube.inverse));
+  }
+  const SIZE = 24 ** 4;
+  const encode = codes => ((codes[0] * 24 + codes[1]) * 24 + codes[2]) * 24 + codes[3];
+  const decode = number => {
+    const result = [0,0,0,0];
+    for (let i=3;i>=0;i--) { result[i]=number % 24; number=Math.floor(number / 24); }
+    return result;
+  };
+  const goal = encode(target.map(position => position * 2));
+  let table = null, transitions = null;
+
+  function initialize() {
+    if (table) return;
+    const quarters = faces.map((face,faceIndex) => {
+      const definition = SolverCube.moves[faceIndex];
+      const trans = new Uint8Array(24);
+      for (let newPos=0;newPos<12;newPos++) for (let flip=0;flip<2;flip++)
+        trans[definition.ep[newPos] * 2 + flip] = newPos * 2 + (flip + definition.eo[newPos]) % 2;
+      return trans;
+    });
+    const moveTransition = move => {
+      const quarter = quarters[faces.indexOf(move[0])];
+      const turns = move.endsWith('2') ? 2 : move.endsWith("'") ? 3 : 1;
+      return Uint8Array.from({length:24},(_,original) => {
+        let code = original;
+        for (let i=0;i<turns;i++) code=quarter[code];
+        return code;
+      });
+    };
+    transitions = macros.map(macro => {
+      const steps = macro.map(moveTransition);
+      return Uint8Array.from({length:24},(_,original) => steps.reduce((code,step) => step[code],original));
+    });
+    const lookup = new Map(macros.map((macro,index) => [macro.join(' '),index]));
+    const inverse = macros.map(macro => {
+      const key = macro.slice().reverse().map(SolverCube.inverse).join(' ');
+      const index = lookup.get(key);
+      if (index === undefined) throw new Error('Missing inverse middle macro');
+      return index;
+    });
+    const next = new Uint8Array(SIZE);
+    next.fill(255);
+    next[goal] = 254;
+    const queue = new Uint32Array(SIZE);
+    queue[0] = goal;
+    let head=0,tail=1;
+    while (head < tail) {
+      const current = queue[head++];
+      const codes = decode(current);
+      for (let macro=0;macro<macros.length;macro++) {
+        const trans = transitions[macro];
+        const neighbor = encode(codes.map(code => trans[code]));
+        if (next[neighbor] !== 255) continue;
+        next[neighbor] = inverse[macro];
+        queue[tail++] = neighbor;
+      }
+    }
+    table = next;
+  }
+  function solveGroups(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    if (![4,5,6,7].every(position => cube.ep[position] === position && cube.eo[position] === 0 && cube.cp[position] === position && cube.co[position] === 0))
+      throw new Error('先完成白色第一层，再练习中层棱块');
+    let state = encode(target.map(edge => {
+      const position = cube.ep.indexOf(edge);
+      if (position < 0) throw new Error('Missing middle edge');
+      return position * 2 + cube.eo[position];
+    }));
+    if (table[state] === 255) throw new Error('Middle edge state is unreachable');
+    const result = [];
+    while (state !== goal) {
+      const macroIndex = table[state];
+      result.push(macros[macroIndex].slice());
+      const trans = transitions[macroIndex];
+      state = encode(decode(state).map(code => trans[code]));
+    }
+    return result;
+  }
+  const solve = faceletString => solveGroups(faceletString).flat();
+  return { solve, solveGroups };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = MiddleSolver;
+`;
+const YELLOW_CROSS_SOLVER_CONTENT = `// Orient the four yellow top edges while preserving the completed first two layers.
+const YellowCrossSolver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const ring = ['F','R','B','L'];
+  const base = ['F','R','U',"R'","U'","F'"];
+  const macros = [['U'],['U2'],["U'"]];
+  for (let rotation=0;rotation<4;rotation++) {
+    const macro = base.map(move => move.replace(/[FRBL]/g,face => ring[(ring.indexOf(face) + rotation) % 4]));
+    macros.push(macro,macro.slice().reverse().map(SolverCube.inverse));
+  }
+  let table = null, transitions = null;
+  const maskOf = cube => cube.eo.slice(0,4).reduce((mask,orientation,index) => mask | (orientation << index),0);
+  function initialize() {
+    if (table) return;
+    transitions = macros.map(macro => {
+      const effect = new SolverCube().move(macro.join(' '));
+      return Uint8Array.from({length:16},(_,mask) => {
+        let next = 0;
+        for (let position=0;position<4;position++) {
+          const old = effect.ep[position];
+          next |= (((mask >> old) & 1) ^ effect.eo[position]) << position;
+        }
+        return next;
+      });
+    });
+    const lookup = new Map(macros.map((macro,index) => [macro.join(' '),index]));
+    const inverse = macros.map(macro => {
+      const index = lookup.get(macro.slice().reverse().map(SolverCube.inverse).join(' '));
+      if (index === undefined) throw new Error('Missing inverse yellow-cross macro');
+      return index;
+    });
+    const next = new Uint8Array(16);
+    next.fill(255);
+    next[0] = 254;
+    const queue = [0];
+    for (let head=0;head<queue.length;head++) for (let macro=0;macro<macros.length;macro++) {
+      const neighbor = transitions[macro][queue[head]];
+      if (next[neighbor] !== 255) continue;
+      next[neighbor] = inverse[macro];
+      queue.push(neighbor);
+    }
+    table = next;
+  }
+  function solveGroups(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    if (![4,5,6,7,8,9,10,11].every(position => cube.ep[position] === position && cube.eo[position] === 0) ||
+        ![4,5,6,7].every(position => cube.cp[position] === position && cube.co[position] === 0))
+      throw new Error('先完成前两层，再练习黄色十字');
+    let mask = maskOf(cube);
+    if (table[mask] === 255) throw new Error('Yellow cross orientation is unreachable');
+    const groups = [];
+    while (mask !== 0) {
+      const macro = table[mask];
+      groups.push(macros[macro].slice());
+      mask = transitions[macro][mask];
+    }
+    return groups;
+  }
+  const solve = faceletString => solveGroups(faceletString).flat();
+  return { solve, solveGroups };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = YellowCrossSolver;
+`;
+const YELLOW_FACE_SOLVER_CONTENT = `// Orient the four yellow top corners while preserving the yellow cross and lower layers.
+const YellowFaceSolver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const ring = ['R','B','L','F'];
+  const base = ['R','U',"R'",'U','R','U2',"R'"];
+  const macros = [['U'],['U2'],["U'"]];
+  for (let rotation=0;rotation<4;rotation++) {
+    const macro = base.map(move => move.replace(/[RBLF]/g,face => ring[(ring.indexOf(face) + rotation) % 4]));
+    macros.push(macro,macro.slice().reverse().map(SolverCube.inverse));
+  }
+  const encode = orientations => orientations.reduce((code,orientation) => code * 3 + orientation,0);
+  const decode = code => {
+    const result = [0,0,0,0];
+    for (let i=3;i>=0;i--) { result[i]=code % 3; code=Math.floor(code / 3); }
+    return result;
+  };
+  let table = null, transitions = null;
+  function initialize() {
+    if (table) return;
+    transitions = macros.map(macro => {
+      const effect = new SolverCube().move(macro.join(' '));
+      return Uint8Array.from({length:81},(_,code) => {
+        const orientations = decode(code);
+        return encode([0,1,2,3].map(position =>
+          (orientations[effect.cp[position]] + effect.co[position]) % 3));
+      });
+    });
+    const lookup = new Map(macros.map((macro,index) => [macro.join(' '),index]));
+    const inverse = macros.map(macro => {
+      const index = lookup.get(macro.slice().reverse().map(SolverCube.inverse).join(' '));
+      if (index === undefined) throw new Error('Missing inverse yellow-face macro');
+      return index;
+    });
+    const next = new Uint8Array(81);
+    next.fill(255);
+    next[0] = 254;
+    const queue = [0];
+    for (let head=0;head<queue.length;head++) for (let macro=0;macro<macros.length;macro++) {
+      const neighbor = transitions[macro][queue[head]];
+      if (next[neighbor] !== 255) continue;
+      next[neighbor] = inverse[macro];
+      queue.push(neighbor);
+    }
+    table = next;
+  }
+  function solveGroups(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    if (![4,5,6,7,8,9,10,11].every(position => cube.ep[position] === position && cube.eo[position] === 0) ||
+        ![4,5,6,7].every(position => cube.cp[position] === position && cube.co[position] === 0) ||
+        !cube.eo.slice(0,4).every(orientation => orientation === 0))
+      throw new Error('先完成黄色十字，再练习黄色整面');
+    let state = encode(cube.co.slice(0,4));
+    if (table[state] === 255) throw new Error('Yellow corner orientation is unreachable');
+    const groups = [];
+    while (state !== 0) {
+      const macro = table[state];
+      groups.push(macros[macro].slice());
+      state = transitions[macro][state];
+    }
+    return groups;
+  }
+  const solve = faceletString => solveGroups(faceletString).flat();
+  return { solve, solveGroups };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = YellowFaceSolver;
+`;
+const TOP_CORNERS_SOLVER_CONTENT = `// Position the four yellow corners while preserving the yellow face and lower layers.
+const TopCornersSolver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const ring = ['F','R','B','L'];
+  const base = ["F'",'L',"F'",'R2','F',"L'","F'",'R2','F2'];
+  const macros = [['U'],['U2'],["U'"]];
+  for (let rotation=0;rotation<4;rotation++) {
+    const macro = base.map(move => move.replace(/[FRBL]/g,face => ring[(ring.indexOf(face) + rotation) % 4]));
+    macros.push(macro,macro.slice().reverse().map(SolverCube.inverse));
+  }
+  const encode = permutation => permutation.reduce((code,piece) => code * 4 + piece,0);
+  const decode = code => {
+    const result = [0,0,0,0];
+    for (let i=3;i>=0;i--) { result[i]=code % 4; code=Math.floor(code / 4); }
+    return result;
+  };
+  const goal = encode([0,1,2,3]);
+  let table = null, transitions = null;
+  function initialize() {
+    if (table) return;
+    transitions = macros.map(macro => {
+      const effect = new SolverCube().move(macro.join(' '));
+      return Uint8Array.from({length:256},(_,code) => {
+        const permutation = decode(code);
+        return encode([0,1,2,3].map(position => permutation[effect.cp[position]]));
+      });
+    });
+    const lookup = new Map(macros.map((macro,index) => [macro.join(' '),index]));
+    const inverse = macros.map(macro => {
+      const index = lookup.get(macro.slice().reverse().map(SolverCube.inverse).join(' '));
+      if (index === undefined) throw new Error('Missing inverse corner permutation macro');
+      return index;
+    });
+    const next = new Uint8Array(256);
+    next.fill(255);
+    next[goal] = 254;
+    const queue = [goal];
+    for (let head=0;head<queue.length;head++) for (let macro=0;macro<macros.length;macro++) {
+      const neighbor = transitions[macro][queue[head]];
+      if (next[neighbor] !== 255) continue;
+      next[neighbor] = inverse[macro];
+      queue.push(neighbor);
+    }
+    table = next;
+  }
+  function solveGroups(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    if (![4,5,6,7,8,9,10,11].every(position => cube.ep[position] === position && cube.eo[position] === 0) ||
+        ![4,5,6,7].every(position => cube.cp[position] === position && cube.co[position] === 0) ||
+        !cube.eo.slice(0,4).every(orientation => orientation === 0) ||
+        !cube.co.slice(0,4).every(orientation => orientation === 0))
+      throw new Error('先完成黄色整面，再练习顶角归位');
+    let state = encode(cube.cp.slice(0,4));
+    if (table[state] === 255) throw new Error('Top corner permutation is unreachable');
+    const groups = [];
+    while (state !== goal) {
+      const macro = table[state];
+      groups.push(macros[macro].slice());
+      state = transitions[macro][state];
+    }
+    return groups;
+  }
+  const solve = faceletString => solveGroups(faceletString).flat();
+  return { solve, solveGroups };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = TopCornersSolver;
+`;
+const TOP_EDGES_SOLVER_CONTENT = `// Permute the final four edges without disturbing solved corners or lower layers.
+const TopEdgesSolver = (() => {
+  const SolverCube = typeof module !== 'undefined' && module.exports ? require('./vendor/cubejs/cube') : Cube;
+  const ring = ['F','R','B','L'];
+  const base = ['F2','U','L',"R'",'F2',"L'",'R','U','F2'];
+  const macros = [];
+  for (let rotation=0;rotation<4;rotation++) {
+    const macro = base.map(move => move.replace(/[FRBL]/g,face => ring[(ring.indexOf(face) + rotation) % 4]));
+    macros.push(macro,macro.slice().reverse().map(SolverCube.inverse));
+  }
+  const encode = permutation => permutation.reduce((code,piece) => code * 4 + piece,0);
+  const decode = code => {
+    const result = [0,0,0,0];
+    for (let i=3;i>=0;i--) { result[i]=code % 4; code=Math.floor(code / 4); }
+    return result;
+  };
+  const goal = encode([0,1,2,3]);
+  let table = null, transitions = null;
+  function initialize() {
+    if (table) return;
+    transitions = macros.map(macro => {
+      const effect = new SolverCube().move(macro.join(' '));
+      return Uint8Array.from({length:256},(_,code) => {
+        const permutation = decode(code);
+        return encode([0,1,2,3].map(position => permutation[effect.ep[position]]));
+      });
+    });
+    const lookup = new Map(macros.map((macro,index) => [macro.join(' '),index]));
+    const inverse = macros.map(macro => {
+      const index = lookup.get(macro.slice().reverse().map(SolverCube.inverse).join(' '));
+      if (index === undefined) throw new Error('Missing inverse edge permutation macro');
+      return index;
+    });
+    const next = new Uint8Array(256);
+    next.fill(255);
+    next[goal] = 254;
+    const queue = [goal];
+    for (let head=0;head<queue.length;head++) for (let macro=0;macro<macros.length;macro++) {
+      const neighbor = transitions[macro][queue[head]];
+      if (next[neighbor] !== 255) continue;
+      next[neighbor] = inverse[macro];
+      queue.push(neighbor);
+    }
+    table = next;
+  }
+  function solveGroups(faceletString) {
+    initialize();
+    const cube = SolverCube.fromString(faceletString);
+    if (![4,5,6,7,8,9,10,11].every(position => cube.ep[position] === position && cube.eo[position] === 0) ||
+        ![4,5,6,7].every(position => cube.cp[position] === position && cube.co[position] === 0) ||
+        !cube.eo.slice(0,4).every(orientation => orientation === 0) ||
+        !cube.co.slice(0,4).every(orientation => orientation === 0) ||
+        !cube.cp.slice(0,4).every((piece,position) => piece === position))
+      throw new Error('先完成黄色顶角归位，再练习顶层棱块');
+    let state = encode(cube.ep.slice(0,4));
+    if (table[state] === 255) throw new Error('Top edge permutation is unreachable');
+    const groups = [];
+    while (state !== goal) {
+      const macro = table[state];
+      groups.push(macros[macro].slice());
+      state = transitions[macro][state];
+    }
+    return groups;
+  }
+  const solve = faceletString => solveGroups(faceletString).flat();
+  return { solve, solveGroups };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = TopEdgesSolver;
+`;
+const VENDOR_CUBE_CONTENT = `(function() {
+  // Centers
+  var B, BL, BR, Cube, D, DB, DBL, DF, DFR, DL, DLF, DR, DRB, F, FL, FR, L, R, U, UB, UBR, UF, UFL, UL, ULB, UR, URF, centerColor, centerFacelet, cornerColor, cornerFacelet, edgeColor, edgeFacelet;
+
+  [U, R, F, D, L, B] = [0, 1, 2, 3, 4, 5];
+
+  // Corners
+  [URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB] = [0, 1, 2, 3, 4, 5, 6, 7];
+
+  // Edges
+  [UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+  [centerFacelet, cornerFacelet, edgeFacelet] = (function() {
+    var _B, _D, _F, _L, _R, _U;
+    _U = function(x) {
+      return x - 1;
+    };
+    _R = function(x) {
+      return _U(9) + x;
+    };
+    _F = function(x) {
+      return _R(9) + x;
+    };
+    _D = function(x) {
+      return _F(9) + x;
+    };
+    _L = function(x) {
+      return _D(9) + x;
+    };
+    _B = function(x) {
+      return _L(9) + x;
+    };
+    return [
+      // Centers
+      [4,
+      13,
+      22,
+      31,
+      40,
+      49],
+      // Corners
+      [[_U(9),
+      _R(1),
+      _F(3)],
+      [_U(7),
+      _F(1),
+      _L(3)],
+      [_U(1),
+      _L(1),
+      _B(3)],
+      [_U(3),
+      _B(1),
+      _R(3)],
+      [_D(3),
+      _F(9),
+      _R(7)],
+      [_D(1),
+      _L(9),
+      _F(7)],
+      [_D(7),
+      _B(9),
+      _L(7)],
+      [_D(9),
+      _R(9),
+      _B(7)]],
+      // Edges
+      [[_U(6),
+      _R(2)],
+      [_U(8),
+      _F(2)],
+      [_U(4),
+      _L(2)],
+      [_U(2),
+      _B(2)],
+      [_D(6),
+      _R(8)],
+      [_D(2),
+      _F(8)],
+      [_D(4),
+      _L(8)],
+      [_D(8),
+      _B(8)],
+      [_F(6),
+      _R(4)],
+      [_F(4),
+      _L(6)],
+      [_B(6),
+      _L(4)],
+      [_B(4),
+      _R(6)]]
+    ];
+  })();
+
+  centerColor = ['U', 'R', 'F', 'D', 'L', 'B'];
+
+  cornerColor = [['U', 'R', 'F'], ['U', 'F', 'L'], ['U', 'L', 'B'], ['U', 'B', 'R'], ['D', 'F', 'R'], ['D', 'L', 'F'], ['D', 'B', 'L'], ['D', 'R', 'B']];
+
+  edgeColor = [['U', 'R'], ['U', 'F'], ['U', 'L'], ['U', 'B'], ['D', 'R'], ['D', 'F'], ['D', 'L'], ['D', 'B'], ['F', 'R'], ['F', 'L'], ['B', 'L'], ['B', 'R']];
+
+  Cube = (function() {
+    var faceNames, faceNums, parseAlg;
+
+    class Cube {
+      constructor(other) {
+        var x;
+        if (other != null) {
+          this.init(other);
+        } else {
+          this.identity();
+        }
+        // For moves to avoid allocating new objects each time
+        this.newCenter = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 5; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+        this.newCp = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 7; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+        this.newEp = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 11; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+        this.newCo = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 7; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+        this.newEo = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 11; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+      }
+
+      init(state) {
+        this.center = state.center.slice(0);
+        this.co = state.co.slice(0);
+        this.ep = state.ep.slice(0);
+        this.cp = state.cp.slice(0);
+        return this.eo = state.eo.slice(0);
+      }
+
+      identity() {
+        var x;
+        // Initialize to the identity cube
+        this.center = [0, 1, 2, 3, 4, 5];
+        this.cp = [0, 1, 2, 3, 4, 5, 6, 7];
+        this.co = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 7; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+        this.ep = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        return this.eo = (function() {
+          var k, results;
+          results = [];
+          for (x = k = 0; k <= 11; x = ++k) {
+            results.push(0);
+          }
+          return results;
+        })();
+      }
+
+      toJSON() {
+        return {
+          center: this.center,
+          cp: this.cp,
+          co: this.co,
+          ep: this.ep,
+          eo: this.eo
+        };
+      }
+
+      asString() {
+        var corner, edge, i, k, l, m, n, o, ori, p, result;
+        result = [];
+        for (i = k = 0; k <= 5; i = ++k) {
+          result[9 * i + 4] = centerColor[this.center[i]];
+        }
+        for (i = l = 0; l <= 7; i = ++l) {
+          corner = this.cp[i];
+          ori = this.co[i];
+          for (n = m = 0; m <= 2; n = ++m) {
+            result[cornerFacelet[i][(n + ori) % 3]] = cornerColor[corner][n];
+          }
+        }
+        for (i = o = 0; o <= 11; i = ++o) {
+          edge = this.ep[i];
+          ori = this.eo[i];
+          for (n = p = 0; p <= 1; n = ++p) {
+            result[edgeFacelet[i][(n + ori) % 2]] = edgeColor[edge][n];
+          }
+        }
+        return result.join('');
+      }
+
+      static fromString(str) {
+        var col1, col2, cube, i, j, k, l, m, o, ori, p, q, r, ref;
+        cube = new Cube;
+        for (i = k = 0; k <= 5; i = ++k) {
+          for (j = l = 0; l <= 5; j = ++l) {
+            if (str[9 * i + 4] === centerColor[j]) {
+              cube.center[i] = j;
+            }
+          }
+        }
+        for (i = m = 0; m <= 7; i = ++m) {
+          for (ori = o = 0; o <= 2; ori = ++o) {
+            if ((ref = str[cornerFacelet[i][ori]]) === 'U' || ref === 'D') {
+              break;
+            }
+          }
+          col1 = str[cornerFacelet[i][(ori + 1) % 3]];
+          col2 = str[cornerFacelet[i][(ori + 2) % 3]];
+          for (j = p = 0; p <= 7; j = ++p) {
+            if (col1 === cornerColor[j][1] && col2 === cornerColor[j][2]) {
+              cube.cp[i] = j;
+              cube.co[i] = ori % 3;
+            }
+          }
+        }
+        for (i = q = 0; q <= 11; i = ++q) {
+          for (j = r = 0; r <= 11; j = ++r) {
+            if (str[edgeFacelet[i][0]] === edgeColor[j][0] && str[edgeFacelet[i][1]] === edgeColor[j][1]) {
+              cube.ep[i] = j;
+              cube.eo[i] = 0;
+              break;
+            }
+            if (str[edgeFacelet[i][0]] === edgeColor[j][1] && str[edgeFacelet[i][1]] === edgeColor[j][0]) {
+              cube.ep[i] = j;
+              cube.eo[i] = 1;
+              break;
+            }
+          }
+        }
+        return cube;
+      }
+
+      clone() {
+        return new Cube(this.toJSON());
+      }
+
+      // A class method returning a new random cube
+      static random() {
+        return new Cube().randomize();
+      }
+
+      isSolved() {
+        var c, cent, clone, e, k, l, m;
+        clone = this.clone();
+        clone.move(clone.upright());
+        for (cent = k = 0; k <= 5; cent = ++k) {
+          if (clone.center[cent] !== cent) {
+            return false;
+          }
+        }
+        for (c = l = 0; l <= 7; c = ++l) {
+          if (clone.cp[c] !== c) {
+            return false;
+          }
+          if (clone.co[c] !== 0) {
+            return false;
+          }
+        }
+        for (e = m = 0; m <= 11; e = ++m) {
+          if (clone.ep[e] !== e) {
+            return false;
+          }
+          if (clone.eo[e] !== 0) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      // Multiply this Cube with another Cube, restricted to centers.
+      centerMultiply(other) {
+        var from, k, to;
+        for (to = k = 0; k <= 5; to = ++k) {
+          from = other.center[to];
+          this.newCenter[to] = this.center[from];
+        }
+        [this.center, this.newCenter] = [this.newCenter, this.center];
+        return this;
+      }
+
+      // Multiply this Cube with another Cube, restricted to corners.
+      cornerMultiply(other) {
+        var from, k, to;
+        for (to = k = 0; k <= 7; to = ++k) {
+          from = other.cp[to];
+          this.newCp[to] = this.cp[from];
+          this.newCo[to] = (this.co[from] + other.co[to]) % 3;
+        }
+        [this.cp, this.newCp] = [this.newCp, this.cp];
+        [this.co, this.newCo] = [this.newCo, this.co];
+        return this;
+      }
+
+      // Multiply this Cube with another Cube, restricted to edges
+      edgeMultiply(other) {
+        var from, k, to;
+        for (to = k = 0; k <= 11; to = ++k) {
+          from = other.ep[to];
+          this.newEp[to] = this.ep[from];
+          this.newEo[to] = (this.eo[from] + other.eo[to]) % 2;
+        }
+        [this.ep, this.newEp] = [this.newEp, this.ep];
+        [this.eo, this.newEo] = [this.newEo, this.eo];
+        return this;
+      }
+
+      // Multiply this cube with another Cube
+      multiply(other) {
+        this.centerMultiply(other);
+        this.cornerMultiply(other);
+        this.edgeMultiply(other);
+        return this;
+      }
+
+      move(arg) {
+        var face, k, l, len, move, power, ref, ref1, x;
+        ref = parseAlg(arg);
+        for (k = 0, len = ref.length; k < len; k++) {
+          move = ref[k];
+          face = move / 3 | 0;
+          power = move % 3;
+          for (x = l = 0, ref1 = power; (0 <= ref1 ? l <= ref1 : l >= ref1); x = 0 <= ref1 ? ++l : --l) {
+            this.multiply(Cube.moves[face]);
+          }
+        }
+        return this;
+      }
+
+      upright() {
+        var clone, i, j, k, l, result;
+        clone = this.clone();
+        result = [];
+        for (i = k = 0; k <= 5; i = ++k) {
+          if (clone.center[i] === F) {
+            break;
+          }
+        }
+        switch (i) {
+          case D:
+            result.push("x");
+            break;
+          case U:
+            result.push("x'");
+            break;
+          case B:
+            result.push("x2");
+            break;
+          case R:
+            result.push("y");
+            break;
+          case L:
+            result.push("y'");
+        }
+        if (result.length) {
+          clone.move(result[0]);
+        }
+        for (j = l = 0; l <= 5; j = ++l) {
+          if (clone.center[j] === U) {
+            break;
+          }
+        }
+        switch (j) {
+          case L:
+            result.push("z");
+            break;
+          case R:
+            result.push("z'");
+            break;
+          case D:
+            result.push("z2");
+        }
+        return result.join(' ');
+      }
+
+      static inverse(arg) {
+        var face, k, len, move, power, result, str;
+        result = (function() {
+          var k, len, ref, results;
+          ref = parseAlg(arg);
+          results = [];
+          for (k = 0, len = ref.length; k < len; k++) {
+            move = ref[k];
+            face = move / 3 | 0;
+            power = move % 3;
+            results.push(face * 3 + -(power - 1) + 1);
+          }
+          return results;
+        })();
+        result.reverse();
+        if (typeof arg === 'string') {
+          str = '';
+          for (k = 0, len = result.length; k < len; k++) {
+            move = result[k];
+            face = move / 3 | 0;
+            power = move % 3;
+            str += faceNames[face];
+            if (power === 1) {
+              str += '2';
+            } else if (power === 2) {
+              str += "'";
+            }
+            str += ' ';
+          }
+          return str.substring(0, str.length - 1);
+        } else if (arg.length != null) {
+          return result;
+        } else {
+          return result[0];
+        }
+      }
+
+    };
+
+    Cube.prototype.randomize = (function() {
+      var arePermutationsValid, generateValidRandomOrientation, generateValidRandomPermutation, getNumSwaps, isOrientationValid, randint, randomizeOrientation, result, shuffle;
+      randint = function(min, max) {
+        return min + Math.floor(Math.random() * (max - min + 1));
+      };
+      // Fisher-Yates shuffle adapted from https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+      shuffle = function(array) {
+        var currentIndex, randomIndex, temporaryValue;
+        currentIndex = array.length;
+        // While there remain elements to shuffle...
+        while (currentIndex !== 0) {
+          // Pick a remaining element...
+          randomIndex = randint(0, currentIndex - 1);
+          currentIndex -= 1;
+          // And swap it with the current element.
+          temporaryValue = array[currentIndex];
+          [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+      };
+      getNumSwaps = function(arr) {
+        var cur, cycleLength, i, k, numSwaps, ref, seen, x;
+        numSwaps = 0;
+        seen = (function() {
+          var k, ref, results;
+          results = [];
+          for (x = k = 0, ref = arr.length - 1; (0 <= ref ? k <= ref : k >= ref); x = 0 <= ref ? ++k : --k) {
+            results.push(false);
+          }
+          return results;
+        })();
+        while (true) {
+          // We compute the cycle decomposition
+          cur = -1;
+          for (i = k = 0, ref = arr.length - 1; (0 <= ref ? k <= ref : k >= ref); i = 0 <= ref ? ++k : --k) {
+            if (!seen[i]) {
+              cur = i;
+              break;
+            }
+          }
+          if (cur === -1) {
+            break;
+          }
+          cycleLength = 0;
+          while (!seen[cur]) {
+            seen[cur] = true;
+            cycleLength++;
+            cur = arr[cur];
+          }
+          // A cycle is equivalent to cycleLength + 1 swaps
+          numSwaps += cycleLength + 1;
+        }
+        return numSwaps;
+      };
+      arePermutationsValid = function(cp, ep) {
+        var numSwaps;
+        numSwaps = getNumSwaps(ep) + getNumSwaps(cp);
+        return numSwaps % 2 === 0;
+      };
+      generateValidRandomPermutation = function(cp, ep) {
+        // Each shuffle only takes around 12 operations and there's a 50%
+        // chance of a valid permutation so it'll finish in very good time
+        shuffle(ep);
+        shuffle(cp);
+        while (!arePermutationsValid(cp, ep)) {
+          shuffle(ep);
+          shuffle(cp);
+        }
+      };
+      randomizeOrientation = function(arr, numOrientations) {
+        var i, k, ori, ref;
+        ori = 0;
+        for (i = k = 0, ref = arr.length - 1; (0 <= ref ? k <= ref : k >= ref); i = 0 <= ref ? ++k : --k) {
+          ori += (arr[i] = randint(0, numOrientations - 1));
+        }
+      };
+      isOrientationValid = function(arr, numOrientations) {
+        return arr.reduce(function(a, b) {
+          return a + b;
+        }) % numOrientations === 0;
+      };
+      generateValidRandomOrientation = function(co, eo) {
+        // There is a 1/2 and 1/3 probably respectively of each of these
+        // succeeding so the probability of them running 10 times before
+        // success is already only 1% and only gets exponentially lower
+        // and each generation is only in the 10s of operations which is nothing
+        randomizeOrientation(co, 3);
+        while (!isOrientationValid(co, 3)) {
+          randomizeOrientation(co, 3);
+        }
+        randomizeOrientation(eo, 2);
+        while (!isOrientationValid(eo, 2)) {
+          randomizeOrientation(eo, 2);
+        }
+      };
+      result = function() {
+        generateValidRandomPermutation(this.cp, this.ep);
+        generateValidRandomOrientation(this.co, this.eo);
+        return this;
+      };
+      return result;
+    })();
+
+    Cube.moves = [
+      {
+        // U
+        center: [0, 1, 2, 3, 4, 5],
+        cp: [UBR,
+      URF,
+      UFL,
+      ULB,
+      DFR,
+      DLF,
+      DBL,
+      DRB],
+        co: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0],
+        ep: [UB,
+      UR,
+      UF,
+      UL,
+      DR,
+      DF,
+      DL,
+      DB,
+      FR,
+      FL,
+      BL,
+      BR],
+        eo: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0]
+      },
+      {
+        // R
+        center: [0, 1, 2, 3, 4, 5],
+        cp: [DFR,
+      UFL,
+      ULB,
+      URF,
+      DRB,
+      DLF,
+      DBL,
+      UBR],
+        co: [2,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      2],
+        ep: [FR,
+      UF,
+      UL,
+      UB,
+      BR,
+      DF,
+      DL,
+      DB,
+      DR,
+      FL,
+      BL,
+      UR],
+        eo: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0]
+      },
+      {
+        // F
+        center: [0, 1, 2, 3, 4, 5],
+        cp: [UFL,
+      DLF,
+      ULB,
+      UBR,
+      URF,
+      DFR,
+      DBL,
+      DRB],
+        co: [1,
+      2,
+      0,
+      0,
+      2,
+      1,
+      0,
+      0],
+        ep: [UR,
+      FL,
+      UL,
+      UB,
+      DR,
+      FR,
+      DL,
+      DB,
+      UF,
+      DF,
+      BL,
+      BR],
+        eo: [0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0]
+      },
+      {
+        // D
+        center: [0, 1, 2, 3, 4, 5],
+        cp: [URF,
+      UFL,
+      ULB,
+      UBR,
+      DLF,
+      DBL,
+      DRB,
+      DFR],
+        co: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0],
+        ep: [UR,
+      UF,
+      UL,
+      UB,
+      DF,
+      DL,
+      DB,
+      DR,
+      FR,
+      FL,
+      BL,
+      BR],
+        eo: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0]
+      },
+      {
+        // L
+        center: [0, 1, 2, 3, 4, 5],
+        cp: [URF,
+      ULB,
+      DBL,
+      UBR,
+      DFR,
+      UFL,
+      DLF,
+      DRB],
+        co: [0,
+      1,
+      2,
+      0,
+      0,
+      2,
+      1,
+      0],
+        ep: [UR,
+      UF,
+      BL,
+      UB,
+      DR,
+      DF,
+      FL,
+      DB,
+      FR,
+      UL,
+      DL,
+      BR],
+        eo: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0]
+      },
+      {
+        // B
+        center: [0, 1, 2, 3, 4, 5],
+        cp: [URF,
+      UFL,
+      UBR,
+      DRB,
+      DFR,
+      DLF,
+      ULB,
+      DBL],
+        co: [0,
+      0,
+      1,
+      2,
+      0,
+      0,
+      2,
+      1],
+        ep: [UR,
+      UF,
+      UL,
+      BR,
+      DR,
+      DF,
+      DL,
+      BL,
+      FR,
+      FL,
+      UB,
+      DB],
+        eo: [0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      1]
+      },
+      {
+        // E
+        center: [U,
+      F,
+      L,
+      D,
+      B,
+      R],
+        cp: [URF,
+      UFL,
+      ULB,
+      UBR,
+      DFR,
+      DLF,
+      DBL,
+      DRB],
+        co: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0],
+        ep: [UR,
+      UF,
+      UL,
+      UB,
+      DR,
+      DF,
+      DL,
+      DB,
+      FL,
+      BL,
+      BR,
+      FR],
+        eo: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1]
+      },
+      {
+        // M
+        center: [B,
+      R,
+      U,
+      F,
+      L,
+      D],
+        cp: [URF,
+      UFL,
+      ULB,
+      UBR,
+      DFR,
+      DLF,
+      DBL,
+      DRB],
+        co: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0],
+        ep: [UR,
+      UB,
+      UL,
+      DB,
+      DR,
+      UF,
+      DL,
+      DF,
+      FR,
+      FL,
+      BL,
+      BR],
+        eo: [0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0]
+      },
+      {
+        // S
+        center: [L,
+      U,
+      F,
+      R,
+      D,
+      B],
+        cp: [URF,
+      UFL,
+      ULB,
+      UBR,
+      DFR,
+      DLF,
+      DBL,
+      DRB],
+        co: [0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0],
+        ep: [UL,
+      UF,
+      DL,
+      UB,
+      UR,
+      DF,
+      DR,
+      DB,
+      FR,
+      FL,
+      BL,
+      BR],
+        eo: [1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0]
+      }
+    ];
+
+    faceNums = {
+      U: 0,
+      R: 1,
+      F: 2,
+      D: 3,
+      L: 4,
+      B: 5,
+      E: 6,
+      M: 7,
+      S: 8,
+      x: 9,
+      y: 10,
+      z: 11,
+      u: 12,
+      r: 13,
+      f: 14,
+      d: 15,
+      l: 16,
+      b: 17
+    };
+
+    faceNames = {
+      0: 'U',
+      1: 'R',
+      2: 'F',
+      3: 'D',
+      4: 'L',
+      5: 'B',
+      6: 'E',
+      7: 'M',
+      8: 'S',
+      9: 'x',
+      10: 'y',
+      11: 'z',
+      12: 'u',
+      13: 'r',
+      14: 'f',
+      15: 'd',
+      16: 'l',
+      17: 'b'
+    };
+
+    parseAlg = function(arg) {
+      var k, len, move, part, power, ref, results;
+      if (typeof arg === 'string') {
+        ref = arg.split(/\\s+/);
+        // String
+        results = [];
+        for (k = 0, len = ref.length; k < len; k++) {
+          part = ref[k];
+          if (part.length === 0) {
+            // First and last can be empty
+            continue;
+          }
+          if (part.length > 2) {
+            throw new Error(\`Invalid move: \${part}\`);
+          }
+          move = faceNums[part[0]];
+          if (move === void 0) {
+            throw new Error(\`Invalid move: \${part}\`);
+          }
+          if (part.length === 1) {
+            power = 0;
+          } else {
+            if (part[1] === '2') {
+              power = 1;
+            } else if (part[1] === "'") {
+              power = 2;
+            } else {
+              throw new Error(\`Invalid move: \${part}\`);
+            }
+          }
+          results.push(move * 3 + power);
+        }
+        return results;
+      } else if (arg.length != null) {
+        // Already an array
+        return arg;
+      } else {
+        // A single move
+        return [arg];
+      }
+    };
+
+    // x
+    Cube.moves.push(new Cube().move("R M' L'").toJSON());
+
+    // y
+    Cube.moves.push(new Cube().move("U E' D'").toJSON());
+
+    // z
+    Cube.moves.push(new Cube().move("F S B'").toJSON());
+
+    // u
+    Cube.moves.push(new Cube().move("U E'").toJSON());
+
+    // r
+    Cube.moves.push(new Cube().move("R M'").toJSON());
+
+    // f
+    Cube.moves.push(new Cube().move("F S").toJSON());
+
+    // d
+    Cube.moves.push(new Cube().move("D E").toJSON());
+
+    // l
+    Cube.moves.push(new Cube().move("L M").toJSON());
+
+    // b
+    Cube.moves.push(new Cube().move("B S'").toJSON());
+
+    return Cube;
+
+  }).call(this);
+
+  //# Globals
+  if (typeof module !== "undefined" && module !== null) {
+    module.exports = Cube;
+  } else {
+    this.Cube = Cube;
+  }
+
+}).call(this);
+`;
+const VENDOR_SOLVE_CONTENT = `(function() {
+  var B, BL, BR, Cnk, Cube, D, DB, DBL, DF, DFR, DL, DLF, DR, DRB, F, FL, FR, Include, L, N_FLIP, N_FRtoBR, N_PARITY, N_SLICE1, N_SLICE2, N_TWIST, N_UBtoDF, N_URFtoDLF, N_URtoDF, N_URtoUL, R, U, UB, UBR, UF, UFL, UL, ULB, UR, URF, allMoves1, allMoves2, computeMoveTable, computePruningTable, faceNames, faceNums, factorial, key, max, mergeURtoDF, moveTableParams, nextMoves1, nextMoves2, permutationIndex, pruning, pruningTableParams, rotateLeft, rotateRight, value,
+    indexOf = [].indexOf;
+
+  Cube = this.Cube || require('./cube');
+
+  // Centers
+  [U, R, F, D, L, B] = [0, 1, 2, 3, 4, 5];
+
+  // Corners
+  [URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB] = [0, 1, 2, 3, 4, 5, 6, 7];
+
+  // Edges
+  [UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+  //# Helpers
+
+  // n choose k, i.e. the binomial coeffiecient
+  Cnk = function(n, k) {
+    var i, j, s;
+    if (n < k) {
+      return 0;
+    }
+    if (k > n / 2) {
+      k = n - k;
+    }
+    s = 1;
+    i = n;
+    j = 1;
+    while (i !== n - k) {
+      s *= i;
+      s /= j;
+      i--;
+      j++;
+    }
+    return s;
+  };
+
+  // n!
+  factorial = function(n) {
+    var f, i, m, ref;
+    f = 1;
+    for (i = m = 2, ref = n; (2 <= ref ? m <= ref : m >= ref); i = 2 <= ref ? ++m : --m) {
+      f *= i;
+    }
+    return f;
+  };
+
+  // Maximum of two values
+  max = function(a, b) {
+    if (a > b) {
+      return a;
+    } else {
+      return b;
+    }
+  };
+
+  // Rotate elements between l and r left by one place
+  rotateLeft = function(array, l, r) {
+    var i, m, ref, ref1, tmp;
+    tmp = array[l];
+    for (i = m = ref = l, ref1 = r - 1; (ref <= ref1 ? m <= ref1 : m >= ref1); i = ref <= ref1 ? ++m : --m) {
+      array[i] = array[i + 1];
+    }
+    return array[r] = tmp;
+  };
+
+  // Rotate elements between l and r right by one place
+  rotateRight = function(array, l, r) {
+    var i, m, ref, ref1, tmp;
+    tmp = array[r];
+    for (i = m = ref = r, ref1 = l + 1; (ref <= ref1 ? m <= ref1 : m >= ref1); i = ref <= ref1 ? ++m : --m) {
+      array[i] = array[i - 1];
+    }
+    return array[l] = tmp;
+  };
+
+  // Generate a function that computes permutation indices.
+
+  // The permutation index actually encodes two indices: Combination,
+  // i.e. positions of the cubies start..end (A) and their respective
+  // permutation (B). The maximum value for B is
+
+  //   maxB = (end - start + 1)!
+
+  // and the index is A * maxB + B
+  permutationIndex = function(context, start, end, fromEnd = false) {
+    var i, maxAll, maxB, maxOur, our, permName;
+    maxOur = end - start;
+    maxB = factorial(maxOur + 1);
+    if (context === 'corners') {
+      maxAll = 7;
+      permName = 'cp';
+    } else {
+      maxAll = 11;
+      permName = 'ep';
+    }
+    our = (function() {
+      var m, ref, results;
+      results = [];
+      for (i = m = 0, ref = maxOur; (0 <= ref ? m <= ref : m >= ref); i = 0 <= ref ? ++m : --m) {
+        results.push(0);
+      }
+      return results;
+    })();
+    return function(index) {
+      var a, b, c, j, k, m, o, p, perm, q, ref, ref1, ref10, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, t, u, w, x, y, z;
+      if (index != null) {
+        for (i = m = 0, ref = maxOur; (0 <= ref ? m <= ref : m >= ref); i = 0 <= ref ? ++m : --m) {
+          // Reset our to [start..end]
+          our[i] = i + start;
+        }
+        b = index % maxB; // permutation
+        a = index / maxB | 0; // combination
+
+        // Invalidate all edges
+        perm = this[permName];
+        for (i = o = 0, ref1 = maxAll; (0 <= ref1 ? o <= ref1 : o >= ref1); i = 0 <= ref1 ? ++o : --o) {
+          perm[i] = -1;
+        }
+// Generate permutation from index b
+        for (j = p = 1, ref2 = maxOur; (1 <= ref2 ? p <= ref2 : p >= ref2); j = 1 <= ref2 ? ++p : --p) {
+          k = b % (j + 1);
+          b = b / (j + 1) | 0;
+          // TODO: Implement rotateRightBy(our, 0, j, k)
+          while (k > 0) {
+            rotateRight(our, 0, j);
+            k--;
+          }
+        }
+        // Generate combination and set our edges
+        x = maxOur;
+        if (fromEnd) {
+          for (j = q = 0, ref3 = maxAll; (0 <= ref3 ? q <= ref3 : q >= ref3); j = 0 <= ref3 ? ++q : --q) {
+            c = Cnk(maxAll - j, x + 1);
+            if (a - c >= 0) {
+              perm[j] = our[maxOur - x];
+              a -= c;
+              x--;
+            }
+          }
+        } else {
+          for (j = t = ref4 = maxAll; (ref4 <= 0 ? t <= 0 : t >= 0); j = ref4 <= 0 ? ++t : --t) {
+            c = Cnk(j, x + 1);
+            if (a - c >= 0) {
+              perm[j] = our[x];
+              a -= c;
+              x--;
+            }
+          }
+        }
+        return this;
+      } else {
+        perm = this[permName];
+        for (i = u = 0, ref5 = maxOur; (0 <= ref5 ? u <= ref5 : u >= ref5); i = 0 <= ref5 ? ++u : --u) {
+          our[i] = -1;
+        }
+        a = b = x = 0;
+        // Compute the index a < ((maxAll + 1) choose (maxOur + 1)) and
+        // the permutation
+        if (fromEnd) {
+          for (j = w = ref6 = maxAll; (ref6 <= 0 ? w <= 0 : w >= 0); j = ref6 <= 0 ? ++w : --w) {
+            if ((start <= (ref7 = perm[j]) && ref7 <= end)) {
+              a += Cnk(maxAll - j, x + 1);
+              our[maxOur - x] = perm[j];
+              x++;
+            }
+          }
+        } else {
+          for (j = y = 0, ref8 = maxAll; (0 <= ref8 ? y <= ref8 : y >= ref8); j = 0 <= ref8 ? ++y : --y) {
+            if ((start <= (ref9 = perm[j]) && ref9 <= end)) {
+              a += Cnk(j, x + 1);
+              our[x] = perm[j];
+              x++;
+            }
+          }
+        }
+// Compute the index b < (maxOur + 1)! for the permutation
+        for (j = z = ref10 = maxOur; (ref10 <= 0 ? z <= 0 : z >= 0); j = ref10 <= 0 ? ++z : --z) {
+          k = 0;
+          while (our[j] !== start + j) {
+            rotateLeft(our, 0, j);
+            k++;
+          }
+          b = (j + 1) * b + k;
+        }
+        return a * maxB + b;
+      }
+    };
+  };
+
+  Include = {
+    // The twist of the 8 corners, 0 <= twist < 3^7. The orientation of
+    // the DRB corner is fully determined by the orientation of the other
+    // corners.
+    twist: function(twist) {
+      var i, m, o, ori, parity, v;
+      if (twist != null) {
+        parity = 0;
+        for (i = m = 6; m >= 0; i = --m) {
+          ori = twist % 3;
+          twist = (twist / 3) | 0;
+          this.co[i] = ori;
+          parity += ori;
+        }
+        this.co[7] = (3 - parity % 3) % 3;
+        return this;
+      } else {
+        v = 0;
+        for (i = o = 0; o <= 6; i = ++o) {
+          v = 3 * v + this.co[i];
+        }
+        return v;
+      }
+    },
+    // The flip of the 12 edges, 0 <= flip < 2^11. The orientation of the
+    // BR edge is fully determined by the orientation of the other edges.
+    flip: function(flip) {
+      var i, m, o, ori, parity, v;
+      if (flip != null) {
+        parity = 0;
+        for (i = m = 10; m >= 0; i = --m) {
+          ori = flip % 2;
+          flip = flip / 2 | 0;
+          this.eo[i] = ori;
+          parity += ori;
+        }
+        this.eo[11] = (2 - parity % 2) % 2;
+        return this;
+      } else {
+        v = 0;
+        for (i = o = 0; o <= 10; i = ++o) {
+          v = 2 * v + this.eo[i];
+        }
+        return v;
+      }
+    },
+    // Parity of the corner permutation
+    cornerParity: function() {
+      var i, j, m, o, ref, ref1, ref2, ref3, s;
+      s = 0;
+      for (i = m = ref = DRB, ref1 = URF + 1; (ref <= ref1 ? m <= ref1 : m >= ref1); i = ref <= ref1 ? ++m : --m) {
+        for (j = o = ref2 = i - 1, ref3 = URF; (ref2 <= ref3 ? o <= ref3 : o >= ref3); j = ref2 <= ref3 ? ++o : --o) {
+          if (this.cp[j] > this.cp[i]) {
+            s++;
+          }
+        }
+      }
+      return s % 2;
+    },
+    // Parity of the edges permutation. Parity of corners and edges are
+    // the same if the cube is solvable.
+    edgeParity: function() {
+      var i, j, m, o, ref, ref1, ref2, ref3, s;
+      s = 0;
+      for (i = m = ref = BR, ref1 = UR + 1; (ref <= ref1 ? m <= ref1 : m >= ref1); i = ref <= ref1 ? ++m : --m) {
+        for (j = o = ref2 = i - 1, ref3 = UR; (ref2 <= ref3 ? o <= ref3 : o >= ref3); j = ref2 <= ref3 ? ++o : --o) {
+          if (this.ep[j] > this.ep[i]) {
+            s++;
+          }
+        }
+      }
+      return s % 2;
+    },
+    // Permutation of the six corners URF, UFL, ULB, UBR, DFR, DLF
+    URFtoDLF: permutationIndex('corners', URF, DLF),
+    // Permutation of the three edges UR, UF, UL
+    URtoUL: permutationIndex('edges', UR, UL),
+    // Permutation of the three edges UB, DR, DF
+    UBtoDF: permutationIndex('edges', UB, DF),
+    // Permutation of the six edges UR, UF, UL, UB, DR, DF
+    URtoDF: permutationIndex('edges', UR, DF),
+    // Permutation of the equator slice edges FR, FL, BL and BR
+    FRtoBR: permutationIndex('edges', FR, BR, true)
+  };
+
+  for (key in Include) {
+    value = Include[key];
+    Cube.prototype[key] = value;
+  }
+
+  computeMoveTable = function(context, coord, size) {
+    var apply, cube, i, inner, j, k, m, move, o, p, ref, results;
+    // Loop through all valid values for the coordinate, setting cube's
+    // state in each iteration. Then apply each of the 18 moves to the
+    // cube, and compute the resulting coordinate.
+    apply = context === 'corners' ? 'cornerMultiply' : 'edgeMultiply';
+    cube = new Cube;
+    results = [];
+    for (i = m = 0, ref = size - 1; (0 <= ref ? m <= ref : m >= ref); i = 0 <= ref ? ++m : --m) {
+      cube[coord](i);
+      inner = [];
+      for (j = o = 0; o <= 5; j = ++o) {
+        move = Cube.moves[j];
+        for (k = p = 0; p <= 2; k = ++p) {
+          cube[apply](move);
+          inner.push(cube[coord]());
+        }
+        // 4th face turn restores the cube
+        cube[apply](move);
+      }
+      results.push(inner);
+    }
+    return results;
+  };
+
+  // Because we only have the phase 2 URtoDF coordinates, we need to
+  // merge the URtoUL and UBtoDF coordinates to URtoDF in the beginning
+  // of phase 2.
+  mergeURtoDF = (function() {
+    var a, b;
+    a = new Cube;
+    b = new Cube;
+    return function(URtoUL, UBtoDF) {
+      var i, m;
+      // Collisions can be found because unset are set to -1
+      a.URtoUL(URtoUL);
+      b.UBtoDF(UBtoDF);
+      for (i = m = 0; m <= 7; i = ++m) {
+        if (a.ep[i] !== -1) {
+          if (b.ep[i] !== -1) {
+            return -1; // collision
+          } else {
+            b.ep[i] = a.ep[i];
+          }
+        }
+      }
+      return b.URtoDF();
+    };
+  })();
+
+  N_TWIST = 2187; // 3^7 corner orientations
+
+  N_FLIP = 2048; // 2^11 possible edge flips
+
+  N_PARITY = 2; // 2 possible parities
+
+  N_FRtoBR = 11880; // 12!/(12-4)! permutations of FR..BR edges
+
+  N_SLICE1 = 495; // (12 choose 4) possible positions of FR..BR edges
+
+  N_SLICE2 = 24; // 4! permutations of FR..BR edges in phase 2
+
+  N_URFtoDLF = 20160; // 8!/(8-6)! permutations of URF..DLF corners
+
+
+  // The URtoDF move table is only computed for phase 2 because the full
+  // table would have >650000 entries
+  N_URtoDF = 20160; // 8!/(8-6)! permutation of UR..DF edges in phase 2
+
+  N_URtoUL = 1320; // 12!/(12-3)! permutations of UR..UL edges
+
+  N_UBtoDF = 1320; // 12!/(12-3)! permutations of UB..DF edges
+
+
+  // The move table for parity is so small that it's included here
+  Cube.moveTables = {
+    parity: [[1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1], [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]],
+    twist: null,
+    flip: null,
+    FRtoBR: null,
+    URFtoDLF: null,
+    URtoDF: null,
+    URtoUL: null,
+    UBtoDF: null,
+    mergeURtoDF: null
+  };
+
+  // Other move tables are computed on the fly
+  moveTableParams = {
+    // name: [scope, size]
+    twist: ['corners', N_TWIST],
+    flip: ['edges', N_FLIP],
+    FRtoBR: ['edges', N_FRtoBR],
+    URFtoDLF: ['corners', N_URFtoDLF],
+    URtoDF: ['edges', N_URtoDF],
+    URtoUL: ['edges', N_URtoUL],
+    UBtoDF: ['edges', N_UBtoDF],
+    mergeURtoDF: []
+  };
+
+  Cube.computeMoveTables = function(...tables) {
+    var len, m, name, scope, size, tableName;
+    if (tables.length === 0) {
+      tables = (function() {
+        var results;
+        results = [];
+        for (name in moveTableParams) {
+          results.push(name);
+        }
+        return results;
+      })();
+    }
+    for (m = 0, len = tables.length; m < len; m++) {
+      tableName = tables[m];
+      if (this.moveTables[tableName] !== null) {
+        // Already computed
+        continue;
+      }
+      if (tableName === 'mergeURtoDF') {
+        this.moveTables.mergeURtoDF = (function() {
+          var UBtoDF, URtoUL, o, results;
+          results = [];
+          for (URtoUL = o = 0; o <= 335; URtoUL = ++o) {
+            results.push((function() {
+              var p, results1;
+              results1 = [];
+              for (UBtoDF = p = 0; p <= 335; UBtoDF = ++p) {
+                results1.push(mergeURtoDF(URtoUL, UBtoDF));
+              }
+              return results1;
+            })());
+          }
+          return results;
+        })();
+      } else {
+        [scope, size] = moveTableParams[tableName];
+        this.moveTables[tableName] = computeMoveTable(scope, tableName, size);
+      }
+    }
+    return this;
+  };
+
+  // Phase 1: All moves are valid
+  allMoves1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+  // The list of next valid phase 1 moves when the given face was turned
+  // in the last move
+  nextMoves1 = (function() {
+    var face, lastFace, m, next, o, p, power, results;
+    results = [];
+    for (lastFace = m = 0; m <= 5; lastFace = ++m) {
+      next = [];
+// Don't allow commuting moves, e.g. U U'. Also make sure that
+// opposite faces are always moved in the same order, i.e. allow
+// U D but no D U. This avoids sequences like U D U'.
+      for (face = o = 0; o <= 5; face = ++o) {
+        if (face !== lastFace && face !== lastFace - 3) {
+// single, double or inverse move
+          for (power = p = 0; p <= 2; power = ++p) {
+            next.push(face * 3 + power);
+          }
+        }
+      }
+      results.push(next);
+    }
+    return results;
+  })();
+
+  // Phase 2: Double moves of all faces plus quarter moves of U and D
+  allMoves2 = [0, 1, 2, 4, 7, 9, 10, 11, 13, 16];
+
+  nextMoves2 = (function() {
+    var face, lastFace, len, m, next, o, p, power, powers, results;
+    results = [];
+    for (lastFace = m = 0; m <= 5; lastFace = ++m) {
+      next = [];
+      for (face = o = 0; o <= 5; face = ++o) {
+        if (!(face !== lastFace && face !== lastFace - 3)) {
+          continue;
+        }
+        // Allow all moves of U and D and double moves of others
+        powers = face === 0 || face === 3 ? [0, 1, 2] : [1];
+        for (p = 0, len = powers.length; p < len; p++) {
+          power = powers[p];
+          next.push(face * 3 + power);
+        }
+      }
+      results.push(next);
+    }
+    return results;
+  })();
+
+  // 8 values are encoded in one number
+  pruning = function(table, index, value) {
+    var pos, shift, slot;
+    pos = index % 8;
+    slot = index >> 3;
+    shift = pos << 2;
+    if (value != null) {
+      // Set
+      table[slot] &= ~(0xF << shift);
+      table[slot] |= value << shift;
+      return value;
+    } else {
+      // Get
+      return (table[slot] & (0xF << shift)) >>> shift;
+    }
+  };
+
+  computePruningTable = function(phase, size, currentCoords, nextIndex) {
+    var current, depth, done, index, len, m, move, moves, next, o, ref, table, x;
+    // Initialize all values to 0xF
+    table = (function() {
+      var m, ref, results;
+      results = [];
+      for (x = m = 0, ref = Math.ceil(size / 8) - 1; (0 <= ref ? m <= ref : m >= ref); x = 0 <= ref ? ++m : --m) {
+        results.push(0xFFFFFFFF);
+      }
+      return results;
+    })();
+    if (phase === 1) {
+      moves = allMoves1;
+    } else {
+      moves = allMoves2;
+    }
+    depth = 0;
+    pruning(table, 0, depth);
+    done = 1;
+    // In each iteration, take each state found in the previous depth and
+    // compute the next state. Stop when all states have been assigned a
+    // depth.
+    while (done !== size) {
+      for (index = m = 0, ref = size - 1; (0 <= ref ? m <= ref : m >= ref); index = 0 <= ref ? ++m : --m) {
+        if (!(pruning(table, index) === depth)) {
+          continue;
+        }
+        current = currentCoords(index);
+        for (o = 0, len = moves.length; o < len; o++) {
+          move = moves[o];
+          next = nextIndex(current, move);
+          if (pruning(table, next) === 0xF) {
+            pruning(table, next, depth + 1);
+            done++;
+          }
+        }
+      }
+      depth++;
+    }
+    return table;
+  };
+
+  Cube.pruningTables = {
+    sliceTwist: null,
+    sliceFlip: null,
+    sliceURFtoDLFParity: null,
+    sliceURtoDFParity: null
+  };
+
+  pruningTableParams = {
+    // name: [phase, size, currentCoords, nextIndex]
+    sliceTwist: [
+      1,
+      N_SLICE1 * N_TWIST,
+      function(index) {
+        return [index % N_SLICE1,
+      index / N_SLICE1 | 0];
+      },
+      function(current,
+      move) {
+        var newSlice,
+      newTwist,
+      slice,
+      twist;
+        [slice,
+      twist] = current;
+        newSlice = Cube.moveTables.FRtoBR[slice * 24][move] / 24 | 0;
+        newTwist = Cube.moveTables.twist[twist][move];
+        return newTwist * N_SLICE1 + newSlice;
+      }
+    ],
+    sliceFlip: [
+      1,
+      N_SLICE1 * N_FLIP,
+      function(index) {
+        return [index % N_SLICE1,
+      index / N_SLICE1 | 0];
+      },
+      function(current,
+      move) {
+        var flip,
+      newFlip,
+      newSlice,
+      slice;
+        [slice,
+      flip] = current;
+        newSlice = Cube.moveTables.FRtoBR[slice * 24][move] / 24 | 0;
+        newFlip = Cube.moveTables.flip[flip][move];
+        return newFlip * N_SLICE1 + newSlice;
+      }
+    ],
+    sliceURFtoDLFParity: [
+      2,
+      N_SLICE2 * N_URFtoDLF * N_PARITY,
+      function(index) {
+        return [index % 2,
+      (index / 2 | 0) % N_SLICE2,
+      (index / 2 | 0) / N_SLICE2 | 0];
+      },
+      function(current,
+      move) {
+        var URFtoDLF,
+      newParity,
+      newSlice,
+      newURFtoDLF,
+      parity,
+      slice;
+        [parity,
+      slice,
+      URFtoDLF] = current;
+        newParity = Cube.moveTables.parity[parity][move];
+        newSlice = Cube.moveTables.FRtoBR[slice][move];
+        newURFtoDLF = Cube.moveTables.URFtoDLF[URFtoDLF][move];
+        return (newURFtoDLF * N_SLICE2 + newSlice) * 2 + newParity;
+      }
+    ],
+    sliceURtoDFParity: [
+      2,
+      N_SLICE2 * N_URtoDF * N_PARITY,
+      function(index) {
+        return [index % 2,
+      (index / 2 | 0) % N_SLICE2,
+      (index / 2 | 0) / N_SLICE2 | 0];
+      },
+      function(current,
+      move) {
+        var URtoDF,
+      newParity,
+      newSlice,
+      newURtoDF,
+      parity,
+      slice;
+        [parity,
+      slice,
+      URtoDF] = current;
+        newParity = Cube.moveTables.parity[parity][move];
+        newSlice = Cube.moveTables.FRtoBR[slice][move];
+        newURtoDF = Cube.moveTables.URtoDF[URtoDF][move];
+        return (newURtoDF * N_SLICE2 + newSlice) * 2 + newParity;
+      }
+    ]
+  };
+
+  Cube.computePruningTables = function(...tables) {
+    var len, m, name, params, tableName;
+    if (tables.length === 0) {
+      tables = (function() {
+        var results;
+        results = [];
+        for (name in pruningTableParams) {
+          results.push(name);
+        }
+        return results;
+      })();
+    }
+    for (m = 0, len = tables.length; m < len; m++) {
+      tableName = tables[m];
+      if (this.pruningTables[tableName] !== null) {
+        // Already computed
+        continue;
+      }
+      params = pruningTableParams[tableName];
+      this.pruningTables[tableName] = computePruningTable(...params);
+    }
+    return this;
+  };
+
+  Cube.initSolver = function() {
+    Cube.computeMoveTables();
+    return Cube.computePruningTables();
+  };
+
+  Cube.prototype.solveUpright = function(maxDepth = 22) {
+    var State, freeStates, moveNames, phase1, phase1search, phase2, phase2search, solution, state, x;
+    // Names for all moves, i.e. U, U2, U', F, F2, ...
+    moveNames = (function() {
+      var face, faceName, m, o, power, powerName, result;
+      faceName = ['U', 'R', 'F', 'D', 'L', 'B'];
+      powerName = ['', '2', "'"];
+      result = [];
+      for (face = m = 0; m <= 5; face = ++m) {
+        for (power = o = 0; o <= 2; power = ++o) {
+          result.push(faceName[face] + powerName[power]);
+        }
+      }
+      return result;
+    })();
+    State = class State {
+      constructor(cube) {
+        this.parent = null;
+        this.lastMove = null;
+        this.depth = 0;
+        if (cube) {
+          this.init(cube);
+        }
+      }
+
+      init(cube) {
+        // Phase 1 coordinates
+        this.flip = cube.flip();
+        this.twist = cube.twist();
+        this.slice = cube.FRtoBR() / N_SLICE2 | 0;
+        // Phase 2 coordinates
+        this.parity = cube.cornerParity();
+        this.URFtoDLF = cube.URFtoDLF();
+        this.FRtoBR = cube.FRtoBR();
+        // These are later merged to URtoDF when phase 2 begins
+        this.URtoUL = cube.URtoUL();
+        this.UBtoDF = cube.UBtoDF();
+        return this;
+      }
+
+      solution() {
+        if (this.parent) {
+          return this.parent.solution() + moveNames[this.lastMove] + ' ';
+        } else {
+          return '';
+        }
+      }
+
+      //# Helpers
+      move(table, index, move) {
+        return Cube.moveTables[table][index][move];
+      }
+
+      pruning(table, index) {
+        return pruning(Cube.pruningTables[table], index);
+      }
+
+      //# Phase 1
+
+      // Return the next valid phase 1 moves for this state
+      moves1() {
+        if (this.lastMove !== null) {
+          return nextMoves1[this.lastMove / 3 | 0];
+        } else {
+          return allMoves1;
+        }
+      }
+
+      // Compute the minimum number of moves to the end of phase 1
+      minDist1() {
+        var d1, d2;
+        // The maximum number of moves to the end of phase 1 wrt. the
+        // combination flip and slice coordinates only
+        d1 = this.pruning('sliceFlip', N_SLICE1 * this.flip + this.slice);
+        // The combination of twist and slice coordinates
+        d2 = this.pruning('sliceTwist', N_SLICE1 * this.twist + this.slice);
+        // The true minimal distance is the maximum of these two
+        return max(d1, d2);
+      }
+
+      // Compute the next phase 1 state for the given move
+      next1(move) {
+        var next;
+        next = freeStates.pop();
+        next.parent = this;
+        next.lastMove = move;
+        next.depth = this.depth + 1;
+        next.flip = this.move('flip', this.flip, move);
+        next.twist = this.move('twist', this.twist, move);
+        next.slice = this.move('FRtoBR', this.slice * 24, move) / 24 | 0;
+        return next;
+      }
+
+      //# Phase 2
+
+      // Return the next valid phase 2 moves for this state
+      moves2() {
+        if (this.lastMove !== null) {
+          return nextMoves2[this.lastMove / 3 | 0];
+        } else {
+          return allMoves2;
+        }
+      }
+
+      // Compute the minimum number of moves to the solved cube
+      minDist2() {
+        var d1, d2, index1, index2;
+        index1 = (N_SLICE2 * this.URtoDF + this.FRtoBR) * N_PARITY + this.parity;
+        d1 = this.pruning('sliceURtoDFParity', index1);
+        index2 = (N_SLICE2 * this.URFtoDLF + this.FRtoBR) * N_PARITY + this.parity;
+        d2 = this.pruning('sliceURFtoDLFParity', index2);
+        return max(d1, d2);
+      }
+
+      // Initialize phase 2 coordinates
+      init2(top = true) {
+        if (this.parent === null) {
+          return;
+        }
+        // For other states, the phase 2 state is computed based on
+        // parent's state.
+        // Already assigned for the initial state
+        this.parent.init2(false);
+        this.URFtoDLF = this.move('URFtoDLF', this.parent.URFtoDLF, this.lastMove);
+        this.FRtoBR = this.move('FRtoBR', this.parent.FRtoBR, this.lastMove);
+        this.parity = this.move('parity', this.parent.parity, this.lastMove);
+        this.URtoUL = this.move('URtoUL', this.parent.URtoUL, this.lastMove);
+        this.UBtoDF = this.move('UBtoDF', this.parent.UBtoDF, this.lastMove);
+        if (top) {
+          // This is the initial phase 2 state. Get the URtoDF coordinate
+          // by merging URtoUL and UBtoDF
+          return this.URtoDF = this.move('mergeURtoDF', this.URtoUL, this.UBtoDF);
+        }
+      }
+
+      // Compute the next phase 2 state for the given move
+      next2(move) {
+        var next;
+        next = freeStates.pop();
+        next.parent = this;
+        next.lastMove = move;
+        next.depth = this.depth + 1;
+        next.URFtoDLF = this.move('URFtoDLF', this.URFtoDLF, move);
+        next.FRtoBR = this.move('FRtoBR', this.FRtoBR, move);
+        next.parity = this.move('parity', this.parity, move);
+        next.URtoDF = this.move('URtoDF', this.URtoDF, move);
+        return next;
+      }
+
+    };
+    solution = null;
+    phase1search = function(state) {
+      var depth, m, ref, results;
+      depth = 0;
+      results = [];
+      for (depth = m = 1, ref = maxDepth; (1 <= ref ? m <= ref : m >= ref); depth = 1 <= ref ? ++m : --m) {
+        phase1(state, depth);
+        if (solution !== null) {
+          break;
+        }
+        results.push(depth++);
+      }
+      return results;
+    };
+    phase1 = function(state, depth) {
+      var len, m, move, next, ref, ref1, results;
+      if (depth === 0) {
+        if (state.minDist1() === 0) {
+          // Make sure we don't start phase 2 with a phase 2 move as the
+          // last move in phase 1, because phase 2 would then repeat the
+          // same move.
+          if (state.lastMove === null || (ref = state.lastMove, indexOf.call(allMoves2, ref) < 0)) {
+            return phase2search(state);
+          }
+        }
+      } else if (depth > 0) {
+        if (state.minDist1() <= depth) {
+          ref1 = state.moves1();
+          results = [];
+          for (m = 0, len = ref1.length; m < len; m++) {
+            move = ref1[m];
+            next = state.next1(move);
+            phase1(next, depth - 1);
+            freeStates.push(next);
+            if (solution !== null) {
+              break;
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        }
+      }
+    };
+    phase2search = function(state) {
+      var depth, m, ref, results;
+      // Initialize phase 2 coordinates
+      state.init2();
+      results = [];
+      for (depth = m = 1, ref = maxDepth - state.depth; (1 <= ref ? m <= ref : m >= ref); depth = 1 <= ref ? ++m : --m) {
+        phase2(state, depth);
+        if (solution !== null) {
+          break;
+        }
+        results.push(depth++);
+      }
+      return results;
+    };
+    phase2 = function(state, depth) {
+      var len, m, move, next, ref, results;
+      if (depth === 0) {
+        if (state.minDist2() === 0) {
+          return solution = state.solution();
+        }
+      } else if (depth > 0) {
+        if (state.minDist2() <= depth) {
+          ref = state.moves2();
+          results = [];
+          for (m = 0, len = ref.length; m < len; m++) {
+            move = ref[m];
+            next = state.next2(move);
+            phase2(next, depth - 1);
+            freeStates.push(next);
+            if (solution !== null) {
+              break;
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        }
+      }
+    };
+    freeStates = (function() {
+      var m, ref, results;
+      results = [];
+      for (x = m = 0, ref = maxDepth + 1; (0 <= ref ? m <= ref : m >= ref); x = 0 <= ref ? ++m : --m) {
+        results.push(new State);
+      }
+      return results;
+    })();
+    state = freeStates.pop().init(this);
+    phase1search(state);
+    freeStates.push(state);
+    // Trim the trailing space
+    if (solution.length > 0) {
+      solution = solution.substring(0, solution.length - 1);
+    }
+    return solution;
+  };
+
+  faceNums = {
+    U: 0,
+    R: 1,
+    F: 2,
+    D: 3,
+    L: 4,
+    B: 5
+  };
+
+  faceNames = {
+    0: 'U',
+    1: 'R',
+    2: 'F',
+    3: 'D',
+    4: 'L',
+    5: 'B'
+  };
+
+  Cube.prototype.solve = function(maxDepth = 22) {
+    var clone, len, m, move, ref, rotation, solution, upright, uprightSolution;
+    clone = this.clone();
+    upright = clone.upright();
+    clone.move(upright);
+    rotation = new Cube().move(upright).center;
+    uprightSolution = clone.solveUpright(maxDepth);
+    solution = [];
+    ref = uprightSolution.split(' ');
+    for (m = 0, len = ref.length; m < len; m++) {
+      move = ref[m];
+      solution.push(faceNames[rotation[faceNums[move[0]]]]);
+      if (move.length > 1) {
+        solution[solution.length - 1] += move[1];
+      }
+    }
+    return solution.join(' ');
+  };
+
+  Cube.scramble = function() {
+    return Cube.inverse(Cube.random().solve());
+  };
+
+}).call(this);
+`;
 const MANIFEST_CONTENT = `{
   "name": "魔方小勇士：3D 奇幻大冒险",
   "short_name": "魔方小勇士",
@@ -2380,9 +5551,23 @@ const MANIFEST_CONTENT = `{
 }
 `;
 const SW_CONTENT = `// Service Worker for 魔方小勇士 PWA
-const CACHE_NAME = 'rubik-kids-v2';
+const CACHE_NAME = 'rubik-kids-v12';
 const ASSETS_TO_CACHE = [
   './',
+  'cube-state.js',
+  'validate-facelets.js',
+  'near-solver.js',
+  'solver-bridge.js',
+  'solver-worker.js',
+  'cross-solver.js',
+  'layer1-solver.js',
+  'middle-solver.js',
+  'yellow-cross-solver.js',
+  'yellow-face-solver.js',
+  'top-corners-solver.js',
+  'top-edges-solver.js',
+  'vendor/cubejs/cube.js',
+  'vendor/cubejs/solve.js',
   'manifest.json',
   'icon-192.png',
   'icon-512.png',
@@ -2539,6 +5724,55 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    if (path === '/cube-state.js') {
+      return new Response(CUBE_STATE_CONTENT, {
+        headers: {
+          'content-type': 'application/javascript;charset=UTF-8',
+          'cache-control': 'public, max-age=0, must-revalidate'
+        }
+      });
+    }
+
+    if (path === '/validate-facelets.js') {
+      return new Response(VALIDATOR_CONTENT, {
+        headers: {
+          'content-type': 'application/javascript;charset=UTF-8',
+          'cache-control': 'public, max-age=0, must-revalidate'
+        }
+      });
+    }
+
+    if (path === '/near-solver.js') {
+      return new Response(NEAR_SOLVER_CONTENT, {
+        headers: {
+          'content-type': 'application/javascript;charset=UTF-8',
+          'cache-control': 'public, max-age=0, must-revalidate'
+        }
+      });
+    }
+
+    const solverAssets = {
+      '/solver-bridge.js': SOLVER_BRIDGE_CONTENT,
+      '/solver-worker.js': SOLVER_WORKER_CONTENT,
+      '/cross-solver.js': CROSS_SOLVER_CONTENT,
+      '/layer1-solver.js': LAYER1_SOLVER_CONTENT,
+      '/middle-solver.js': MIDDLE_SOLVER_CONTENT,
+      '/yellow-cross-solver.js': YELLOW_CROSS_SOLVER_CONTENT,
+      '/yellow-face-solver.js': YELLOW_FACE_SOLVER_CONTENT,
+      '/top-corners-solver.js': TOP_CORNERS_SOLVER_CONTENT,
+      '/top-edges-solver.js': TOP_EDGES_SOLVER_CONTENT,
+      '/vendor/cubejs/cube.js': VENDOR_CUBE_CONTENT,
+      '/vendor/cubejs/solve.js': VENDOR_SOLVE_CONTENT
+    };
+    if (Object.prototype.hasOwnProperty.call(solverAssets, path)) {
+      return new Response(solverAssets[path], {
+        headers: {
+          'content-type': 'application/javascript;charset=UTF-8',
+          'cache-control': 'public, max-age=0, must-revalidate'
+        }
+      });
+    }
 
     if (path === '/manifest.json') {
       return new Response(MANIFEST_CONTENT, {

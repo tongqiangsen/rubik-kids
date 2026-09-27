@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "node build-worker.js",
-    "test": "node test_all_5_stages.js && node test_stage_math.js && node test_concurrency_fix.js && node test_pwa_worker.js",
+    "test": "node test_validate_facelets.js && node test_full_solver.js && node test_all_5_stages.js && node test_stage_math.js && node test_concurrency_fix.js && node test_pwa_worker.js",
     "test:stages": "node test_all_5_stages.js",
     "test:pwa": "node test_pwa_worker.js",
     "deploy": "node deploy.js"
