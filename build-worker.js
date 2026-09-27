@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dir = 'C:/Users/Administrator/.gemini/antigravity/scratch/rubik-kids';
+const dir = __dirname;
 const htmlPath = path.join(dir, 'index.html');
 const manifestPath = path.join(dir, 'manifest.json');
 const swPath = path.join(dir, 'sw.js');

@@ -1,0 +1,15 @@
+{
+  "name": "rubik-kids",
+  "version": "0.1.0",
+  "private": true,
+  "description": "儿童 3D 三阶魔方教学 PWA，支持 Cloudflare Worker 部署。",
+  "type": "commonjs",
+  "scripts": {
+    "build": "node build-worker.js",
+    "test": "node test_all_5_stages.js && node test_stage_math.js && node test_concurrency_fix.js && node test_pwa_worker.js",
+    "test:stages": "node test_all_5_stages.js",
+    "test:pwa": "node test_pwa_worker.js",
+    "deploy": "node deploy.js"
+  },
+  "devDependencies": {}
+}

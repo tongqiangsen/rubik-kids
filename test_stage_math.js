@@ -154,7 +154,6 @@ class SimCube {
   }
 }
 
-// Check each level
 const LEVELS = [
   { id: 1, name: '小黄花农场', setup: ["R2", "U'", "F2", "U'"], steps: ["U", "F2", "U", "R2"] },
   { id: 2, name: '神奇电梯楼', setup: ["U", "R", "U'", "R'"], steps: ["R", "U", "R'", "U'"] },
@@ -163,15 +162,27 @@ const LEVELS = [
   { id: 5, name: '猫头鹰守卫战', setup: ["L'", "U2", "L", "U", "L'", "U", "L", "U", "R", "U2", "R'", "U'", "R", "U'", "R'"], steps: ["R", "U", "R'", "U", "R", "U2", "R'", "U'", "L'", "U'", "L", "U'", "L'", "U2", "L"] }
 ];
 
-console.log('--- 测试每个关卡的扰乱与复原过程 ---');
-const cube = new SimCube();
-LEVELS.forEach(lvl => {
-  cube.reset();
-  cube.moves(lvl.setup);
-  const before = cube.diagnose();
-  cube.moves(lvl.steps);
-  const after = cube.diagnose();
-  console.log(`第 ${lvl.id} 关【${lvl.name}】:`);
-  console.log(`  - 摆局后状态: cross=${before.crossDone}, L1=${before.firstLayerDone}, F2L=${before.f2lDone}, yellow=${before.yellowCount}/9, allSolved=${before.allSolved}`);
-  console.log(`  - 走完后状态: cross=${after.crossDone}, L1=${after.firstLayerDone}, F2L=${after.f2lDone}, yellow=${after.yellowCount}/9, allSolved=${after.allSolved}`);
-});
+function runStageMathAudit() {
+  console.log('--- 测试每个关卡的扰乱与复原过程 ---');
+  const cube = new SimCube();
+  LEVELS.forEach(lvl => {
+    cube.reset();
+    cube.moves(lvl.setup);
+    const before = cube.diagnose();
+    cube.moves(lvl.steps);
+    const after = cube.diagnose();
+    console.log(`第 ${lvl.id} 关【${lvl.name}】:`);
+    console.log(`  - 摆局后状态: cross=${before.crossDone}, L1=${before.firstLayerDone}, F2L=${before.f2lDone}, yellow=${before.yellowCount}/9, allSolved=${before.allSolved}`);
+    console.log(`  - 走完后状态: cross=${after.crossDone}, L1=${after.firstLayerDone}, F2L=${after.f2lDone}, yellow=${after.yellowCount}/9, allSolved=${after.allSolved}`);
+  });
+}
+
+if (require.main === module) {
+  runStageMathAudit();
+}
+
+module.exports = {
+  LEVELS,
+  SimCube,
+  runStageMathAudit
+};

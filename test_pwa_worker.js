@@ -1,10 +1,16 @@
 const path = require('path');
 const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
 
 async function testWorker() {
   console.log('--- Testing Cloudflare Worker PWA Endpoints ---');
-  // Load ES module worker.js dynamically
-  const workerModule = await import('./worker.js');
+  // Load the Cloudflare ES module worker from a temporary .mjs file while
+  // keeping the project test files in CommonJS.
+  const tempWorkerPath = path.join(os.tmpdir(), `rubik-kids-worker-${Date.now()}.mjs`);
+  fs.copyFileSync(path.join(__dirname, 'worker.js'), tempWorkerPath);
+  const workerModule = await import(`file://${tempWorkerPath}`);
+  fs.unlinkSync(tempWorkerPath);
   const worker = workerModule.default;
 
   // 1. Test GET /
@@ -41,7 +47,7 @@ async function testWorker() {
     assert.strictEqual(res.status, 200);
     assert(res.headers.get('content-type').includes('application/javascript'));
     const text = await res.text();
-    assert(text.includes('rubik-kids-v1'), 'sw.js must contain cache name');
+    assert(text.includes('rubik-kids-v2'), 'sw.js must contain cache name');
     console.log('✓ GET /sw.js -> OK (Service Worker script)');
   }
 

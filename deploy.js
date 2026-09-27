@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const dir = 'C:/Users/Administrator/.gemini/antigravity/scratch/rubik-kids';
+const dir = __dirname;
 const msg = process.argv[2] || 'feat: update rubik kids 3D adventure web app';
 
 // Optional: Load .env if present

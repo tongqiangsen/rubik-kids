@@ -1,18 +1,19 @@
 // Service Worker for 魔方小勇士 PWA
-const CACHE_NAME = 'rubik-kids-v1';
+const CACHE_NAME = 'rubik-kids-v2';
 const ASSETS_TO_CACHE = [
   './',
   'manifest.json',
   'icon-192.png',
   'icon-512.png',
-  'icon.svg',
-  'apple-touch-icon.png'
+  'icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return Promise.allSettled(
+        ASSETS_TO_CACHE.map((asset) => cache.add(asset))
+      );
     }).then(() => self.skipWaiting())
   );
 });

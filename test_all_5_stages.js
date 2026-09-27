@@ -1,5 +1,6 @@
 const fs = require('fs');
 const vm = require('vm');
+const { SimCube } = require('./test_stage_math');
 
 console.log('=== 3D 奇幻大冒险 5 大关卡全链路审核与仿真测试 ===\n');
 
@@ -76,16 +77,14 @@ ADVENTURE_LEVELS.forEach((lvl) => {
 // 2. Audit mathematical reversibility / solving logic
 console.log('\n--- 2. 关卡复原数学几何校验 (Rubik Cube State Audit) ---');
 ADVENTURE_LEVELS.forEach((lvl) => {
-  rubik.init();
+  const sim = new SimCube();
   // Apply setup
-  rubik.instantMoves(lvl.setup);
-  const diagBefore = diagnoseCubeState(rubik.faces);
+  sim.moves(lvl.setup);
+  const diagBefore = sim.diagnose();
 
   // Apply all steps
-  lvl.steps.forEach(st => {
-    rubik.instantMoves([st.move]);
-  });
-  const diagAfter = diagnoseCubeState(rubik.faces);
+  sim.moves(lvl.steps.map(st => st.move));
+  const diagAfter = sim.diagnose();
 
   console.log(`[第 ${lvl.id} 关: ${lvl.title}]`);
   console.log(`  - 扰乱前状态: crossDone=${diagBefore.crossDone}, firstLayerDone=${diagBefore.firstLayerDone}, f2lDone=${diagBefore.f2lDone}, yellowFaceDone=${diagBefore.yellowFaceDone}, allSolved=${diagBefore.allSolved}`);
