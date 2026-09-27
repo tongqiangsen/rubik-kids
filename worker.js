@@ -821,10 +821,19 @@ const HTML_CONTENT = `<!DOCTYPE html>
         this.cubies = [];
         this.isBusy = false;
         this.queue = [];
+        this._animTimer = null;
         this.init();
       }
 
       init() {
+        if (this._animTimer) {
+          clearTimeout(this._animTimer);
+          this._animTimer = null;
+        }
+        this.queue = [];
+        this.isBusy = false;
+        this.pivotEl.style.transition = 'none';
+        this.pivotEl.style.transform = 'none';
         this.cubeEl.innerHTML = '';
         this.pivotEl.innerHTML = '';
         this.cubies = [];
@@ -914,12 +923,50 @@ const HTML_CONTENT = `<!DOCTYPE html>
       }
 
       performMove(code, onEnd = null) {
+        if (this.isBusy) return false;
         if (code.endsWith('2')) {
           const b = code[0];
           this.enqueueMoves([b, b], onEnd);
-          return;
+        } else {
+          this.enqueueMoves([code], onEnd);
         }
+        return true;
+      }
 
+      enqueueMoves(moveList, onFinish = null) {
+        const expanded = [];
+        moveList.forEach(m => {
+          if (m.endsWith('2')) {
+            const b = m[0];
+            expanded.push(b, b);
+          } else {
+            expanded.push(m);
+          }
+        });
+        this.queue.push({ moves: expanded, onFinish });
+        this.processQueue();
+      }
+
+      processQueue() {
+        if (this.isBusy || this.queue.length === 0) return;
+        this.isBusy = true;
+        const item = this.queue[0];
+        let idx = 0;
+
+        const next = () => {
+          if (idx < item.moves.length) {
+            this._rawPerformMove(item.moves[idx++], next);
+          } else {
+            this.queue.shift();
+            this.isBusy = false;
+            if (item.onFinish) item.onFinish();
+            if (this.queue.length > 0) this.processQueue();
+          }
+        };
+        next();
+      }
+
+      _rawPerformMove(code, onEnd) {
         const def = ROTATION_DEFS[code];
         if (!def) {
           if (onEnd) onEnd();
@@ -939,7 +986,8 @@ const HTML_CONTENT = `<!DOCTYPE html>
         this.pivotEl.style.transition = \`transform \${MOVE_DURATION}ms cubic-bezier(0.2, 0.85, 0.35, 1)\`;
         this.pivotEl.style.transform = def.pivotCss;
 
-        setTimeout(() => {
+        this._animTimer = setTimeout(() => {
+          this._animTimer = null;
           targetCubies.forEach(c => {
             c.pos = vecMul(def.mat, c.pos);
             c.mat = matMul(def.mat, c.mat);
@@ -950,30 +998,6 @@ const HTML_CONTENT = `<!DOCTYPE html>
           this.pivotEl.style.transform = 'none';
           if (onEnd) onEnd();
         }, MOVE_DURATION + 15);
-      }
-
-      enqueueMoves(moveList, onFinish = null) {
-        this.queue.push({ moves: moveList, onFinish });
-        this.processQueue();
-      }
-
-      processQueue() {
-        if (this.isBusy || this.queue.length === 0) return;
-        this.isBusy = true;
-        const item = this.queue[0];
-        let idx = 0;
-
-        const next = () => {
-          if (idx < item.moves.length) {
-            this.performMove(item.moves[idx++], next);
-          } else {
-            this.queue.shift();
-            if (item.onFinish) item.onFinish();
-            this.isBusy = false;
-            if (this.queue.length > 0) this.processQueue();
-          }
-        };
-        next();
       }
     }
 
@@ -1209,7 +1233,10 @@ const HTML_CONTENT = `<!DOCTYPE html>
     }
 
     function getLevelData() {
-      return ADVENTURE_LEVELS[currentLevelIdx];
+      if (currentLevelIdx === -1 && typeof activeCustomPlan !== 'undefined' && activeCustomPlan) {
+        return activeCustomPlan;
+      }
+      return ADVENTURE_LEVELS[currentLevelIdx] || ADVENTURE_LEVELS[0];
     }
 
     function loadLevel(levelIdx) {
@@ -1336,11 +1363,20 @@ const HTML_CONTENT = `<!DOCTYPE html>
       // 执行动作
       rubik.performMove(moveCode, () => {
         currentStepIdx++;
-        renderStepUi();
+        if (currentLevelIdx === -1) {
+          renderCustomPlanUi();
+        } else {
+          renderStepUi();
+        }
 
         // 检查关卡是否全部通关
         if (currentStepIdx >= data.steps.length) {
-          triggerLevelVictory();
+          if (currentLevelIdx === -1) {
+            audio.playVictory();
+            launchConfetti();
+          } else {
+            triggerLevelVictory();
+          }
         }
       });
     }
@@ -2082,6 +2118,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
       modalDiagnostic.classList.add('hidden');
 
       // 同步实物贴纸到 3D 舞台
+      rubik.init();
       applyPaintedStateToCube();
 
       // 显示并激活定制实物带练标签
