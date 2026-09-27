@@ -1113,9 +1113,11 @@ const HTML_CONTENT = `<!DOCTYPE html>
         ],
         buttons: [
           { move: "U", label: "向左躲猫猫 ◀️", icon: "🙈", color: "bg-sky-500 hover:bg-sky-400" },
+          { move: "U'", label: "跳进电梯 ▶️", icon: "🐿️", color: "bg-sky-500 hover:bg-sky-400" },
           { move: "R", label: "右手电梯上 ⬆️", icon: "🛗", color: "bg-amber-500 hover:bg-amber-400" },
-          { move: "R'", label: "右手电梯下 🔽", icon: "🛗", color: "bg-emerald-500 hover:bg-emerald-400" },
-          { move: "F", label: "关门就位 ✨", icon: "🚪", color: "bg-indigo-500 hover:bg-indigo-400" }
+          { move: "R'", label: "降回一楼 🔽", icon: "🛗", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "F'", label: "前门开门 🚪", icon: "🚪", color: "bg-purple-500 hover:bg-purple-400" },
+          { move: "F", label: "关门就位 ✨", icon: "✨", color: "bg-indigo-500 hover:bg-indigo-400" }
         ]
       },
       {
@@ -1170,10 +1172,13 @@ const HTML_CONTENT = `<!DOCTYPE html>
           { move: "L", name: "大功告成！", icon: "🎉", desc: "六个面全部拼好！恭喜成为真正的魔方大师！" }
         ],
         buttons: [
-          { move: "R", label: "右手魔法 (R)", icon: "⚡", color: "bg-amber-500 hover:bg-amber-400" },
-          { move: "U", label: "顶层拨动 (U)", icon: "💨", color: "bg-sky-500 hover:bg-sky-400" },
-          { move: "L'", label: "左手魔法 (L')", icon: "🦉", color: "bg-indigo-500 hover:bg-indigo-400" },
-          { move: "U2", label: "大转半圈 (U2)", icon: "✨", color: "bg-purple-500 hover:bg-purple-400" }
+          { move: "R", label: "右手推上去 ⬆️", icon: "⚡", color: "bg-amber-500 hover:bg-amber-400" },
+          { move: "R'", label: "右手拉下来 🔽", icon: "⚡", color: "bg-emerald-500 hover:bg-emerald-400" },
+          { move: "L'", label: "左手推上去 ⬆️", icon: "🦉", color: "bg-indigo-500 hover:bg-indigo-400" },
+          { move: "L", label: "左手拉下来 🔽", icon: "🦉", color: "bg-teal-500 hover:bg-teal-400" },
+          { move: "U", label: "顶层顺时针 ◀️", icon: "💨", color: "bg-sky-500 hover:bg-sky-400" },
+          { move: "U'", label: "顶层逆时针 ▶️", icon: "↩️", color: "bg-slate-700 hover:bg-slate-600" },
+          { move: "U2", label: "空中转半圈 🌀", icon: "✨", color: "bg-purple-500 hover:bg-purple-400" }
         ]
       }
     ];
