@@ -213,6 +213,9 @@
           </div>
 
           <div class="flex items-center gap-1.5">
+            <button id="btn-cam-flip" class="px-2.5 py-1 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1 text-sky-300" title="翻转查看底面/顶面">
+              👀 看看底面
+            </button>
             <button id="btn-cam-reset" class="px-2.5 py-1 rounded-xl bg-slate-700 hover:bg-slate-600 text-xs font-bold transition flex items-center gap-1">
               🔄 视角回正
             </button>
@@ -560,8 +563,11 @@
           <button id="btn-replay-stage" class="flex-1 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 transition">
             再玩一次 🔄
           </button>
+          <button id="btn-inspect-stage" class="flex-1 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-sky-300 transition">
+            自由赏玩 🔍
+          </button>
           <button id="btn-next-stage" class="flex-1 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-xs font-black text-slate-950 transition shadow-lg">
-            挑战下一关 ➔
+            下一关 ➔
           </button>
         </div>
       </div>
@@ -1054,8 +1060,34 @@
       renderCamera(false);
     }, { passive: false });
 
+    let isViewingBottom = false;
+    const btnCamFlip = document.getElementById('btn-cam-flip');
+    if (btnCamFlip) {
+      btnCamFlip.addEventListener('click', () => {
+        isViewingBottom = !isViewingBottom;
+        if (isViewingBottom) {
+          rX = 42; rY = -34; scale = 1.0;
+          btnCamFlip.textContent = '👀 看看顶面';
+          btnCamFlip.className = 'px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold transition flex items-center gap-1';
+        } else {
+          rX = -26; rY = -34; scale = 1.0;
+          btnCamFlip.textContent = '👀 看看底面';
+          btnCamFlip.className = 'px-2.5 py-1 rounded-xl bg-slate-700 hover:bg-slate-600 text-sky-300 text-xs font-bold transition flex items-center gap-1';
+        }
+        renderCamera(true);
+      });
+    }
+
     document.getElementById('btn-cam-reset').addEventListener('click', () => {
-      rX = -24; rY = -34; scale = 1.0;
+      isViewingBottom = false;
+      if (btnCamFlip) {
+        btnCamFlip.textContent = '👀 看看底面';
+        btnCamFlip.className = 'px-2.5 py-1 rounded-xl bg-slate-700 hover:bg-slate-600 text-sky-300 text-xs font-bold transition flex items-center gap-1';
+      }
+      const data = getLevelData();
+      rX = (data && data.cam) ? data.cam.rX : -24;
+      rY = (data && data.cam) ? data.cam.rY : -34;
+      scale = 1.0;
       renderCamera(true);
     });
     document.getElementById('btn-zoom-in').addEventListener('click', () => {
@@ -1082,9 +1114,9 @@
         setup: ["R2", "U'", "F2", "U'"],
         steps: [
           { move: "U", name: "转顶层找朋友", icon: "🌸", desc: "转动顶层，把白色花瓣带到侧面的绿色好朋友旁边！" },
-          { move: "F2", name: "翻进土壤 (前门半圈)", icon: "🌱", desc: "前门转两圈（180度）！花瓣一跃落入白色的土地，长出第1根十字臂！" },
+          { move: "F2", name: "翻进土壤 (前门半圈)", icon: "🌱", desc: "前门旋转 180 度！花瓣翻入底层土壤，长出第 1 根十字臂！可点上方【👀 看看底面】低头检查哦！" },
           { move: "U", name: "再转顶层找朋友", icon: "🌸", desc: "继续转动顶层，寻找另一个红色好朋友！" },
-          { move: "R2", name: "翻进土壤 (右门半圈)", icon: "🌱", desc: "右门转两圈！两片花瓣都回到底层，白色十字地基大功告成！" }
+          { move: "R2", name: "翻进土壤 (右门半圈)", icon: "🌱", desc: "右门旋转 180 度！两片花瓣都回到底层，白色十字地基大功告成！" }
         ],
         buttons: [
           { move: "U", label: "转顶层找朋友", icon: "🌸", color: "bg-amber-500 hover:bg-amber-400" },
@@ -1257,6 +1289,11 @@
       });
 
       // 摄像机镜头平滑切换到关卡推荐位置
+      isViewingBottom = false;
+      if (btnCamFlip) {
+        btnCamFlip.textContent = '👀 看看底面';
+        btnCamFlip.className = 'px-2.5 py-1 rounded-xl bg-slate-700 hover:bg-slate-600 text-sky-300 text-xs font-bold transition flex items-center gap-1';
+      }
       if (data.cam) {
         rX = data.cam.rX;
         rY = data.cam.rY;
@@ -1389,12 +1426,47 @@
       saveStars();
 
       const data = getLevelData();
+
+      // 关卡特色镜头特写与专属祝贺！
+      if (currentLevelIdx === 0) {
+        // 第 1 关【小黄花农场 -> 白色十字地基】：镜头平滑仰视翻转到底部特写！
+        isViewingBottom = true;
+        if (btnCamFlip) {
+          btnCamFlip.textContent = '👀 看看顶面';
+          btnCamFlip.className = 'px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold transition flex items-center gap-1';
+        }
+        rX = 42; rY = -34; scale = 1.05;
+        renderCamera(true);
+        document.getElementById('dialog-bubble-text').textContent = '🎉 哇！快看魔方底部，白色的十字地基稳稳打好啦！每一根臂都对齐了旁边的颜色！';
+      } else if (currentLevelIdx === 1) {
+        // 第 2 关【神奇电梯楼 -> 第一层完工】：展示白色底面与侧面底层！
+        isViewingBottom = true;
+        rX = 32; rY = -34; scale = 1.05;
+        renderCamera(true);
+        document.getElementById('dialog-bubble-text').textContent = '🎉 太棒了！第一层全部铺满，白色地基完工啦！';
+      } else if (currentLevelIdx === 2) {
+        // 第 3 关【森林捉迷藏 -> 完成前两层】：中层平视，展示二楼整齐！
+        rX = -12; rY = -34; scale = 1.05;
+        renderCamera(true);
+        document.getElementById('dialog-bubble-text').textContent = '🎉 哇塞！一楼和二楼整整齐齐，前两层全部攻克！';
+      } else if (currentLevelIdx === 3) {
+        // 第 4 关【金鱼跃龙门 -> 纯金黄色顶面】：高角度俯视金黄色顶面！
+        rX = -58; rY = -34; scale = 1.05;
+        renderCamera(true);
+        document.getElementById('dialog-bubble-text').textContent = '🎉 金鱼跃龙门成功！整个顶面瞬间变成纯金黄色！';
+      } else if (currentLevelIdx === 4) {
+        // 第 5 关【猫头鹰守卫 -> 全面复原】：展示完整复原魔方！
+        rX = -24; rY = -34; scale = 1.08;
+        renderCamera(true);
+        document.getElementById('dialog-bubble-text').textContent = '🎉 神迹降临！六面完全复原！你已经是名副其实的魔方小宗师！';
+      }
+
       document.getElementById('victory-stage-name').textContent = `你成功征服了【${data.title}】！`;
       document.getElementById('victory-badge-name').textContent = data.badge;
 
       setTimeout(() => {
         document.getElementById('modal-level-complete').classList.remove('hidden');
-      }, 350);
+      }, 1500);
     }
 
     // 绑定关卡标签点击
@@ -1437,6 +1509,9 @@
     document.getElementById('btn-replay-stage').addEventListener('click', () => {
       document.getElementById('modal-level-complete').classList.add('hidden');
       loadLevel(currentLevelIdx);
+    });
+    document.getElementById('btn-inspect-stage').addEventListener('click', () => {
+      document.getElementById('modal-level-complete').classList.add('hidden');
     });
     document.getElementById('btn-next-stage').addEventListener('click', () => {
       document.getElementById('modal-level-complete').classList.add('hidden');
