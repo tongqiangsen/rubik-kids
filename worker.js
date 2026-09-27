@@ -5,9 +5,9 @@ const HTML_CONTENT = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>魔方小勇士：3D 奇幻大冒险</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/svg+xml" href="/icon.svg">
-  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2202,7 +2202,7 @@ const HTML_CONTENT = `<!DOCTYPE html>
     // Service Worker 离线缓存注册
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then((reg) => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
           console.log('PWA ServiceWorker registered with scope:', reg.scope);
         }).catch((err) => {
           console.warn('PWA ServiceWorker registration failed:', err);
@@ -2233,27 +2233,27 @@ const MANIFEST_CONTENT = `{
   "name": "魔方小勇士：3D 奇幻大冒险",
   "short_name": "魔方小勇士",
   "description": "专为儿童与零基础初学者定制的沉浸式 3D 三阶魔方教学与实物解法应用",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon.svg",
+      "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
@@ -2265,12 +2265,12 @@ const MANIFEST_CONTENT = `{
 const SW_CONTENT = `// Service Worker for 魔方小勇士 PWA
 const CACHE_NAME = 'rubik-kids-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon.svg',
-  '/apple-touch-icon.png'
+  './',
+  'manifest.json',
+  'icon-192.png',
+  'icon-512.png',
+  'icon.svg',
+  'apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -2314,7 +2314,7 @@ self.addEventListener('fetch', (event) => {
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
           if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('/');
+            return caches.match('./');
           }
         });
       })

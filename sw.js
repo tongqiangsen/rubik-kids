@@ -1,12 +1,12 @@
 // Service Worker for 魔方小勇士 PWA
 const CACHE_NAME = 'rubik-kids-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/icon.svg',
-  '/apple-touch-icon.png'
+  './',
+  'manifest.json',
+  'icon-192.png',
+  'icon-512.png',
+  'icon.svg',
+  'apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
           if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('/');
+            return caches.match('./');
           }
         });
       })
